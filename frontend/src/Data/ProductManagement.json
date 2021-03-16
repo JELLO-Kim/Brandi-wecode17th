@@ -1,0 +1,19 @@
+{
+  "data": {
+    "list": [
+      {
+        "productRegistDate": "2020-08-29 22:08:05",
+        "productSmallImageUrl": "http://image.brandi.me/cproduct/2020/08/29/17866000_1598706486_image1_S.jpg",
+        "productName": "라운드넥 블라우스",
+        "productCode": "SB000000000009017770",
+        "productNo": "17866000",
+        "sellPrice": "19,000",
+        "discountPrice": "18,050",
+        "discountRate": "5",
+        "productExhibitYn": "Y",
+        "productSellYn": "Y",
+        "webUrl": "https://web-staging.brandi.co.kr/products/17866000"
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "data": {
+    "product_id": 17741364,
+    "image_list": [
+      "https://image.brandi.me/cproduct/2020/06/26/17741364_1593101362_image1_L.jpg",
+      "https://image.brandi.me/cproduct/2020/06/26/17741364_1593101363_image2_L.jpg",
+      "https://image.brandi.me/cproduct/2020/06/26/17741364_1593101185_image3_L.jpg",
+      "https://image.brandi.me/cproduct/2020/06/26/17741364_1593101186_image4_L.jpg",
+      "https://image.brandi.me/cproduct/2020/06/26/17741364_1593101186_image5_L.jpg"
+    ],
+    "product_name": "[키작녀추천] 허리끈 찰랑 데일리 물결 하이웨스트 와이드 팬츠 (7color) _ 미니클로젯",
+    "price": "13400.00",
+    "discount_rate": 10,
+    "option_colors": ["red", "blue", "green"],
+    "option_sizes": ["L", "M", "free"]
+  }
+}

@@ -1,0 +1,60 @@
+$skyblue: #a3d0fe;
+$midblue: #1e90ff; // 메인 버튼, 캡션 color
+$midbluehover: #298ae6; // 메인 버튼 호버 시 color
+$lightgrey: #fafafa; // 전체페이지 배경색 color
+$softgrey: #ededed; // 테이블 내부 헤더, 인풋 내부 배경색 color
+$midgrey: #bbbbbb;
+$coolgrey: #d7d7d7; // 테이블 내부의 테이블 제목 color
+$darkgrey: #363636; // 전체 보더, 텍스트, 블랙 버튼 호버 color
+$validred: #a94442;
+
+@mixin flexColCen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@mixin spaceBtwn {
+  display: flex;
+  justify-content: space-between;
+}
+
+@mixin btnContainer {
+  margin: 10px 0;
+}
+
+@mixin blue-btn {
+  background-color: $midblue;
+  color: white;
+
+  &:hover {
+    background-color: $midbluehover;
+  }
+}
+
+@mixin red-btn {
+  background-color: $validred;
+  color: white;
+
+  &:hover {
+    background-color: #a13d3b;
+  }
+}
+
+@mixin black-btn {
+  background-color: $darkgrey;
+  color: white;
+
+  &:hover {
+    background-color: $darkgrey;
+  }
+}
+
+@mixin blue-text {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: $midblue;
+}

@@ -1,0 +1,48 @@
+{
+  "data": [
+    {
+      "main_category_no": 1,
+      "name": "아우터"
+    },
+    {
+      "main_category_no": 2,
+      "name": "상의"
+    },
+    {
+      "main_category_no": 3,
+      "name": "바지"
+    },
+    {
+      "main_category_no": 4,
+      "name": "원피스"
+    },
+    {
+      "main_category_no": 5,
+      "name": "스커트"
+    },
+    {
+      "main_category_no": 6,
+      "name": "신발"
+    },
+    {
+      "main_category_no": 7,
+      "name": "가방"
+    },
+    {
+      "main_category_no": 8,
+      "name": "주얼리"
+    },
+    {
+      "main_category_no": 9,
+      "name": "잡화"
+    },
+    {
+      "main_category_no": 10,
+      "name": "라이프웨어"
+    },
+    {
+      "main_category_no": 11,
+      "name": "빅사이즈"
+    }
+  ]
+}
