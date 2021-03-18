@@ -1,6 +1,7 @@
 import store from '@/store/index'
 import AdminApiMixin from '@/admin/mixins/admin-api'
 import Message from '@/admin/utils/message'
+import mockup from '@/admin/mockup/sellerList.json'
 
 export default {
   store: store,
@@ -40,9 +41,16 @@ export default {
       const params = JSON.parse(JSON.stringify(this.filter))
       params.limit = this.pageLen
       params.offset = this.offset
-      this.get(this.listUrl, {
-        params: params
+
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          this.$emit('test', { a: 1 })
+          resolve(listMockup())
+        }, 300)
       })
+      // this.get(this.listUrl, {
+      //   params: params
+      // })
         .then((res) => {
           if (res.data) {
             res.data.seller_list.forEach((d) => {
@@ -145,4 +153,8 @@ export default {
       this.changePage(1)
     }
   }
+}
+
+function listMockup () {
+  return mockup
 }

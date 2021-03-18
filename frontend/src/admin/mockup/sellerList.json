@@ -1,0 +1,51 @@
+{
+	"data": {
+		"seller_list": [
+			{
+				"id": 1,
+				"account": "abcd",
+				"brand_name_english": "abcd",
+				"brand_name_korean": "파인애플",
+				"name": "담당자",
+				"seller_status_id": 1,
+				"phone_number": "010-1111-2222",
+				"seller_property_id": 2,
+				"created_at": "2020-10-26 14:49:20"
+			},
+			{
+				"id": 1,
+				"account": "abcd",
+				"brand_name_english": "abcd",
+				"brand_name_korean": "파인애플",
+				"name": "담당자",
+				"seller_status_id": 1,
+				"phone_number": "010-1111-2222",
+				"seller_property_id": 2,
+				"created_at": "2020-10-26 14:49:20"
+			},
+			{
+				"id": 1,
+				"account": "abcd",
+				"brand_name_english": "abcd",
+				"brand_name_korean": "파인애플",
+				"name": "담당자",
+				"seller_status_id": 1,
+				"phone_number": "010-1111-2222",
+				"seller_property_id": 2,
+				"created_at": "2020-10-26 14:49:20"
+			},
+			{
+				"id": 1,
+				"account": "abcd",
+				"brand_name_english": "abcd",
+				"brand_name_korean": "파인애플",
+				"name": "담당자",
+				"seller_status_id": 1,
+				"phone_number": "010-1111-2222",
+				"seller_property_id": 2,
+				"created_at": "2020-10-26 14:49:20"
+			}
+		],
+		"total_count": 20
+	}
+}

@@ -51,7 +51,7 @@
         -->
         <td>{{ item.order_date }}</td> <!-- 결제일자 -->
         <td>{{ item.order_number }}</td> <!-- 주문번호 -->
-        <td><router-link :to="''+item.order_id">{{ item.order_detail_number }}</router-link></td> <!-- 주문상세번호 -->
+        <td><router-link :to="''+item.order_detail_number">{{ item.order_detail_number }}</router-link></td> <!-- 주문상세번호 -->
         <td>{{ item.brand_name_korean }}</td> <!-- 셀러명 -->
         <!--        <th>셀러구분</th>-->
         <!--        <th>헬피구분</th>-->
