@@ -9,9 +9,22 @@
       "https://image.brandi.me/cproduct/2020/06/26/17741364_1593101186_image5_L.jpg"
     ],
     "product_name": "(6col)민자 보트넥 썸머 여리 긴팔 니트 티셔츠_반하리마켓",
-    "price": "13230.00",
+    "sales_price": 13230.00,
+    "original_price": 13230.00,
     "discount_rate": 10,
-    "options": {
+    "colors": [{
+      "color_name": "red",
+      "sizes": [
+        { "size": "XL" }
+      ]
+    },{
+      "color_name": "blue",
+      "sizes": [
+        { "size": "SS" }
+      ]
+    }],
+    "aaa":
+    {
       "red": {
         "L": 31
       },

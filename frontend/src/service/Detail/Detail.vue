@@ -84,10 +84,10 @@
           >
             <div class="defaultToggle">[사이즈]를 선택하세요.</div>
             <div
-              v-for="(item, index) in colorData"
+              v-for="(item, index) in sizeData"
               class="colorToggle"
               v-bind:key="index"
-              @click="optionSizeHandler(colorData, index)"
+              @click="optionSizeHandler(sizeData, index)"
             >
               {{ item.size }}
             </div>
@@ -148,11 +148,17 @@
         <button @click="buyNowHandler" class="purchaseBtn">
           바로 구매하기
         </button>
+        <button type="button" class="cartBtn">장바구니 담기</button>
       </div>
     </article>
     <article class="detailProduct">
       <div class="categoryContainer">
-        <div class="productDetail">상품정보</div>
+        <div class="tabs">
+          <div class="tab productDetail selected"><a href="#">상품정보</a></div>
+          <div class="tab review"><a href="#">리뷰</a></div>
+          <div class="tab qna"><a href="#">Q&A</a></div>
+          <div class="tab orderDetail"><a href="#">주문정보</a></div>
+        </div>
         <div>
           <div class="detailHtml" v-html="detailData.html" />
         </div>
@@ -162,22 +168,26 @@
 </template>
 
 <script>
-import { SERVER_IP } from '@/config.js'
-import axios from 'axios'
+// import { SERVER_IP } from '@/config.js'
+// import axios from 'axios'
 import { VueAgile } from 'vue-agile'
+import mockup from '@/Data/DetailOption.json'
 
 export default {
   created () {
-    axios
-      .get(`${SERVER_IP}/product/${this.$route.params.id}`)
-      .then((res) => {
-        this.detailData = res.data.data
-        this.purchaseId = this.detailData.product_id
-      })
-      // .catch((error) => {
-      //   this.$router.push('/main')
-      //   alert('존재하지 않는 서비스 상품입니다.')
-      // })
+    this.detailData = mockup.data
+    // this.sizeData = mockup.sizeData
+    // mockup.options
+    // axios
+    //   .get(`${SERVER_IP}/product/${this.$route.params.id}`)
+    //   .then((res) => {
+    //     this.detailData = res.data.data
+    //     this.purchaseId = this.detailData.product_id
+    //   })
+    // .catch((error) => {
+    //   this.$router.push('/main')
+    //   alert('존재하지 않는 서비스 상품입니다.')
+    // })
   },
 
   data () {
@@ -207,6 +217,7 @@ export default {
       purchaseSizeId: '',
       purchaseId: '',
       colorData: [],
+      sizeData: [],
       productQuantity: 0,
       noneDisplay: false
     }
@@ -224,14 +235,15 @@ export default {
 
       this.colorToggleData = item.color_name
       this.purchaseColorId = item.color_id
+      this.sizeData = item.sizes
 
-      axios
-        .get(
-          `${SERVER_IP}/product/${this.$route.params.id}?color_id=${item.color_id}`
-        )
-        .then((res) => {
-          this.colorData = res.data.data
-        })
+      // axios
+      //   .get(
+      //     `${SERVER_IP}/product/${this.$route.params.id}?color_id=${item.color_id}`
+      //   )
+      //   .then((res) => {
+      //     this.sizeData = res.data.data
+      //   })
     },
 
     // 컬러 인풋 클릭시 토글 박스 열리게하기
@@ -319,7 +331,7 @@ export default {
 
 .ProductInfo {
   width: 1235px;
-  margin: 140px auto 80px;
+  margin: 80px auto 80px;
   display: flex;
 
   .agile {
@@ -557,7 +569,7 @@ export default {
       }
     }
 
-    .purchaseBtn {
+    .purchaseBtn, .cartBtn {
       width: 180px;
       height: 50px;
       background: black;
@@ -567,6 +579,13 @@ export default {
       outline: none;
       border: none;
       cursor: pointer;
+    }
+    .cartBtn {
+      width: 60px;
+      // font-size: 0;
+      text-indent: -1000em;
+      background: #FFF url(/images/btn-cart.svg) 50% 50% no-repeat;
+      border: 1px solid #CCC;
     }
   }
 }
@@ -581,14 +600,40 @@ export default {
     /* height: 100%; */
     border-bottom: 2px solid #dbdbdb;
 
-    .productDetail {
-      width: 250px;
-      height: 44px;
-      margin-left: 30px;
-      padding-top: 15px;
-      border-bottom: 2px solid #ff204b;
-      color: #ff204b;
-      text-align: center;
+    .tabs {
+      position: sticky;
+      top: 0;
+      height: 50px;
+      background: #FFF;
+      display: flex;
+      .tab {
+        width: 25%;
+        // width: 250px;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        border-bottom: 1px solid #ccc;
+        a {
+          color: #000;
+          font-size: 16px;
+          display: inline-block;
+          width: 100%;
+          height: 100%;
+          &:hover {
+            color: #ff204b;
+          }
+        }
+        &.selected {
+          a {
+            color: #ff204b;
+          }
+          // margin-left: 30px;
+          // padding-top: 15px;
+          border-bottom: 2px solid #ff204b;
+          // text-align: center;
+        }
+      }
+
     }
 
     .detailContents {
