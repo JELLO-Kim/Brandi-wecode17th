@@ -9,6 +9,7 @@ import SignUp from '@/service/SignUp/SignUp'
 // import AdminFrame from "../BrandiAdmin/Components/AdminFrame.vue";
 // import ProductRegistration from "../BrandiAdmin/ProductRegistration/ProductRegistration.vue";
 import Order from '@/service/Order/Order'
+import Event from '@/service/Event/Event'
 // import Footer from "@/service/Components/Footer.vue";
 // import ProductManagement from "../BrandiAdmin/ProductManagemnet/ProductManagement.vue";
 import Mypage from '@/service/Mypage/Mypage'
@@ -63,6 +64,11 @@ export default new Router({
     {
       path: '/order',
       component: Order
+    },
+    {
+      path: '/event',
+      component: Event,
+      name: 'event'
     },
     {
       path: '/mypage',

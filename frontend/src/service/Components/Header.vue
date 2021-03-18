@@ -39,15 +39,16 @@
       </div>
       <nav class="navBarContainer">
         <div class="navBar">
-          <div class="home">홈</div>
-          <div>랭킹</div>
-          <div>하루배송</div>
-          <div>쇼핑몰 • 마켓</div>
-          <div>브랜드</div>
-          <div>뷰티</div>
-          <div>특가</div>
-          <div>이벤트</div>
-          <div>스토어</div>
+          <div class="selected"><a href="#">홈</a></div>
+          <div><a href="#">하루배송</a></div>
+          <div><a href="#" @click.prevent="linkToEvent">해택존</a></div>
+          <div><a href="#">베스트</a></div>
+          <div><a href="#">신상</a></div>
+          <div><a href="#">특가</a></div>
+          <div><a href="#">쇼핑몰 • 마켓</a></div>
+          <div><a href="#">브랜드</a></div>
+          <div><a href="#">뷰티</a></div>
+          <div><a href="#">스토어</a></div>
         </div>
       </nav>
     </header>
@@ -88,6 +89,9 @@ export default {
           this.$router.push('/login')
         }
       }
+    },
+    linkToEvent () {
+      this.$router.push('/event')
     }
   },
   computed: {
@@ -107,6 +111,10 @@ export default {
   }
 
   .searchContainer {
+    // position: sticky;
+    // top: 0;
+
+    background: #FFF;
     max-width: 1300px;
     margin: 0 auto;
     padding: 0 20px;
@@ -177,8 +185,8 @@ export default {
   }
 
   .navBarContainer {
-    border-top: 1px solid lightgray;
-    border-bottom: 1px solid lightgray;
+    border-top: 1px solid rgb(238, 238, 238);
+    border-bottom: 1px solid rgb(238, 238, 238);
     .navBar {
       display: flex;
       justify-content: space-around;
@@ -187,8 +195,18 @@ export default {
       margin: 0 auto;
       padding: 0 20px;
 
-      .home {
-        border-bottom: 3px solid #ff204b;
+      .selected {
+        a {
+          color: #ff204b;
+        }
+        // border-bottom: 3px solid #ff204b;
+      }
+      a {
+        color: #000;
+        font-size: 17px;
+        &:hover {
+          color: #ff204b;
+        }
       }
 
       div {
