@@ -4,6 +4,7 @@ import Router from 'vue-router'
 import Main from '@/service/Main/Main'
 import Detail from '@/service/Detail/Detail'
 import Login from '@/service/Login/Login'
+import SignUp from '@/service/SignUp/SignUp'
 // import VueAgile from "vue-agile";
 // import AdminFrame from "../BrandiAdmin/Components/AdminFrame.vue";
 // import ProductRegistration from "../BrandiAdmin/ProductRegistration/ProductRegistration.vue";
@@ -54,6 +55,10 @@ export default new Router({
     {
       path: '/login',
       component: Login
+    },
+    {
+      path: '/signup',
+      component: SignUp
     },
     {
       path: '/order',
