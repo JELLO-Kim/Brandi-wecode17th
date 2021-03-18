@@ -47,6 +47,7 @@ export default {
 <style lang="scss">
 .product {
   display: inline-block;
+  text-align: left;
   width: 255px;
   padding: 0 0.5% 30px 0.5%;
   .productImage {
