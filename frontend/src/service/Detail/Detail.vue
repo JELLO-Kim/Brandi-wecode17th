@@ -162,6 +162,9 @@
         <div>
           <div class="detailHtml" v-html="detailData.html" />
         </div>
+        <div>
+          <QnA></QnA>
+        </div>
       </div>
     </article>
   </main>
@@ -171,9 +174,15 @@
 // import { SERVER_IP } from '@/config.js'
 // import axios from 'axios'
 import { VueAgile } from 'vue-agile'
+import QnA from './QnA'
 import mockup from '@/Data/DetailOption.json'
 
 export default {
+  components: {
+    // 이미지 Caroucel
+    agile: VueAgile,
+    QnA
+  },
   created () {
     this.detailData = mockup.data
     // this.sizeData = mockup.sizeData
@@ -221,10 +230,6 @@ export default {
       productQuantity: 0,
       noneDisplay: false
     }
-  },
-  components: {
-    // 이미지 Caroucel
-    agile: VueAgile
   },
   methods: {
     colorClickHandler (item, index) {
@@ -598,7 +603,7 @@ export default {
   .categoryContainer {
     width: 100%;
     /* height: 100%; */
-    border-bottom: 2px solid #dbdbdb;
+    // border-bottom: 2px solid #dbdbdb;
 
     .tabs {
       position: sticky;
