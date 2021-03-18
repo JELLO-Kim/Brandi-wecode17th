@@ -1,6 +1,7 @@
 import AdminApiMixin from '@/admin/mixins/admin-api'
 import store from '@/store/index'
 import Message from '@/admin/utils/message'
+import mockup from '@/admin/mockup/orderList.json'
 
 export default {
   store: store,
@@ -44,9 +45,16 @@ export default {
       const params = JSON.parse(JSON.stringify(this.filter))
       params.limit = this.pageLen
       params.offset = this.offset
-      this.get(this.listUrl + '/' + this.filter.status_id, {
-        params: params
+
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          this.$emit('test', { a: 1 })
+          resolve(listMockup())
+        }, 300)
       })
+      // this.get(this.listUrl + '/' + this.filter.status_id, {
+      //   params: params
+      // })
         .then((res) => {
           if (res.data && res.data.total_count !== undefined) {
             res.data.order_list.forEach((d) => {
@@ -61,6 +69,7 @@ export default {
           if (e.code === 'ECONNABORTED') {
             Message.error('요청 시간을 초과 하였습니다. 다시 시도해주시기 바랍니다.')
           } else {
+            console.log(e)
             Message.error('처리 중 오류 발생')
           }
         }).then((res) => {
@@ -99,4 +108,8 @@ export default {
       this.changePage(1)
     }
   }
+}
+
+function listMockup () {
+  return mockup
 }
