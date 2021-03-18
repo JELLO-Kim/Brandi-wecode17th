@@ -8,7 +8,7 @@
           <input class="loginInput" placeholder="아이디 입력" />
           <input class="loginInput" placeholder="비밀번호 입력" />
           <a class="loginBtn">로그인</a>
-          <a class="JoinBtn">회원가입</a>
+          <a class="JoinBtn" @click="linkToSignUp">회원가입</a>
           <div class="loginFind">
             <span class="findId">아이디 찾기</span>
             <span class="border" />
@@ -77,6 +77,17 @@ export default {
             alert('로그인 정보가 맞지 않습니다. 다시 시도해주세요.')
           }
         })
+    },
+    linkToSignUp () {
+      if (this.getToken) {
+        localStorage.removeItem('user_id')
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('user_email')
+        this.getStorageToken()
+        this.$route.path !== '/main' && this.$router.push('/main')
+      } else {
+        this.$route.path !== '/signup' && this.$router.push('/signup')
+      }
     }
   }
 }

@@ -23,7 +23,6 @@ import 'antd-button-color/dist/css/style.css' // or 'antd-button-color/dist/css/
 import VueCurrencyInput from 'vue-currency-input'
 import Antd from 'ant-design-vue'
 import VueTheMask from 'vue-the-mask'
-import Utils from '@/admin/utils/utils.js'
 
 const pluginOptions = {
   /* see config reference */
@@ -37,9 +36,6 @@ Vue.use(VueTheMask)
 Vue.config.productionTip = false
 Vue.use(Antd)
 Vue.use(VueCurrencyInput, pluginOptions)
-Vue.filter('makeComma', val => {
-  return Utils.makeComma(val)
-})
 Vue.filter('emptyDash', val => {
   if (val === undefined) return '-'
   if (val === null) return '-'

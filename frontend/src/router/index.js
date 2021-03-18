@@ -4,10 +4,13 @@ import Router from 'vue-router'
 import Main from '@/service/Main/Main'
 import Detail from '@/service/Detail/Detail'
 import Login from '@/service/Login/Login'
+import SignUp from '@/service/SignUp/SignUp'
 // import VueAgile from "vue-agile";
 // import AdminFrame from "../BrandiAdmin/Components/AdminFrame.vue";
 // import ProductRegistration from "../BrandiAdmin/ProductRegistration/ProductRegistration.vue";
 import Order from '@/service/Order/Order'
+import Event from '@/service/Event/Event'
+import EventDetail from '@/service/Event/EventDetail'
 // import Footer from "@/service/Components/Footer.vue";
 // import ProductManagement from "../BrandiAdmin/ProductManagemnet/ProductManagement.vue";
 import Mypage from '@/service/Mypage/Mypage'
@@ -56,8 +59,22 @@ export default new Router({
       component: Login
     },
     {
+      path: '/signup',
+      component: SignUp
+    },
+    {
       path: '/order',
       component: Order
+    },
+    {
+      path: '/event',
+      component: Event,
+      name: 'event'
+    },
+    {
+      path: '/event/:no',
+      component: EventDetail,
+      name: 'eventDetail'
     },
     {
       path: '/mypage',
