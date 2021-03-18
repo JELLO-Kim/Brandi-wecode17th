@@ -47,10 +47,13 @@ export default {
         this.$router.push('/admin')
       }
     },
+    logout () {
+      console.log('logout')
+    },
     handleLogout () {
       // clear()
       this.logout()
-      this.$router.push('/')
+      this.$router.push('/admin')
     }
   }
 }

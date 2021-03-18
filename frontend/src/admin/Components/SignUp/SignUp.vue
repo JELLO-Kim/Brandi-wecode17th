@@ -202,7 +202,7 @@ export default {
       const result = confirm('브랜디 가입을 취소하시겠습니까?')
       if (result) {
         e.preventDefault()
-        this.$router.push('/')
+        this.$router.push('/admin/login')
       }
     },
 

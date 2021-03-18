@@ -6,8 +6,10 @@
       <input type="password" v-model="password" />
       <div class="option">
         <div class="left">
-          <input type="checkbox" />
+          <label>
+          <input type="checkbox"/>
           <span>아이디 / 비밀번호 기억하기</span>
+          </label>
         </div>
         <div class="right">
           <span>비밀번호를 잊으셨나요? </span>
@@ -39,7 +41,7 @@ export default {
   },
   methods: {
     goSignUp () {
-      this.$router.push('/signup')
+      this.$router.push('/admin/signup')
     },
     checkValid () {
       console.log('enter')
@@ -65,8 +67,10 @@ export default {
           this.$router.push('/admin/sellerdashboard')
         })
         .catch(err => {
-          console.log(err.response)
-          console.log(err.response.message)
+          if (err.response) {
+            console.log(err.response)
+            console.log(err.response.message)
+          }
           Message.error('로그인에 실패하였습니다.')
         })
     }

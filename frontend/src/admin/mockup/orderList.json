@@ -1,0 +1,63 @@
+{
+	"data": {
+		"order_list": [
+			{
+				"order_date": "2020-10-26 14:49:20",
+				"order_number": "12345",
+				"order_detail_number": "121212990",
+				"brand_name_korean": "파인애플",
+				"product_name": "잘팔리는바지",
+				"color_name": "레드",
+				"size_name": "XL",
+				"count": 2,
+				"user_name": "나여",
+				"phone_number": "010-1111-2222",
+				"total_price": 1301301,
+				"order_status_id": 0
+			},
+			{
+				"order_date": "2020-10-26 14:49:20",
+				"order_number": "12345",
+				"order_detail_number": "121212990",
+				"brand_name_korean": "파인애플",
+				"product_name": "잘팔리는바지",
+				"color_name": "레드",
+				"size_name": "XL",
+				"count": 2,
+				"user_name": "나여",
+				"phone_number": "010-1111-2222",
+				"total_price": 1301301,
+				"order_status_id": 0
+			},
+			{
+				"order_date": "2020-10-26 14:49:20",
+				"order_number": "12345",
+				"order_detail_number": "121212990",
+				"brand_name_korean": "파인애플",
+				"product_name": "잘팔리는바지",
+				"color_name": "레드",
+				"size_name": "XL",
+				"count": 2,
+				"user_name": "나여",
+				"phone_number": "010-1111-2222",
+				"total_price": 1301301,
+				"order_status_id": 0
+			},
+			{
+				"order_date": "2020-10-26 14:49:20",
+				"order_number": "12345",
+				"order_detail_number": "121212990",
+				"brand_name_korean": "파인애플",
+				"product_name": "잘팔리는바지",
+				"color_name": "레드",
+				"size_name": "XL",
+				"count": 2,
+				"user_name": "나여",
+				"phone_number": "010-1111-2222",
+				"total_price": 1301301,
+				"order_status_id": 0
+			}
+		],
+		"total_count": 20
+	}
+}
