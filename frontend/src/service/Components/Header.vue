@@ -204,6 +204,9 @@ export default {
       a {
         color: #000;
         font-size: 17px;
+        display: inline-block;
+        width: 100%;
+        height: 100%;
         &:hover {
           color: #ff204b;
         }

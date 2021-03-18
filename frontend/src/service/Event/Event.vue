@@ -3,8 +3,8 @@
     <section class="main">
       <main class="article">
         <div class="tabs">
-          <div class="tab selected">진행중</div>
-          <div class="tab">종료</div>
+          <div class="tab selected"><a href="#">진행중</a></div>
+          <div class="tab"><a href="#">종료</a></div>
         </div>
 
         <div class="banners">
@@ -110,8 +110,19 @@ export default {
         border-bottom: 1px solid #CCC;
         font-weight: bold;
         &.selected {
+          a {
+            color: #ff204b;
+          }
+          border-bottom: 2px solid #ff204b;
+        }
+      }
+      a {
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+        color: #000;
+        &:hover {
           color: #ff204b;
-          border-bottom-color: #ff204b;
         }
       }
     }
