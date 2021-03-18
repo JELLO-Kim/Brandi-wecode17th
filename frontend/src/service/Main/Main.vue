@@ -25,7 +25,7 @@
                   >{{ product.discount_rate }}%</span
                 >
                 <span class="discountPrice" v-if="product.discount_rate">
-                  {{ numberWithCommas(product.sales_price) }}
+                  {{ product.sales_price | makeComma }}
                 </span>
                 <span
                   :class="{
@@ -33,9 +33,7 @@
                     price: product.discount_rate,
                   }"
                   >{{
-                    numberWithCommas(
-                      Math.round(product.original_price / 10) * 10
-                    )
+                      Math.round(product.original_price / 10) * 10 | makeComma
                   }}</span
                 >
               </div>
@@ -47,9 +45,10 @@
   </div>
 </template>
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 import Banner from '@/service/Components/Banner'
-import { SERVER_IP } from '@/config'
+// import { SERVER_IP } from '@/config'
+import mockup from '@/Data/ProductList.json'
 
 export default {
   components: {
@@ -65,9 +64,10 @@ export default {
   },
   methods: {
     getProductData () {
-      axios.get(`${SERVER_IP}/product`).then((res) => {
-        this.product = res.data
-      })
+      this.product = mockup
+      // axios.get(`${SERVER_IP}/product`).then((res) => {
+      //   this.product = res.data
+      // })
     },
     numberWithCommas (x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')

@@ -2,24 +2,9 @@
   <div>
     <section class="main">
       <main class="article">
-        <div class="tabs">
-          <div class="tab selected"><a href="#">진행중</a></div>
-          <div class="tab"><a href="#">종료</a></div>
-        </div>
-
-        <div class="banners">
-          <div class="banner">
-            <img src="/images/banner.jpeg" @click="linkToEventDetail">
-          </div>
-          <div class="banner">
-            <img src="/images/banner.jpeg">
-          </div>
-          <div class="banner">
-            <img src="/images/banner.jpeg">
-          </div>
-          <div class="banner">
-            <img src="/images/banner.jpeg">
-          </div>
+        <img src="/images/erdetail.jpeg">
+        <div class="productBox">
+          <ProductBox :product="product" v-for="product in productList" :key="product"></ProductBox>
         </div>
       </main>
     </section>
@@ -29,17 +14,21 @@
 <script>
 import { ClientId, SERVER_IP } from '@/config.js'
 import axios from 'axios'
+import ProductBox from '@/service/Components/ProductBox'
 // import Footer from '@/service/Components/Footer'
 import { mapMutations } from 'vuex'
+import mockup from '@/Data/ProductList.json'
 
 const serviceStore = 'serviceStore'
 
 export default {
   components: {
     // Footer
+    ProductBox
   },
   data () {
     return {
+      productList: mockup.data,
       // 구글 로그인 하기
       params: {
         client_id: ClientId
@@ -101,47 +90,9 @@ export default {
     // display: flex;
     // flex-direction: column;
     // align-items: center;
-
-    .tabs {
-      display: flex;
+    text-align: center;
+    > img {
       width: 100%;
-      .tab {
-        width: 50%;
-        height: 40px;
-        text-align: center;
-        font-size: 16px;
-        border-bottom: 1px solid #CCC;
-        font-weight: bold;
-        &.selected {
-          a {
-            color: #ff204b;
-          }
-          border-bottom: 2px solid #ff204b;
-        }
-      }
-      a {
-        display: inline-block;
-        width: 100%;
-        height: 100%;
-        color: #000;
-        &:hover {
-          color: #ff204b;
-        }
-      }
-    }
-
-    .banners {
-      margin-top: 50px;
-      display: flex;
-      flex-wrap: wrap;
-      flex-direction: row;
-      .banner {
-        width: 48%;
-        margin: 10px;
-        img {
-          width: 100%;
-        }
-      }
     }
   }
 }

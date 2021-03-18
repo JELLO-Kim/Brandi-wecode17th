@@ -10,6 +10,7 @@ import SignUp from '@/service/SignUp/SignUp'
 // import ProductRegistration from "../BrandiAdmin/ProductRegistration/ProductRegistration.vue";
 import Order from '@/service/Order/Order'
 import Event from '@/service/Event/Event'
+import EventDetail from '@/service/Event/EventDetail'
 // import Footer from "@/service/Components/Footer.vue";
 // import ProductManagement from "../BrandiAdmin/ProductManagemnet/ProductManagement.vue";
 import Mypage from '@/service/Mypage/Mypage'
@@ -69,6 +70,11 @@ export default new Router({
       path: '/event',
       component: Event,
       name: 'event'
+    },
+    {
+      path: '/event/:no',
+      component: EventDetail,
+      name: 'eventDetail'
     },
     {
       path: '/mypage',
