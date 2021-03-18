@@ -11,7 +11,7 @@
             </h1>
           </div>
           <article class="productList">
-            <ProductBox :product="product" v-for="product in product.data" :key="product"></ProductBox>
+            <ProductBox :product="product" v-for="product in product.data" :key="product" @linkToDetail="linkToDetail"></ProductBox>
           </article>
         </section>
       </div>

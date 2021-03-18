@@ -41,6 +41,11 @@ export default {
   },
   data () {
     return {}
+  },
+  methods: {
+    linkToDetail (product) {
+      this.$emit('linkToDetail', product)
+    }
   }
 }
 </script>
