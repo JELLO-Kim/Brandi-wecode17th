@@ -11,7 +11,7 @@
       <div class="searchContainer">
         <div class="searchBar">
           <h1 class="mainLogo" @click="linkToMain">
-            <img class="logoImg" src="/Images/brandi-logo.png" alt="BRANDI" />
+            <img class="logoImg" src="/images/brandi-logo.png" alt="BRANDI" />
           </h1>
           <div>
             <form class="searchForm" action="/search">
@@ -39,9 +39,9 @@
       </div>
       <nav class="navBarContainer">
         <div class="navBar">
-          <div class="selected"><a href="#">홈</a></div>
+          <div :class="activeTabClass('main')"><a href="#" @click.prevent="linkToMain">홈</a></div>
           <div><a href="#">하루배송</a></div>
-          <div><a href="#" @click.prevent="linkToEvent">해택존</a></div>
+          <div :class="activeTabClass('event')"><a href="#" @click.prevent="linkToEvent">해택존</a></div>
           <div><a href="#">베스트</a></div>
           <div><a href="#">신상</a></div>
           <div><a href="#">특가</a></div>
@@ -92,6 +92,9 @@ export default {
     },
     linkToEvent () {
       this.$router.push('/event')
+    },
+    activeTabClass (name) {
+      if (this.$route.path === '/' + name) return 'selected'
     }
   },
   computed: {
