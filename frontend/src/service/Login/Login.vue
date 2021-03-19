@@ -96,7 +96,7 @@ export default {
 <style lang="scss" scoped>
 .main {
   .article {
-    width: 1300px;
+    max-width: 1300px;
     margin: 200px auto 0;
     display: flex;
     flex-direction: column;
