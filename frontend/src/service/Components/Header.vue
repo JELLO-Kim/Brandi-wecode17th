@@ -20,7 +20,11 @@
             </form>
           </div>
           <div class="searchNav">
-            <span>찜</span>
+            <button type="button" class="cart">장바구니</button>
+            <button type="button" class="bookmark">찜</button>
+            <button type="button" class="mypage" @click="linkToMyPage">마이페이지</button>
+
+            <!-- <span>찜</span>
             <div class="divider"></div>
             <span>장바구니</span>
             <div class="divider"></div>
@@ -30,10 +34,7 @@
               {{
               getToken ? "로그아웃" : "로그인"
               }}
-            </span>
-
-            <div class="divider"></div>
-            <span>입점문의</span>
+            </span> -->
           </div>
         </div>
       </div>
@@ -177,6 +178,25 @@ export default {
         justify-content: center;
         cursor: pointer;
         font-size: 14px;
+        button {
+          text-indent: -1000em;
+          width: 40px;
+          height: 40px;
+          margin: 0 10px;
+          border: none;
+          background: transparent url(/images/btn-cart.svg) no-repeat 50% 50%;
+          cursor: pointer;
+          &:focus {outline:0;}
+          &.cart {
+            background-image: url(/images/ic-cart.svg);
+          }
+          &.bookmark {
+            background-image: url(/images/ic-favorite.svg);
+          }
+          &.mypage {
+            background-image: url(/images/ic-my.svg);
+          }
+        }
 
         .divider {
           background-color: gray;
