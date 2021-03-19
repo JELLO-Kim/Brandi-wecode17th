@@ -2,8 +2,9 @@
   <div>
     <h2>
       Q&A (192)
-      <a href="#">문의하기</a>
+      <a href="#" @click.prevent="openQnARegister">등록하기</a>
     </h2>
+    <QnARegister v-if="showQnA"></QnARegister>
     <table>
       <colgroup>
         <col width="15%">
@@ -58,6 +59,7 @@
 // import { VueAgile } from 'vue-agile'
 // import mockup from '@/Data/DetailOption.json'
 import Pagenation from '@/service/Components/Pagenation'
+import QnARegister from '@/service/Detail/QnARegister'
 
 export default {
   created () {
@@ -77,15 +79,21 @@ export default {
           regster: 'dsd***',
           answerShow: false
         }
-      ]
+      ],
+      showQnA: false
     }
   },
   components: {
-    Pagenation
+    Pagenation,
+    QnARegister
   },
   methods: {
     togleAnswer (answer) {
       answer.answerShow = !answer.answerShow
+    },
+    openQnARegister () {
+      // eslint-disable-next-line no-return-assign
+      return this.showQnA = !this.showQnA
     }
   }
 }
