@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 import Main from '@/service/Main/Main'
+import Layout from '@/service/Layout'
 import Detail from '@/service/Detail/Detail'
 import Login from '@/service/Login/Login'
 import SignUp from '@/service/SignUp/SignUp'
@@ -47,95 +48,191 @@ export default new Router({
   mode: 'history',
   routes: [
     {
-      path: '/main',
-      component: Main
-    },
-    {
-      path: '/detail/:id',
-      component: Detail
-    },
-    {
-      path: '/login',
-      component: Login
-    },
-    {
-      path: '/signup',
-      component: SignUp
-    },
-    {
-      path: '/order',
-      component: Order
-    },
-    {
-      path: '/event',
-      component: Event,
-      name: 'event'
-    },
-    {
-      path: '/event/:no',
-      component: EventDetail,
-      name: 'eventDetail'
-    },
-    {
-      path: '/mypage',
-      redirect: '/mypage/orderList',
-      component: Mypage,
-      name: Mypage,
+      path: '/',
+      component: Layout,
       children: [
         {
-          path: '',
+          path: 'main',
+          component: Main
+        },
+        {
+          path: '/detail/:id',
+          component: Detail
+        },
+        {
+          path: '/login',
+          component: Login
+        },
+        {
+          path: '/signup',
+          component: SignUp
+        },
+        {
+          path: '/order',
+          component: Order
+        },
+        {
+          path: '/event',
+          component: Event,
+          name: 'event'
+        },
+        {
+          path: '/event/:no',
+          component: EventDetail,
+          name: 'eventDetail'
+        },
+        {
+          path: '/mypage',
           redirect: '/mypage/orderList',
-          component: OrderList,
-          name: 'orderList'
-        },
-        {
-          path: 'orderList',
-          component: OrderList,
-          name: 'orderList'
-        },
-        {
-          path: 'point',
-          component: Point,
-          name: 'point'
-        },
-        {
-          path: 'coupon',
-          component: Coupon,
-          name: 'coupon'
-        },
-        {
-          path: 'qna',
           component: Mypage,
-          name: 'qna'
+          name: Mypage,
+          children: [
+            {
+              path: '',
+              redirect: '/mypage/orderList',
+              component: OrderList,
+              name: 'orderList'
+            },
+            {
+              path: 'orderList',
+              component: OrderList,
+              name: 'orderList'
+            },
+            {
+              path: 'point',
+              component: Point,
+              name: 'point'
+            },
+            {
+              path: 'coupon',
+              component: Coupon,
+              name: 'coupon'
+            },
+            {
+              path: 'qna',
+              component: Mypage,
+              name: 'qna'
+            },
+            {
+              path: 'faq',
+              component: Mypage,
+              name: 'faq'
+            }
+          ]
         },
         {
-          path: 'faq',
-          component: Mypage,
-          name: 'faq'
+          path: '/order/detail',
+          component: OrderDetail
+        },
+        {
+          // 초기 url을 main으로 적용
+          path: '/',
+          redirect: '/main'
+        },
+        {
+          path: '*',
+          redirect: '/error/404'
+        },
+        {
+          path: '/error/400',
+          component: NetworkError
+        },
+        {
+          path: '/error/404',
+          component: NotFound
         }
       ]
     },
-    {
-      path: '/order/detail',
-      component: OrderDetail
-    },
-    {
-      // 초기 url을 main으로 적용
-      path: '/',
-      redirect: '/main'
-    },
-    {
-      path: '*',
-      redirect: '/error/404'
-    },
-    {
-      path: '/error/400',
-      component: NetworkError
-    },
-    {
-      path: '/error/404',
-      component: NotFound
-    },
+    // {
+    //   path: '/main',
+    //   component: Main
+    // },
+    // {
+    //   path: '/detail/:id',
+    //   component: Detail
+    // },
+    // {
+    //   path: '/login',
+    //   component: Login
+    // },
+    // {
+    //   path: '/signup',
+    //   component: SignUp
+    // },
+    // {
+    //   path: '/order',
+    //   component: Order
+    // },
+    // {
+    //   path: '/event',
+    //   component: Event,
+    //   name: 'event'
+    // },
+    // {
+    //   path: '/event/:no',
+    //   component: EventDetail,
+    //   name: 'eventDetail'
+    // },
+    // {
+    //   path: '/mypage',
+    //   redirect: '/mypage/orderList',
+    //   component: Mypage,
+    //   name: Mypage,
+    //   children: [
+    //     {
+    //       path: '',
+    //       redirect: '/mypage/orderList',
+    //       component: OrderList,
+    //       name: 'orderList'
+    //     },
+    //     {
+    //       path: 'orderList',
+    //       component: OrderList,
+    //       name: 'orderList'
+    //     },
+    //     {
+    //       path: 'point',
+    //       component: Point,
+    //       name: 'point'
+    //     },
+    //     {
+    //       path: 'coupon',
+    //       component: Coupon,
+    //       name: 'coupon'
+    //     },
+    //     {
+    //       path: 'qna',
+    //       component: Mypage,
+    //       name: 'qna'
+    //     },
+    //     {
+    //       path: 'faq',
+    //       component: Mypage,
+    //       name: 'faq'
+    //     }
+    //   ]
+    // },
+    // {
+    //   path: '/order/detail',
+    //   component: OrderDetail
+    // },
+    // {
+    //   // 초기 url을 main으로 적용
+    //   path: '/',
+    //   redirect: '/main'
+    // },
+    // {
+    //   path: '*',
+    //   redirect: '/error/404'
+    // },
+    // {
+    //   path: '/error/400',
+    //   component: NetworkError
+    // },
+    // {
+    //   path: '/error/404',
+    //   component: NotFound
+    // },
 
     // 로그인
     {

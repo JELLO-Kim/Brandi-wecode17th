@@ -96,7 +96,7 @@ export default {
 <style lang="scss" scoped>
 .main {
   .article {
-    width: 1240px;
+    // width: 1240px;
     margin: 50px auto 50px auto;
     // display: flex;
     // flex-direction: column;
@@ -137,7 +137,7 @@ export default {
       flex-direction: row;
       .banner {
         width: 48%;
-        margin: 10px;
+        margin: 1%;
         img {
           width: 100%;
         }

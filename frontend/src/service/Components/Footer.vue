@@ -94,7 +94,7 @@ export default {
     border-bottom: 0.5px solid rgba(128, 128, 128, 0.5);
     display: flex;
     justify-content: space-between;
-    width: 1250px;
+    max-width: 1250px;
     margin-left: auto;
     margin-right: auto;
     padding: 30px 0 35px 0;
@@ -116,7 +116,7 @@ export default {
   .footerBottom {
     display: flex;
     justify-content: space-between;
-    width: 1250px;
+    max-width: 1250px;
     margin-left: auto;
     margin-right: auto;
     padding: 40px 0 60px 0;

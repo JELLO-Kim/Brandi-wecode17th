@@ -1,19 +1,19 @@
 <template>
   <div id="app">
-    <Header v-if="$route.path.indexOf('admin') == -1" />
+    <!-- <Header v-if="$route.path.indexOf('admin') == -1" /> -->
     <router-view/>
-    <Footer v-if="$route.path.indexOf('admin') == -1" />
+    <!-- <Footer v-if="$route.path.indexOf('admin') == -1" /> -->
   </div>
 </template>
 
 <script>
-import Header from '@/service/Components/Header'
-import Footer from '@/service/Components/Footer'
+// import Header from '@/service/Components/Header'
+// import Footer from '@/service/Components/Footer'
 
 export default {
   components: {
-    Header,
-    Footer
+    // Header,
+    // Footer
   }
 }
 </script>
