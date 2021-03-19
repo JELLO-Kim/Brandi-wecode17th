@@ -19,6 +19,7 @@ import Mypage from '@/service/Mypage/Mypage'
 import OrderList from '@/service/Mypage/OrderList'
 import Coupon from '@/service/Mypage/Coupon'
 import Point from '@/service/Mypage/Point'
+import QnAList from '@/service/Mypage/QnAList'
 // import OrderManagement from "../BrandiAdmin/OrderManagement/OrderManagement.vue";
 import OrderDetail from '@/service/OrderDetail/OrderDetail'
 // import ProductDetail from "../BrandiAdmin/ProductDetail/ProductDetail.vue";
@@ -115,7 +116,7 @@ export default new Router({
             },
             {
               path: 'qna',
-              component: Mypage,
+              component: QnAList,
               name: 'qna'
             },
             {
