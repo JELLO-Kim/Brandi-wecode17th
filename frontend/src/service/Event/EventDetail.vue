@@ -3,6 +3,12 @@
     <section class="main">
       <main class="article">
         <img src="/images/erdetail.jpeg">
+
+        <div class="buttons">
+          <button type="button" class="selected">버튼명1</button>
+          <button type="button">버튼명1</button>
+        </div>
+
         <div class="productBox">
           <ProductBox :product="product" v-for="product in productList" :key="product" @linkToDetail="linkToDetail"></ProductBox>
         </div>
@@ -60,6 +66,22 @@ export default {
     text-align: center;
     > img {
       width: 100%;
+    }
+    .buttons {
+      margin: 20px 0;
+      button {
+        padding: 10px 20px;
+        margin: 0 10px;
+        border: none;
+        border-radius: 30px;
+        background: #CCC;
+        font-size: 18px;
+        font-weight: bold;
+        color: #FFF;
+        &.selected {
+          background: linear-gradient(250deg, #FF5E7E, #ff204b 45%)
+        }
+      }
     }
   }
 }
