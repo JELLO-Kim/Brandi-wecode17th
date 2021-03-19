@@ -43,6 +43,9 @@ import AdminOrders from '@/admin/Components/Orders/Orders'
 import AdminOrderList from '@/admin/Components/Orders/OrderList/OrderList'
 import AdminDetailOrder from '@/admin/Components/Orders/DetailOrder/DetailOrder'
 
+// start
+import Cart from '@/service/Cart/Cart'
+
 Vue.use(Router)
 export default new Router({
   mode: 'history',
@@ -80,6 +83,11 @@ export default new Router({
           path: '/event/:no',
           component: EventDetail,
           name: 'eventDetail'
+        },
+        {
+          path: '/cart',
+          component: Cart,
+          name: 'cart'
         },
         {
           path: '/mypage',
