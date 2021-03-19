@@ -195,4 +195,5 @@ export default {
   justify-content: center;
   margin-bottom: 50px;
 }
+
 </style>
