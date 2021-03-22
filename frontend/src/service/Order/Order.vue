@@ -93,10 +93,26 @@
       <tr>
         <td>배송메모</td>
         <td>
-          <DropDown :items="arr">
+          <DropDown :items="arr" placeholder="배송시 요청사항을 선택해주세요"></DropDown>
         </td>
       </tr>
     </table>
+
+    <span class="buy-title">최종 결제 금액</span>
+    <div class="buy-box">
+      <div class="buy-info-box">
+        <div>
+          <span>총 상품금액</span>
+          <span>99,999 원</span>
+        </div>
+      </div>
+      <div class="buy-result-box">
+        <span>총 주문 금액</span>
+        <span>99,999 원</span>
+      </div>
+    </div>
+
+    <button class="order-confirm">결재하기</button>
   </div>
 </template>
 
@@ -106,7 +122,14 @@ import DropDown from '@/service/Components/DropDown'
 export default {
   data () {
     return {
-      arr: []
+      arr: [{
+        key: '1',
+        label: '집앞에 놔주세요'
+      },
+      {
+        key: '1',
+        label: '빨리 배달해주세요'
+      }]
     }
   },
   components: {
@@ -127,7 +150,7 @@ export default {
     font-size: 30px;
     font-weight: 500;
     text-align: center;
-    margin: 50px auto;
+    margin: 90px auto 50px;
   }
 
   .order-title{
@@ -221,35 +244,35 @@ export default {
     }
   }
 
-input {
-  padding: 10px;
-  background: #f5f5f5;
-  border: 0;
-  font-size: 15px;
-  outline: 0;
-}
+  input {
+    padding: 10px;
+    background: #f5f5f5;
+    border: 0;
+    font-size: 15px;
+    outline: 0;
+  }
 
-.input-name {
-  width: 100%
-}
-.input-phone {
-  width: 100px;
-}
-.input-email {
-  width: 250px;
-}
-.address {
-  .input-address {
-    margin-bottom: 5px;
-    width: 49%;
+  .input-name {
+    width: 100%
   }
-  span {
-    display: block;
-    margin-top: 5px;
-    color: #9e9e9e;
-    font-size: 12px;
+  .input-phone {
+    width: 100px;
   }
-}
+  .input-email {
+    width: 250px;
+  }
+  .address {
+    .input-address {
+      margin-bottom: 5px;
+      width: 49%;
+    }
+    span {
+      display: block;
+      margin-top: 5px;
+      color: #9e9e9e;
+      font-size: 12px;
+    }
+  }
 
   .info-title {
     display: inline-block;
@@ -261,7 +284,7 @@ input {
     width: 100%;
     border-top: solid 1px black;
     border-bottom: solid 1px black;
-    margin-bottom: 70px;
+    margin-bottom: 90px;
     font-size: 17px;
 
     tr {
@@ -282,6 +305,59 @@ input {
     tr:last-child>td {
       border: 0;
     }
+  }
+
+  .buy-title {
+    display: inline-block;
+    font-size: 25px;
+    font-weight: 300;
+    margin-bottom: 15px;
+  }
+  .buy-box {
+    width: 100%;
+    border-top: solid 1px black;
+    border-bottom: solid 1px black;
+    margin-bottom: 70px;
+    font-size: 17px;
+
+    .buy-info-box {
+      border-bottom: solid 1px rgb(228, 228, 228);
+      padding: 10px 0;
+      div {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        font-size: 15px;
+
+        span:first-child {
+          padding-left: 20px;
+        }
+        span:last-child {
+          padding-right: 20px;
+        }
+      }
+    }
+    .buy-result-box {
+      display: flex;
+      justify-content: space-between;
+      padding: 30px 20px;
+      font-size: 25px;
+      font-weight: 600;
+      color: red;
+
+      span:first-child {
+        color: black;
+      }
+    }
+  }
+
+  .order-confirm {
+    display: inline-block;
+    margin: 0 auto 90px;
+    padding: 20px 120px;
+    font-size: 20px;
+    color: white;
+    background-color: black;
   }
 }
 </style>
