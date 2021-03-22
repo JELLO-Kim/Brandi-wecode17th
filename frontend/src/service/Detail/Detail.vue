@@ -30,118 +30,29 @@
             >{{ detailData.discount_rate }}%</span
           >
           <span class="price">
-            {{ parseInt(detailData.sales_price).toLocaleString() + "원" }}
+            {{ detailData.sales_price | makeComma }}원
           </span>
           <span v-if="detailData.discount_rate !== 0" class="cost">{{
-            Math.floor(detailData.original_price).toLocaleString(5) + "원"
-          }}</span>
+            detailData.original_price | makeComma
+          }}원</span>
         </div>
         <hr />
-        <div v-on:click="onColorClick" class="option">
-          <div>{{ colorToggleData }}</div>
-          <div class="imgContainer">
-            <img
-              src="https://www.brandi.co.kr/static/3.49.1/images/ic-arrow-bl-down@3x.png"
-            />
-          </div>
-          <div
-            v-bind:class="{
-              toggleOn: isColorToggle,
-              toggleOff: !isColorToggle,
-            }"
-          >
-            <div class="defaultToggle">[색상]을 선택하세요.</div>
-            <div
-              v-for="(item, index) in detailData.colors"
-              class="colorToggle"
-              v-bind:key="index"
-              @click="colorClickHandler(item, index)"
-            >
-              {{ item.color_name }}
-            </div>
-          </div>
-        </div>
+        <DropDown :items="colorList" v-model="color" @change="colorClickHandler" placeholder="[색상]을 선택하세요." class="option-box"></DropDown>
         <!-- 사이즈 옵션 -->
-        <div v-on:click="onSizeClick" class="option">
-          <div
-            v-bind:class="{
-              optionTitle: disabledSizeToggle,
-              none: !disabledSizeToggle,
-            }"
-          >
-            {{ sizeToggleData }}
-          </div>
-          <div class="imgContainer">
-            <img
-              src="https://www.brandi.co.kr/static/3.49.1/images/ic-arrow-bl-down@3x.png"
-            />
-          </div>
-          <div
-            v-bind:class="{
-              toggleOn: isSizeToggle,
-              toggleOff: !isSizeToggle,
-            }"
-          >
-            <div class="defaultToggle">[사이즈]를 선택하세요.</div>
-            <div
-              v-for="(item, index) in sizeData"
-              class="colorToggle"
-              v-bind:key="index"
-              @click="optionSizeHandler(sizeData, index)"
-            >
-              {{ item.size }}
-            </div>
-          </div>
+        <DropDown :items="sizeData" v-model="size" @change="sizeClickHandler" placeholder="[사이즈]를 선택하세요." class="option-box"></DropDown>
+
+        <div class="option-quantity">
+          <OptionQuantity v-for="item in optionQuantity" :item="item" :key="item" @remove="removeOption"></OptionQuantity>
         </div>
-        <div
-          v-bind:class="{
-            selectedOptions: isPurchaseBox,
-            noneOptions: !isPurchaseBox,
-          }"
-        >
-          <div class="selectTitle">
-            <p>{{ purchaseColor }} / {{ purchaseSize }}</p>
-            <div @click="removeSelectHandler()" class="imgContainer">
-              <img
-                src="https://www.brandi.co.kr/static/3.49.1/images/img_icon_x.png"
-              />
-            </div>
-          </div>
-          <div class="selectPrice">
-            <div class="selectQuantity">
-              <button
-                class="quantityControlBtn"
-                name="minus"
-                @click="selectQuantityHandler"
-              >
-                -
-              </button>
-              <input class="productQuantity" :value="input" readonly />
-              <button
-                class="quantityControlBtn"
-                name="plus"
-                @click="selectQuantityHandler"
-              >
-                +
-              </button>
-            </div>
-            <p>
-              {{
-                (parseInt(detailData.sales_price) * input).toLocaleString() +
-                  "원"
-              }}
-            </p>
-          </div>
-        </div>
+
         <div class="detailpriceContainer">
-          <p>총 {{ input }}개의 상품</p>
+          <p>총 {{ totalCount }}개의 상품</p>
           <p class="totalPrice">
             총 금액
             <strong v-if="detailData">
               {{
-                (parseInt(detailData.sales_price) * input).toLocaleString() +
-                  "원"
-              }}
+                totalPrice | makeComma
+              }}원
             </strong>
           </p>
         </div>
@@ -175,13 +86,17 @@
 // import axios from 'axios'
 import { VueAgile } from 'vue-agile'
 import QnA from './QnA'
+import DropDown from '@/service/Components/DropDown'
+import OptionQuantity from './OptionQuantity'
 import mockup from '@/Data/DetailOption.json'
 
 export default {
   components: {
     // 이미지 Caroucel
     agile: VueAgile,
-    QnA
+    QnA,
+    DropDown,
+    OptionQuantity
   },
   created () {
     this.detailData = mockup.data
@@ -201,6 +116,9 @@ export default {
 
   data () {
     return {
+      color: null,
+      size: null,
+      optionQuantity: [],
       detailData: {
         colors: [],
         discount_rate: 0,
@@ -233,26 +151,50 @@ export default {
       title: 'Q&A'
     }
   },
-  methods: {
-    colorClickHandler (item, index) {
-      // 중복된 통신은 한번만 처리하도록 함
-      if (this.colorToggleData === item.color_name) {
-        return
+  computed: {
+    colorList () {
+      const res = []
+      for (const key in this.detailData.colors) {
+        res.push({ key: this.detailData.colors[key].color_name, label: this.detailData.colors[key].color_name })
       }
-
-      this.colorToggleData = item.color_name
-      this.purchaseColorId = item.color_id
-      this.sizeData = item.sizes
-
-      // axios
-      //   .get(
-      //     `${SERVER_IP}/product/${this.$route.params.id}?color_id=${item.color_id}`
-      //   )
-      //   .then((res) => {
-      //     this.sizeData = res.data.data
-      //   })
+      return res
     },
-
+    totalPrice () {
+      let total = 0
+      this.optionQuantity.forEach(d => {
+        total += d.quantity * d.price
+      })
+      return total
+    },
+    totalCount () {
+      let total = 0
+      this.optionQuantity.forEach(d => {
+        total += d.quantity
+      })
+      return total
+    }
+  },
+  methods: {
+    colorClickHandler (item) {
+      const colors = this.detailData.colors.find(d => d.color_name === item)
+      this.sizeData = colors.sizes.map(d => { return { key: d.size, label: d.size } })
+    },
+    sizeClickHandler (item) {
+      this.optionQuantity.push({
+        size: this.size,
+        color: this.color,
+        price: this.detailData.sales_price,
+        quantity: 1
+      })
+      this.size = null
+      this.color = null
+    },
+    removeOption (item) {
+      const pos = this.optionQuantity.indexOf(item)
+      if (pos >= 0) {
+        this.optionQuantity.splice(pos, 1)
+      }
+    },
     // 컬러 인풋 클릭시 토글 박스 열리게하기
     onColorClick () {
       this.isColorToggle = !this.isColorToggle
@@ -335,6 +277,13 @@ export default {
   height: 100%;
   background-color: black;
 } */
+
+.option-box {
+  margin: 5px 0;
+}
+.option-quantity {
+  margin: 20px 0;
+}
 
 .ProductInfo {
   width: 1235px;

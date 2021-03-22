@@ -1,6 +1,6 @@
 <template>
   <a-config-provider :locale="locale">
-    <div>
+    <div id="admin">
       <Header />
       <div class="container">
         <Aside />
@@ -64,21 +64,24 @@ export default {
 </script>
 
 <style lang="scss">
-.container {
-  margin-top: 45px;
-  color: #222;
+#admin {
+  .container {
+    margin-top: 45px;
+    color: #222;
 
-  main {
-    position: relative;
-    height: calc(100% - 45px);
-    min-height: 695px;
-    margin-left: 215px;
-    padding: 25px 20px 20px 20px;
-    border-radius: 0 0 0 4px;
-    margin-top: 0px;
-    background-color: #fafafa;
+    main {
+      position: relative;
+      height: calc(100% - 45px);
+      min-height: 695px;
+      margin-left: 215px;
+      padding: 25px 20px 20px 20px;
+      border-radius: 0 0 0 4px;
+      margin-top: 0px;
+      background-color: #fafafa;
+    }
   }
 }
+
 </style>
 <style lang="scss" scoped>
 /*@import './styles/_reset.scss';*/
