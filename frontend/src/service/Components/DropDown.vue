@@ -87,6 +87,7 @@ export default {
 
 <style lang="scss" scoped>
 .container {
+  text-align: left;
   display: inline-block;
   position: relative;
   width: 100%;
