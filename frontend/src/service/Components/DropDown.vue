@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="selctbox" @click.prevent.stop="toggleItem">{{displayLabelName}}</div>
+    <div class="selctbox" @click.prevent.stop="toggleItem" :class="{'open': isOpen}">{{displayLabelName}}</div>
     <div class="itembox" v-show="isOpen">
       <div class="item" @click="selectItem(null)">
         {{placeholder}}
@@ -99,6 +99,9 @@ export default {
     font-size: 13px;
     color: #666;
     cursor: pointer;
+    &.open::after {
+      transform: scaleY(-1);
+    }
     &::after {
       content: "";
       display: block;
@@ -109,6 +112,7 @@ export default {
       height: 20px;
       background: #FFF url(/images/ic-arrow-bl-down@3x.png) no-repeat 50% 50%;
       background-size: 20px;
+      transition-duration: 0.2s;
     }
   }
   .itembox {
