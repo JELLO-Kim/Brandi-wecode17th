@@ -4,10 +4,7 @@
       <tr>
         <td>질문유형</td>
         <td>
-          <select>
-            <option>질문유형을 선택하세요</option>
-            <option>상품 문의</option>
-          </select>
+          <DropDown :items="deliveryMock" v-model="deliveryType"></DropDown>
         </td>
       </tr>
       <tr>
@@ -18,7 +15,7 @@
       </tr>
       <tr>
         <td>공개여부</td>
-        <td><label><input type="checkbox">비공개</label></td>
+        <td><CheckBox v-model="isPrivate"></CheckBox>비공개</td>
       </tr>
     </table>
     <div>
@@ -29,19 +26,40 @@
 </template>
 
 <script>
-export default {
+import CheckBox from '@/service/Components/CheckBox'
+import DropDown from '@/service/Components/DropDown'
 
+export default {
+  data () {
+    return {
+      deliveryType: '',
+      // 삭제하기 이거!!
+      isPrivate: false,
+      deliveryMock: [{
+        label: '집 앞에 놓고 가주세요.',
+        key: '11'
+      },
+      {
+        label: '등등등..',
+        key: '12'
+      }
+      ]
+    }
+  },
+  components: { CheckBox, DropDown }
 }
 </script>
 
 <style lang="scss" scoped>
 .qna-register {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
   background-color: #f7f7f7;
   border-top: solid #222222 1px;
   padding: 0 20px;
   margin-bottom: 40px;
   font-size: 18px;
+  width: 100%;
 
   table {
     color: black;

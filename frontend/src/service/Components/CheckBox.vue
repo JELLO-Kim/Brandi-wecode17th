@@ -38,6 +38,13 @@ div {
   position: relative;
   display: inline-block;
   vertical-align: middle;
+  top: 3px;
+  margin-right: 10px;
+}
+input {
+  position: relative;
+  top: -7px;
+  left: 2px;
 }
 span {
   display: inline-block;
