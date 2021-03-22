@@ -20,7 +20,7 @@
             </form>
           </div>
           <div class="searchNav">
-            <button type="button" class="cart">장바구니</button>
+            <button type="button" class="cart" @click="linkToCart">장바구니</button>
             <button type="button" class="bookmark">찜</button>
             <button type="button" class="mypage" @click="linkToMyPage">마이페이지</button>
 
@@ -69,6 +69,16 @@ export default {
       this.$route.path !== '/main'
         ? this.$router.push('/main')
         : this.$router.go('/main')
+    },
+    linkToCart () {
+      if (this.getToken) {
+        this.$route.path !== '/cart' &&
+          this.$router.push('/cart')
+      } else {
+        if (this.$route.path !== '/login') {
+          this.$router.push('/login')
+        }
+      }
     },
     linkToLogin () {
       if (this.getToken) {

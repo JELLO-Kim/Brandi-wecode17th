@@ -163,7 +163,7 @@
           <div class="detailHtml" v-html="detailData.html" />
         </div>
         <div>
-          <QnA></QnA>
+          <QnA v-bind:isMypage="isMypage" v-bind:colgroupArr="colgroupArr" v-bind:title="title"></QnA>
         </div>
       </div>
     </article>
@@ -228,7 +228,9 @@ export default {
       colorData: [],
       sizeData: [],
       productQuantity: 0,
-      noneDisplay: false
+      noneDisplay: false,
+      isMypage: false,
+      title: 'Q&A'
     }
   },
   methods: {

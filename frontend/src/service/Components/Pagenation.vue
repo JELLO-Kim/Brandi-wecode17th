@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="pagenation">
     <a>&lt;&lt;</a>
     <a>&lt;</a>
     <a class="selected page">1</a>
@@ -19,7 +19,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-div {
+.pagenation {
+  display: flex;
+  justify-content: center;
   text-align: center;
   margin: 10px 0;
   a {
@@ -37,4 +39,5 @@ div {
     }
   }
 }
+
 </style>

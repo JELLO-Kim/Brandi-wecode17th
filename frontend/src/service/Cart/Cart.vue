@@ -3,7 +3,7 @@
         <span class="title">장바구니</span>
         <div class="selectBox">
             <div>
-                <label><input type="checkbox"><span>전체선택 (1/1)</span></label>
+                <label><CheckBox v-model="isSelectAll"></CheckBox><span>전체선택 (1/1)</span></label>
             </div>
             <div>
                 <span>선택삭제</span>
@@ -25,7 +25,7 @@
             <tbody>
             <tr class="cart-list-product">
                 <td>
-                    <input type="checkbox">
+                    <CheckBox></CheckBox>
                 </td>
                 <td>
                     <img src="https://image.brandi.me/cproduct/2021/02/26/SB000000000020525602_1614328241_image1_S.jpeg" alt="">
@@ -62,17 +62,26 @@
 </template>
 
 <script>
-export default {
+import CheckBox from '@/service/Components/CheckBox'
 
+export default {
+  data () {
+    return {
+      isSelectAll: false
+    }
+  },
+  components: {
+    CheckBox
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .cart {
     display: flex;
-    justify-content: center;
     flex-direction: column;
-    margin: 0 25px;
+    width: 85%;
+    margin: 0 auto;
     color: black;
 
     .title {
@@ -132,6 +141,7 @@ export default {
             font-size: 15px;
 
             td {
+                border-bottom: solid 1px rgb(228, 228, 228);
                 padding: 20px 0;
             }
             td:first-child {

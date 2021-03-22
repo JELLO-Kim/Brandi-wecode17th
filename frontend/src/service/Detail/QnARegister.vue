@@ -18,7 +18,7 @@
       </tr>
       <tr>
         <td>공개여부</td>
-        <td><label><input type="checkbox">비공개</label></td>
+        <td><CheckBox v-model="isPrivate"></CheckBox>비공개</td>
       </tr>
     </table>
     <div>
@@ -29,19 +29,28 @@
 </template>
 
 <script>
-export default {
+import CheckBox from '@/service/Components/CheckBox'
 
+export default {
+  data () {
+    return {
+      isPrivate: false
+    }
+  },
+  components: { CheckBox }
 }
 </script>
 
 <style lang="scss" scoped>
 .qna-register {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
   background-color: #f7f7f7;
   border-top: solid #222222 1px;
   padding: 0 20px;
   margin-bottom: 40px;
   font-size: 18px;
+  width: 100%;
 
   table {
     color: black;
