@@ -140,7 +140,7 @@ export default {
     display: flex;
     justify-content: space-between;
     padding: 60px 0;
-    width: 1260px;
+    max-width: 1260px;
 
     .active {
       font-weight: bold;
