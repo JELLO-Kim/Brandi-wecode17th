@@ -12,6 +12,7 @@
         </div>
 
         <table class="cart-list">
+            <thead>
             <tr class="cart-list-title">
                 <td colspan="5">일반 배송</td>
             </tr>
@@ -20,6 +21,8 @@
                 <td>수량</td>
                 <td>주문금액</td>
             </tr>
+            </thead>
+            <tbody>
             <tr class="cart-list-product">
                 <td>
                     <input type="checkbox">
@@ -43,6 +46,7 @@
                     <button>바로주문</button>
                 </td>
             </tr>
+            </tbody>
         </table>
 
         <div class="price-box">
