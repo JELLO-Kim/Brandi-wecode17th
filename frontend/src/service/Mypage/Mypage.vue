@@ -54,13 +54,19 @@
           </div>
         </div>
         <div class="divider"></div>
-        <div :class="[getCurrentPage() === 'qna' ? 'active' : 'deactive', 'menu']">
+        <div
+          :class="[
+            getCurrentPage() === 'qna' ? 'active' : 'deactive',
+            'menu',
+          ]"
+          @click="linkToPage"
+        >
           <div class="imgContainer">
-            <img src="/Images/ic-mypage-qna-s@3x.png" alt="qna" />
+            <img src="/Images/ic-mypage-qna-s@3x.png" alt="qna" name="qna"/>
           </div>
           <div class="menuText">
             <span class="text">Q & A</span>
-            <img src="/Images/ic-titleic-detailpage-moreaction@3x.png" alt=">" />
+            <img src="/Images/ic-titleic-detailpage-moreaction@3x.png" alt=">" name="qna"/>
           </div>
         </div>
         <div class="divider"></div>
@@ -98,7 +104,7 @@ export default {
         this.currentPage = 'coupon'
       } else if (currentUrl === '/mypage/qna') {
         this.currentPage = 'qna'
-      } else if (currentUrl === '/ypage/faq') {
+      } else if (currentUrl === '/mypage/faq') {
         this.currentPage = 'faq'
       } else if (currentUrl === '/mypage/orderList') {
         this.currentPage = 'orderList'
