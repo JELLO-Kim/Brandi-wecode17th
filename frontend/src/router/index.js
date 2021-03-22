@@ -7,6 +7,8 @@ import Detail from '@/service/Detail/Detail'
 import Login from '@/service/Login/Login'
 import SignUp from '@/service/SignUp/SignUp'
 import CategoryMain from '@/service/Category/CategoryMain'
+import CategoryProductList from '@/service/Category/ProductList'
+
 // import VueAgile from "vue-agile";
 // import AdminFrame from "../BrandiAdmin/Components/AdminFrame.vue";
 // import ProductRegistration from "../BrandiAdmin/ProductRegistration/ProductRegistration.vue";
@@ -62,7 +64,13 @@ export default new Router({
         },
         {
           path: 'category',
-          component: CategoryMain
+          component: CategoryMain,
+          children: [
+            {
+              path: '',
+              component: CategoryProductList
+            }
+          ]
         },
         {
           path: '/detail/:id',

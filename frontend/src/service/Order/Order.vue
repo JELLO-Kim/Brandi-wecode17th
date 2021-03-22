@@ -294,11 +294,11 @@ export default {
     this.purchaseProductNumber = localStorage.getItem('purchaseProductNumber')
     this.purchaseId = localStorage.getItem('purchaseId')
     const token = localStorage.getItem('access_token')
-    if (!token) {
-      alert('로그인 페이지로 이동합니다.')
-      this.$router.push('/login')
-      return
-    }
+    // if (!token) {
+    //   alert('로그인 페이지로 이동합니다.')
+    //   this.$router.push('/login')
+    //   return
+    // }
 
     axios
       .get(
@@ -546,7 +546,8 @@ export default {
 
 <style lang="scss" scoped>
 .orderContainer {
-  margin: 0 320px;
+  width: 100%;
+  margin: 0 auto;
 
   .orderTitle {
     width: 100%;
