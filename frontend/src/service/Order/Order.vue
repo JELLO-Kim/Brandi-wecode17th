@@ -93,7 +93,7 @@
       <tr>
         <td>배송메모</td>
         <td>
-          <DropDown :item="arr">
+          <DropDown :items="arr">
         </td>
       </tr>
     </table>
