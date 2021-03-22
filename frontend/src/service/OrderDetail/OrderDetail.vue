@@ -28,6 +28,7 @@
 
         <span class="order-title">주문상품</span>
         <table class="order-list">
+            <thead>
             <tr class="order-list-title">
                 <td colspan="4">일반 배송</td>
             </tr>
@@ -36,6 +37,8 @@
                 <td>주문금액</td>
                 <td>진행사항</td>
             </tr>
+            </thead>
+            <tbody>
             <tr class="order-list-product">
                 <td>
                     <img src="https://image.brandi.me/cproduct/2021/02/26/SB000000000020525602_1614328241_image1_S.jpeg" alt="">
@@ -51,6 +54,7 @@
                     <span>결재완료</span>
                 </td>
             </tr>
+            </tbody>
         </table>
 
         <span class="buy-title">결재정보</span>

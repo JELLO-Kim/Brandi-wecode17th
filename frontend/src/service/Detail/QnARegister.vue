@@ -4,10 +4,7 @@
       <tr>
         <td>질문유형</td>
         <td>
-          <select>
-            <option>질문유형을 선택하세요</option>
-            <option>상품 문의</option>
-          </select>
+          <DropDown :items="deliveryMock" v-model="deliveryType"></DropDown>
         </td>
       </tr>
       <tr>
@@ -30,14 +27,26 @@
 
 <script>
 import CheckBox from '@/service/Components/CheckBox'
+import DropDown from '@/service/Components/DropDown'
 
 export default {
   data () {
     return {
-      isPrivate: false
+      deliveryType: '',
+      // 삭제하기 이거!!
+      isPrivate: false,
+      deliveryMock: [{
+        label: '집 앞에 놓고 가주세요.',
+        key: '11'
+      },
+      {
+        label: '등등등..',
+        key: '12'
+      }
+      ]
     }
   },
-  components: { CheckBox }
+  components: { CheckBox, DropDown }
 }
 </script>
 
