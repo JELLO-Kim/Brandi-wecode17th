@@ -65,7 +65,10 @@
       </tr>
     </table>
 
-    <span class="info-title">배송지 정보</span>
+    <div class="delivery-box">
+      <span class="info-title">배송지 정보</span>
+      <span class="delivery-btn" @click="openModal">입력하기</span>
+    </div>
     <table class="info-box">
       <tr>
         <td>수령인</td>
@@ -113,11 +116,15 @@
     </div>
 
     <button class="order-confirm">결재하기</button>
+
+    <Modal @close="closeModal" v-if="modal">
+    </Modal>
   </div>
 </template>
 
 <script>
 import DropDown from '@/service/Components/DropDown'
+import Modal from '@/service/Components/Modal'
 
 export default {
   data () {
@@ -129,11 +136,21 @@ export default {
       {
         key: '1',
         label: '빨리 배달해주세요'
-      }]
+      }],
+      modal: true
     }
   },
   components: {
-    DropDown
+    DropDown,
+    Modal
+  },
+  methods: {
+    openModal () {
+      this.modal = true
+    },
+    closeModal () {
+      this.modal = false
+    }
   }
 }
 </script>
@@ -274,11 +291,19 @@ export default {
     }
   }
 
-  .info-title {
-    display: inline-block;
+  .delivery-box {
+    display: flex;
+    margin-bottom: 15px;
+    justify-content: space-between;
     font-size: 25px;
     font-weight: 300;
-    margin-bottom: 15px;
+
+    .delivery-btn {
+      color: #1E88E5;
+    }
+    .delivery-btn:hover {
+      cursor: pointer;
+    }
   }
   .info-box {
     width: 100%;
