@@ -7,7 +7,7 @@
 instance/*
 !instance/.gitignore
 .webassets-cache
-
+db_connector.py
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
