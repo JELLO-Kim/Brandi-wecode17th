@@ -1,40 +1,47 @@
 <template>
   <div class="product">
     <div class="productImage" @click="linkToDetail(product)">
-      <img :src="product.thumbnail_image" alt="thumbnail img" />
+      <img :src="product.productThumbnailImage" alt="thumbnail img" />
     </div>
-    <div class="productName">{{ product.product_name }}</div>
+    <div class="brandName">{{ product.sellerName }}</div>
+    <div class="productName">{{ product.name }}</div>
     <div class="productPrice">
-      <span class="discountRate" v-if="product.discount_rate"
-        >{{ product.discount_rate }}%</span
+      <span class="discountRate" v-if="product.discountRate"
+        >{{ product.discountRate * 100 }}%</span
       >
-      <span class="discountPrice" v-if="product.discount_rate">
-        {{ product.sales_price | makeComma }}
+      <span class="discountPrice" v-if="product.discountRate">
+        {{ Math.round(product.price * (1 - product.discountRate) / 100 ) * 100 | makeComma }}
       </span>
       <span
         :class="{
-          noneDisCountPrice: !product.discount_rate,
-          price: product.discount_rate,
+          noneDisCountPrice: !product.discountRate,
+          price: product.discountRate,
         }"
         >{{
-            Math.round(product.original_price / 10) * 10 | makeComma
+            Math.round(product.price / 10) * 10 | makeComma
         }}</span
       >
     </div>
+    <!-- <div class="saleCount">
+      <span>{{ product.totalSales }}</span>
+    </div> -->
   </div>
 </template>
 <script>
+// const global = this
 export default {
   props: {
     product: {
       type: Object,
       default () {
         return {
-          thumbnail_image: '',
-          product_name: '',
-          sales_price: 0,
-          original_price: 0,
-          discount_rate: 0
+          thumbnailImage: '',
+          name: '',
+          // sales_price: this.methods.getDiscountPrice(this.original_price, this.discount_rate),
+          price: 0,
+          discountRate: 0,
+          totalSales: 0,
+          sellerName: ''
         }
       }
     }
@@ -55,6 +62,14 @@ export default {
   text-align: left;
   width: 255px;
   padding: 0 0.5% 30px 0.5%;
+
+  .brandName {
+    margin-top: 15px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #757575
+  }
+
   .productImage {
     height: 254px;
     cursor: pointer;
@@ -65,7 +80,7 @@ export default {
   }
   .productName {
     height: 20px;
-    margin-top: 15px;
+    margin-top: 5px;
     font-size: 16px;
     font-weight: 500;
     text-overflow: ellipsis;
@@ -82,7 +97,7 @@ export default {
     }
     .price {
       font-size: 15px;
-      color: #757575;
+      color: black;
       text-decoration: line-through;
     }
     .noneDisCountPrice {

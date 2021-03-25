@@ -1,45 +1,38 @@
 <template>
   <main>
     <article class="ProductInfo">
-      <agile v-if="detailData.image_list[1]" class="agile" :dots="false">
+      <agile v-if="detailData.imageList[1]" class="agile" :dots="false">
         <div class="imgContainer">
-          <img alt="product  image" :src="detailData.image_list[0]" />
+          <img alt="product  image" :src="detailData.imageList[0]" />
         </div>
-        <div v-if="detailData.image_list[1]" class="imgContainer">
-          <img alt="product  image" :src="detailData.image_list[1]" />
+
+        <div v-for="image in detailData.imageList" class="imgContainer" :key="image">
+          <img alt="product image" :src="image" />
         </div>
-        <div v-if="detailData.image_list[2]" class="imgContainer">
-          <img alt="product  image" :src="detailData.image_list[2]" />
-        </div>
-        <div v-if="detailData.image_list[3]" class="imgContainer">
-          <img alt="product  image" :src="detailData.image_list[3]" />
-        </div>
-        <div v-if="detailData.image_list[4]" class="imgContainer">
-          <img alt="product  image" :src="detailData.image_list[4]" />
-        </div>
+
         <div class="prevBtn" slot="prevButton" />
         <div class="nextBtn" slot="nextButton" />
+        <!-- 이거 작은 이미지 리스트 한번 봐야함! -->
+        <!-- <div class="smallImage"></div> -->
       </agile>
-      <div v-else class="imgContainer">
-        <img alt="product  image" :src="detailData.image_list[0]" />
-      </div>
+
       <div class="detailInfoContainer">
         <p class="title">{{ detailData.name }}</p>
         <div class="priceContainer">
-          <span v-if="detailData.discount_rate" class="percent"
-            >{{ detailData.discount_rate }}%</span
-          >
-          <span class="price">
-            {{ detailData.sales_price | makeComma }}원
+          <span v-if="detailData.discountRate" class="percent">
+            {{ detailData.discountRate }}%
           </span>
-          <span v-if="detailData.discount_rate !== 0" class="cost">{{
-            detailData.original_price | makeComma
-          }}원</span>
+          <span class="price">
+            {{ detailData.price | makeComma }}원
+          </span>
+          <span v-if="detailData.discountRate !== 0" class="cost">
+            {{ detailData.discountPrice | makeComma }}원
+          </span>
         </div>
         <hr />
-        <DropDown :items="colorList" v-model="color" @change="colorClickHandler" placeholder="[색상]을 선택하세요." class="option-box"></DropDown>
-        <!-- 사이즈 옵션 -->
-        <DropDown :items="sizeData" v-model="size" @change="sizeClickHandler" placeholder="[사이즈]를 선택하세요." class="option-box"></DropDown>
+
+        <DropDown :items="detailData.colors" v-model="color" @change="selectOption" placeholder="[색상]을 선택하세요." class="option-box"></DropDown>
+        <DropDown :items="detailData.sizes" v-model="size" @change="selectOption" placeholder="[사이즈]를 선택하세요." class="option-box"></DropDown>
 
         <div class="option-quantity">
           <OptionQuantity v-for="item in optionQuantity" :item="item" :key="item" @remove="removeOption"></OptionQuantity>
@@ -59,7 +52,7 @@
         <button @click="buyNowHandler" class="purchaseBtn">
           바로 구매하기
         </button>
-        <button type="button" class="cartBtn">장바구니 담기</button>
+        <button type="button" class="cartBtn" @click="addCart">장바구니 담기</button>
       </div>
     </article>
     <article class="detailProduct">
@@ -71,10 +64,10 @@
           <div class="tab orderDetail"><a href="#">주문정보</a></div>
         </div>
         <div>
-          <div class="detailHtml" v-html="detailData.html" />
+          <div class="detailHtml" v-html="detailData.productContentImage" />
         </div>
         <div>
-          <QnA v-bind:isMypage="isMypage" v-bind:colgroupArr="colgroupArr" v-bind:title="title"></QnA>
+          <QnA v-bind:isMypage="isMypage" v-bind:title="title"></QnA>
         </div>
       </div>
     </article>
@@ -82,13 +75,16 @@
 </template>
 
 <script>
-// import { SERVER_IP } from '@/config.js'
-// import axios from 'axios'
+import { SERVER_IP } from '@/config.js'
+import API from '@/service/util/service-api'
 import { VueAgile } from 'vue-agile'
 import QnA from './QnA'
 import DropDown from '@/service/Components/DropDown'
 import OptionQuantity from './OptionQuantity'
-import mockup from '@/Data/DetailOption.json'
+import mockup from '@/Data/Detail.json'
+import { mapMutations, mapGetters } from 'vuex'
+
+const serviceStore = 'serviceStore'
 
 export default {
   components: {
@@ -102,10 +98,10 @@ export default {
     this.detailData = mockup.data
     // this.sizeData = mockup.sizeData
     // mockup.options
-    // axios
+    // API.methods.
     //   .get(`${SERVER_IP}/product/${this.$route.params.id}`)
     //   .then((res) => {
-    //     this.detailData = res.data.data
+    //     this.detailData = res.result
     //     this.purchaseId = this.detailData.product_id
     //   })
     // .catch((error) => {
@@ -119,39 +115,45 @@ export default {
       color: null,
       size: null,
       optionQuantity: [],
+      sellerProducts: [],
+      qnaList: [],
       detailData: {
+        id: 0,
         colors: [],
-        discount_rate: 0,
-        html: '',
-        image_list: [],
-        max_sales_quantity: 20,
-        min_sales_quantity: 1,
+        sizes: [],
         name: '',
-        original_price: 0,
-        product_id: 0,
-        sales_price: 0
+        productContentImage: '',
+        imageList: [],
+        maximum: 0,
+        minimum: 0,
+        price: 0,
+        discountPrice: 0,
+        discountRate: 0
       },
-      colorToggleData: '[색상]을 선택하세요.',
-      isColorToggle: false,
-      sizeToggleData: '[사이즈]를 선택하세요.',
-      isSizeToggle: false,
-      disabledSizeToggle: false,
-      input: 0,
-      isPurchaseBox: false,
-      purchaseColor: '',
-      purchaseColorId: '',
-      purchaseSize: '',
-      purchaseSizeId: '',
-      purchaseId: '',
-      colorData: [],
-      sizeData: [],
-      productQuantity: 0,
-      noneDisplay: false,
+      // // colorToggleData: '[색상]을 선택하세요.',
+      // isColorToggle: false,
+      // // sizeToggleData: '[사이즈]를 선택하세요.',
+      // isSizeToggle: false,
+      // disabledSizeToggle: false,
+      // input: 0,
+      // isPurchaseBox: false,
+      // purchaseColor: '',
+      // purchaseColorId: '',
+      // purchaseSize: '',
+      // purchaseSizeId: '',
+      // purchaseId: '',
+      // // 이건 수정할 필요가 있음. colorData, sizeData
+      // colorData: [],
+      // sizeData: [],
+      // productQuantity: 0,
+      // noneDisplay: false,
       isMypage: false,
       title: 'Q&A'
     }
   },
   computed: {
+    ...mapGetters(serviceStore, ['getToken']),
+    // 이건 한번 봐야함!!
     colorList () {
       const res = []
       for (const key in this.detailData.colors) {
@@ -175,19 +177,20 @@ export default {
     }
   },
   methods: {
-    colorClickHandler (item) {
-      const colors = this.detailData.colors.find(d => d.color_name === item)
-      this.sizeData = colors.sizes.map(d => { return { key: d.size, label: d.size } })
-    },
-    sizeClickHandler (item) {
-      this.optionQuantity.push({
-        size: this.size,
-        color: this.color,
-        price: this.detailData.sales_price,
-        quantity: 1
-      })
-      this.size = null
-      this.color = null
+    ...mapMutations(serviceStore, ['getStorageToken']),
+
+    selectOption () {
+      if (this.color && this.size) {
+        this.optionQuantity.push({
+          size: this.size,
+          color: this.color,
+          price: this.detailData.discountPrice,
+          quantity: 1
+        })
+
+        this.color = null
+        this.size = null
+      }
     },
     removeOption (item) {
       const pos = this.optionQuantity.indexOf(item)
@@ -195,88 +198,57 @@ export default {
         this.optionQuantity.splice(pos, 1)
       }
     },
-    // 컬러 인풋 클릭시 토글 박스 열리게하기
-    onColorClick () {
-      this.isColorToggle = !this.isColorToggle
-
-      if (this.colorToggleData !== '[색상]을 선택하세요.') {
-        this.disabledSizeToggle = !this.disabledSizeToggle
-      }
-
-      this.isSizeToggle = false
-    },
-
-    // 사이즈 인풋클릭시 토글 박스 열리게하기
-    onSizeClick () {
-      if (this.colorToggleData !== '[색상]을 선택하세요.') {
-        this.isSizeToggle = !this.isSizeToggle
-      }
-    },
-
-    // 옵션 사이즈 토글에서 원하는 사이즈 선택시 적용
-    optionSizeHandler (colorData, index) {
-      this.productQuantity = colorData[index].quantity
-      this.sizeToggleData = colorData[index].size
-      this.purchaseInputNumber = this.input
-      this.input = 1
-      this.purchaseColor = this.colorToggleData
-      this.purchaseSize = this.sizeToggleData
-      this.purchaseSizeId = colorData[index].size_id
-      this.colorToggleData = '[색상]을 선택하세요.'
-      this.sizeToggleData = '[사이즈]를 선택하세요.'
-      this.isSizeToggle = false
-      this.isPurchaseBox = true
-    },
-
-    // 상품 수량 조절하여 갯수 띄워주기
-    // +와 - 버튼을 클릭하여 조절한다.
-    // 최소,최대값 안의 input 값이라면 +, - 동작
-    selectQuantityHandler (e) {
-      const { name } = e.target
-      const isPlus = name === 'plus'
-
-      if (!isPlus && this.input <= 1) return
-      if (isPlus && this.input >= 20) { return alert('최대 구매 수량은 20개 입니다.') }
-      if (isPlus && this.input >= this.productQuantity) { return alert(`상품의 재고 수량은 ${this.productQuantity}개 입니다.`) }
-
-      isPlus ? (this.input += 1) : (this.input -= 1)
-    },
-
-    // 삭제하기 버튼 클릭시 상품 구매 박스를 안보이게 적용
-    removeSelectHandler () {
-      if (confirm('정말 삭제하시겠습니까?')) {
-        this.isPurchaseBox = false
-        this.input = 0
-      } else {
-
-      }
-    },
-
     // 상품구매하기 버튼을 클릭하여 로컬스토리지 저장후 구매하기 페이지로 이동
     // 상품의 갯수가 0이라면 return
     buyNowHandler () {
-      if (this.input === 0) {
-        alert('상품을 선택해주세요.')
-        return
+      if (this.optionQuantity.length > 0) {
+        if (this.getToken) {
+          const orderData = {
+            productId: this.id,
+            products: this.optionQuantity
+          }
+
+          localStorage.setItem('items', orderData)
+          this.$router.push('/order')
+        } else {
+          alert('로그인이 필요한 서비스입니다.')
+          this.$router.push('/login')
+        }
+      } else {
+        alert('옵션을 1가지 이상 선택해주세요.')
       }
 
-      localStorage.setItem('purchaseColor', this.purchaseColorId)
-      localStorage.setItem('purchaseSize', this.purchaseSizeId)
-      localStorage.setItem('purchaseProductNumber', this.input)
-      localStorage.setItem('purchaseId', this.purchaseId)
+      // localStorage.setItem('purchaseColor', this.purchaseColorId)
+      // localStorage.setItem('purchaseSize', this.purchaseSizeId)
+      // localStorage.setItem('purchaseProductNumber', this.input)
+      // localStorage.setItem('purchaseId', this.purchaseId)
+    },
 
-      this.$router.push('/order')
+    // 내가 짠 코드!
+    addCart () {
+      if (this.optionQuantity.length > 0) {
+        if (this.getToken) {
+          API.methods.post(`${SERVER_IP}/cart`, this.optionQuantity)
+            .then((res) => {
+              if (res.message === 'SUCCESS') alert('장바구니에 추가했습니다.')
+            })
+            .catch((error) => {
+              alert(error)
+              this.$router.push('/error/500')
+            })
+        } else {
+          alert('로그인이 필요한 서비스입니다.')
+          this.$router.push('/login')
+        }
+      } else {
+        alert('옵션을 1가지 이상 선택해주세요.')
+      }
     }
   }
 }
 </script>
 
-<style lang="scss">
-/* .noneDisplay {
-  width: 100%;
-  height: 100%;
-  background-color: black;
-} */
+<style lang="scss" scoped>
 
 .option-box {
   margin: 5px 0;
@@ -552,6 +524,9 @@ export default {
   display: flex;
 
   .categoryContainer {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
     width: 100%;
     /* height: 100%; */
     // border-bottom: 2px solid #dbdbdb;
@@ -559,6 +534,7 @@ export default {
     .tabs {
       position: sticky;
       top: 0;
+      width: 100%;
       height: 50px;
       background: #FFF;
       display: flex;

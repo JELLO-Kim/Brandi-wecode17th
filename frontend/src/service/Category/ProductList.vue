@@ -6,6 +6,9 @@
     <div class="products">
       <ProductBox :product="product" v-for="product in productList" :key="product" @linkToDetail="linkToDetail"></ProductBox>
     </div>
+    <div>
+      <button class="moreItemBtn" @click="moreItemBtn">더보기</button>
+    </div>
   </div>
 </template>
 
@@ -33,7 +36,8 @@ export default {
   methods: {
     linkToDetail () {
       console.log('linkToDetail')
-    }
+    },
+    moreItemBtn () {}
   }
 }
 </script>
@@ -52,5 +56,18 @@ export default {
     flex-wrap: wrap;
     justify-content: space-between;
   }
+}
+.moreItemBtn {
+  display: block;
+  margin: 30px auto 70px;
+  padding: 15px 120px;
+  border: solid 1px black;
+  background-color: white;
+  color: black;
+}
+.moreItemBtn:hover {
+  background-color: black;
+  color: white;
+  cursor: pointer;
 }
 </style>

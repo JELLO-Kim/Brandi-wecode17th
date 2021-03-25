@@ -2,5 +2,5 @@
 /* eslint-disable no-labels */
 {
   // eslint-disable-next-line no-unused-expressions
-  SERVER_IP: '127.0.0.1'
+  SERVER_IP: '10.58.2.198:5000'
 }
