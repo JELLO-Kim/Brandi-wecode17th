@@ -68,13 +68,12 @@
 </template>
 
 <script>
-// import { SERVER_IP } from '@/config.js'
+import { SERVER_IP } from '@/config.js'
 import API from '@/service/util/service-api'
 import { mapMutations } from 'vuex'
 import CheckBox from '@/service/Components/CheckBox'
 
 const serviceStore = 'serviceStore'
-const SERVER_IP = 'http://192.168.40.105:5000'
 
 export default {
   components: {
@@ -104,7 +103,6 @@ export default {
     ...mapMutations(serviceStore, ['getStorageToken']),
 
     onSuccess () {
-      console.log('회원가입')
       const data = {
         username: this.username,
         password: this.password,
@@ -121,7 +119,7 @@ export default {
         })
         .catch(() => {
           alert('가입이 실패하였습니다. 다시 시도해주세요.')
-          this.$router.push('/main')
+          this.$router.push('/signup')
         })
     },
 

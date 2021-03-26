@@ -43,7 +43,7 @@ div {
 }
 input {
   position: relative;
-  top: -5px;
+  top: -4px;
   left: 2px;
 }
 span {
