@@ -68,12 +68,13 @@
 </template>
 
 <script>
-import { SERVER_IP } from '@/config.js'
+// import { SERVER_IP } from '@/config.js'
 import API from '@/service/util/service-api'
 import { mapMutations } from 'vuex'
 import CheckBox from '@/service/Components/CheckBox'
 
 const serviceStore = 'serviceStore'
+const SERVER_IP = 'http://192.168.40.105:5000'
 
 export default {
   components: {

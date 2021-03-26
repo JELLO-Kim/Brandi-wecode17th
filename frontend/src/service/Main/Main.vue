@@ -22,12 +22,12 @@
   </div>
 </template>
 <script>
-// import axios from 'axios'
 import Banner from '@/service/Components/Banner'
 import ProductBox from '@/service/Components/ProductBox'
 // import API from '@/service/util/service-api'
 // import { SERVER_IP } from '@/config'
 import mockup from '@/Data/ProductList.json'
+// import axios from 'axios'
 
 export default {
   components: {
