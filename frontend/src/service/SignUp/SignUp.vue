@@ -6,72 +6,61 @@
         <h2 class="subLoginTitle">브랜디/하이버의 통합회원으로 가입됩니다.</h2>
         <div class="loginContainer">
           <h3>아이디 <span class="required">(필수)</span></h3>
-          <input class="loginInput" placeholder="아이디 입력" />
+          <input class="loginInput" placeholder="아이디 입력" v-model="username" />
           <h3>이메일 <span class="required">(필수)</span></h3>
-          <input class="loginInput" placeholder="이메일 입력" />
+          <input class="loginInput" placeholder="이메일 입력" v-model="email" />
           <h3>비밀번호 <span class="required">(필수)</span></h3>
-          <input class="loginInput" placeholder="비밀번호 입력" type="password" />
-          <input class="loginInput" placeholder="비밀번호 재입력" type="password" />
+          <input class="loginInput" placeholder="비밀번호 입력" type="password" v-model="password" />
+          <input class="loginInput" placeholder="비밀번호 재입력" type="password" v-model="rePassword" @keyup="checkPassword" />
+          <p v-if="!isPassword">비밀번호가 옳바르지 않습니다.</p>
           <h3>휴대폰 번호 <span class="required">(필수)</span></h3>
           <div class="phonenumber">
-            <input class="loginInput" placeholder="010" maxlength="3" />
-            <input class="loginInput" placeholder="0000"  maxlength="4" />
-            <input class="loginInput" placeholder="0000"  maxlength="4" />
-            <button type="button">인증요청</button>
+            <input class="loginInput" placeholder="010" maxlength="3" v-model="phone1" />
+            <input class="loginInput" placeholder="0000"  maxlength="4" v-model="phone2" />
+            <input class="loginInput" placeholder="0000"  maxlength="4" v-model="phone3" />
+            <button v-bind:class="{ phoneOk:this.checkPhone }" type="button" @click="checkPhoneHandler">인증요청</button>
           </div>
-          <h3>생년월일</h3>
-          <div class="birthday">
-            <input class="loginInput" placeholder="년도" maxlength="4" />
-            <input class="loginInput" placeholder="월" maxlength="2" />
-            <input class="loginInput" placeholder="일" maxlength="2" />
-          </div>
-          생년월일을 입력해주시면 회원가입 쿠폰이 지급됩니다.
 
-          <h3>추천인 코드</h3>
-          <input class="loginInput" placeholder="추천인코드 입력 (선택)" />
-          추천인 코드를 입력하시면, 친구초대 포인트가 지급됩니다.
-
-          <hr>
-
-          <h3><label><input type="checkbox" v-model="allMark" /> 약관 모두 동의</label></h3>
+          <h3><label><CheckBox type="checkbox" v-model="allMark" /> 약관 모두 동의</label></h3>
           <div class="agreement">
             <div class="line">
               <label>
-                <input type="checkbox" v-model="marks.mark1">
+                <CheckBox type="checkbox" v-model="marks.mark1" />
                 만 14세 이상입니다 <span class="required">(필수)</span>
               </label>
             </div>
             <div class="line">
               <label>
-                <input type="checkbox" v-model="marks.mark2">
+                <CheckBox type="checkbox" v-model="marks.mark2" />
                 브랜디 약관 동의 <span class="required">(필수)</span>
               </label>
               <a class="more">내용보기</a>
             </div>
             <div class="line">
               <label>
-                <input type="checkbox" v-model="marks.mark3">
+                <CheckBox type="checkbox" v-model="marks.mark3" />
                 개인정보수집 및 이용에 대한 안내 <span class="required">(필수)</span>
               </label>
               <a class="more">내용보기</a>
             </div>
             <div class="line">
               <label>
-                <input type="checkbox" v-model="marks.mark4">
+                <CheckBox type="checkbox" v-model="marks.mark4" />
                 이벤트/마케팅 수신 동의 (선택)
               </label>
               <a class="more">내용보기</a>
             </div>
             <div class="line">
               <label>
-                <input type="checkbox" v-model="marks.mark5">
+                <CheckBox type="checkbox" v-model="marks.mark5" />
                 야간 혜택 알림 수신 동의 (선택)
               </label>
               <a class="more">내용보기</a>
             </div>
           </div>
 
-          <button type="button" class="loginBtn" :disabled="!canRegister">가입하기</button>
+          <button type="button" class="loginBtn" :disabled="!canRegister"
+            @click="onSuccess">가입하기</button>
         </div>
       </main>
     </section>
@@ -79,30 +68,28 @@
 </template>
 
 <script>
-import { ClientId, SERVER_IP } from '@/config.js'
-// import { GoogleLogin } from 'vue-google-login'
-import axios from 'axios'
-// import Footer from '@/service/Components/Footer'
+import { SERVER_IP } from '@/config.js'
+import API from '@/service/util/service-api'
 import { mapMutations } from 'vuex'
+import CheckBox from '@/service/Components/CheckBox'
 
 const serviceStore = 'serviceStore'
 
 export default {
   components: {
-    // GoogleLogin
-    // Footer
+    CheckBox
   },
   data () {
     return {
-      // 구글 로그인 하기
-      params: {
-        client_id: ClientId
-      },
-      renderParams: {
-        width: 250,
-        height: 50,
-        longtitle: true
-      },
+      username: '',
+      password: '',
+      rePassword: '',
+      isPassword: false,
+      email: '',
+      phone1: '',
+      phone2: '',
+      phone3: '',
+      checkPhone: false,
       marks: {
         mark1: false,
         mark2: false,
@@ -115,32 +102,43 @@ export default {
   methods: {
     ...mapMutations(serviceStore, ['getStorageToken']),
 
-    onSuccess (googleUser) {
-      localStorage.setItem('user_id', googleUser.tt.Ad)
-      localStorage.setItem('user_email', googleUser.tt.bu)
+    onSuccess () {
+      console.log('회원가입')
+      const data = {
+        username: this.username,
+        password: this.password,
+        email: this.email,
+        user_type_id: 1
 
-      // axios 사용함에 있어 body에 빈 객체를 넣어야 post에서 headers의 정보를 보내기가 가능하다.
-      const data = {}
-      const headers = {
-        headers: { Authorization: googleUser.wc.id_token }
+        // phone: this.phone1 + this.phone2 + this.phone3
       }
-      axios
-        .post(`${SERVER_IP}/user/google-signin`, data, headers)
-        .then((res) => {
-          if (res.data.access_token) {
-            localStorage.setItem('access_token', res.data.access_token)
-            this.getStorageToken()
-            this.$router.push('/main')
-          } else {
-            alert('로그인 정보가 맞지 않습니다. 다시 시도해주세요.')
-          }
+      API.methods
+        .post(`${SERVER_IP}/user/signup`, data)
+        .then(() => {
+          alert('가입이 완료되었습니다!')
+          this.$router.push('/main')
         })
+        .catch(() => {
+          alert('가입이 실패하였습니다. 다시 시도해주세요.')
+          this.$router.push('/main')
+        })
+    },
+
+    checkPhoneHandler () {
+      if (this.phone1.length === 3 && this.phone2.length === 4 && this.phone3.length === 4) {
+        alert('인증되었습니다.')
+        this.checkPhone = true
+      } else {
+        alert('핸드폰 정보를 다 입력해 주세요.')
+      }
     }
   },
   mounted () {
-    // console.log(this.$refs)
   },
   computed: {
+    checkPassword () {
+      return this.password === this.rePassword
+    },
     canRegister () {
       return this.marks.mark1 && this.marks.mark2 && this.marks.mark3
     },
@@ -162,6 +160,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.phoneOk {
+  background-color: green;
+}
+
 span.required {
   color: red;
 }

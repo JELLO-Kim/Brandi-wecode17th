@@ -7,7 +7,7 @@
         <div class="loginContainer">
           <input class="loginInput" placeholder="아이디 입력" />
           <input class="loginInput" placeholder="비밀번호 입력" />
-          <a class="loginBtn">로그인</a>
+          <a class="loginBtn" @click="login">로그인</a>
           <a class="JoinBtn" @click="linkToSignUp">회원가입</a>
           <div class="loginFind">
             <span class="findId">아이디 찾기</span>
@@ -30,7 +30,8 @@
 <script>
 import { ClientId, SERVER_IP } from '@/config.js'
 import { GoogleLogin } from 'vue-google-login'
-import axios from 'axios'
+import API from '@/service/util/service-api'
+// import axios from 'axios'
 // import Footer from '@/service/Components/Footer'
 import { mapMutations } from 'vuex'
 
@@ -66,7 +67,7 @@ export default {
       const headers = {
         headers: { Authorization: googleUser.wc.id_token }
       }
-      axios
+      API.methods
         .post(`${SERVER_IP}/user/google-signin`, data, headers)
         .then((res) => {
           if (res.data.access_token) {
@@ -80,14 +81,21 @@ export default {
     },
     linkToSignUp () {
       if (this.getToken) {
-        localStorage.removeItem('user_id')
         localStorage.removeItem('access_token')
-        localStorage.removeItem('user_email')
         this.getStorageToken()
         this.$route.path !== '/main' && this.$router.push('/main')
       } else {
         this.$route.path !== '/signup' && this.$router.push('/signup')
       }
+    },
+    login () {
+      API.methods.post(`${SERVER_IP}/user/signin`)
+        .then((res) => {
+          localStorage.setItem('access_token', res.data.access_token)
+        })
+        .catch((error) => {
+          alert(error)
+        })
     }
   }
 }

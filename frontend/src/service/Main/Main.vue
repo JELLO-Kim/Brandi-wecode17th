@@ -11,9 +11,12 @@
             </h1>
           </div>
           <article class="productList">
-            <ProductBox :product="product" v-for="product in product.data" :key="product" @linkToDetail="linkToDetail"></ProductBox>
+            <ProductBox :product="product" v-for="product in products.data" :key="product" @linkToDetail="linkToDetail"></ProductBox>
           </article>
         </section>
+        <div>
+          <button class="moreItemBtn" @click="moreItemBtn">더보기</button>
+        </div>
       </div>
     </main>
   </div>
@@ -21,9 +24,10 @@
 <script>
 // import axios from 'axios'
 import Banner from '@/service/Components/Banner'
+import ProductBox from '@/service/Components/ProductBox'
+// import API from '@/service/util/service-api'
 // import { SERVER_IP } from '@/config'
 import mockup from '@/Data/ProductList.json'
-import ProductBox from '@/service/Components/ProductBox'
 
 export default {
   components: {
@@ -35,21 +39,28 @@ export default {
   },
   data () {
     return {
-      product: []
+      products: []
     }
   },
   methods: {
     getProductData () {
-      this.product = mockup
-      // axios.get(`${SERVER_IP}/product`).then((res) => {
-      //   this.product = res.data
-      // })
+      this.products = mockup
+      // API.methods.get(`${SERVER_IP}/products`)
+      //   .then((res) => {
+      //     this.products = res.data
+      //   })
+      //   .catch(() => {
+      //     this.$router.push('/error/500')
+      //   })
     },
     numberWithCommas (x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     },
     linkToDetail (product) {
-      this.$router.push(`/detail/${product.product_no}`)
+      this.$router.push(`/detail/${product.id}`)
+    },
+    moreItemBtn () {
+      this.$router.push('/category')
     }
   }
 }
@@ -78,5 +89,19 @@ main {
       }
     }
   }
+}
+
+.moreItemBtn {
+  display: block;
+  margin: 30px auto 70px;
+  padding: 15px 120px;
+  border: solid 1px black;
+  background-color: white;
+  color: black;
+}
+.moreItemBtn:hover {
+  background-color: black;
+  color: white;
+  cursor: pointer;
 }
 </style>
