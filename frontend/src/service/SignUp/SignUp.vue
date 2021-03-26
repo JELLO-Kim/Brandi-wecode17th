@@ -103,7 +103,6 @@ export default {
     ...mapMutations(serviceStore, ['getStorageToken']),
 
     onSuccess () {
-      console.log('회원가입')
       const data = {
         username: this.username,
         password: this.password,
@@ -120,7 +119,7 @@ export default {
         })
         .catch(() => {
           alert('가입이 실패하였습니다. 다시 시도해주세요.')
-          this.$router.push('/main')
+          this.$router.push('/signup')
         })
     },
 

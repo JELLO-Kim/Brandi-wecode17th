@@ -5,8 +5,8 @@
         <h1 class="loginTitle">오늘 사면 내일 도착!</h1>
         <h2 class="subLoginTitle">무료배송으로 내일 받는 브랜디 LOGIN</h2>
         <div class="loginContainer">
-          <input class="loginInput" placeholder="아이디 입력" />
-          <input class="loginInput" placeholder="비밀번호 입력" />
+          <input type="text" class="loginInput" placeholder="아이디 입력" v-model="username" />
+          <input type="password" class="loginInput" placeholder="비밀번호 입력" v-model="password" />
           <a class="loginBtn" @click="login">로그인</a>
           <a class="JoinBtn" @click="linkToSignUp">회원가입</a>
           <div class="loginFind">
@@ -52,7 +52,9 @@ export default {
         width: 250,
         height: 50,
         longtitle: true
-      }
+      },
+      username: '',
+      password: ''
     }
   },
   methods: {
@@ -63,12 +65,15 @@ export default {
       localStorage.setItem('user_email', googleUser.tt.bu)
 
       // axios 사용함에 있어 body에 빈 객체를 넣어야 post에서 headers의 정보를 보내기가 가능하다.
-      const data = {}
+      const data = {
+        username: this.username,
+        password: this.password
+      }
       const headers = {
         headers: { Authorization: googleUser.wc.id_token }
       }
       API.methods
-        .post(`${SERVER_IP}/user/google-signin`, data, headers)
+        .post(`${SERVER_IP}/user/signin`, data, headers)
         .then((res) => {
           if (res.data.access_token) {
             localStorage.setItem('access_token', res.data.access_token)
@@ -89,12 +94,19 @@ export default {
       }
     },
     login () {
-      API.methods.post(`${SERVER_IP}/user/signin`)
+      const data = {
+        username: this.username,
+        password: this.password
+      }
+      API.methods.post(`${SERVER_IP}/user/signin`, data)
         .then((res) => {
-          localStorage.setItem('access_token', res.data.access_token)
+          localStorage.setItem('access_token', res.data.ACCESS_TOKEN)
+          this.$router.push('/main')
         })
-        .catch((error) => {
-          alert(error)
+        .catch(() => {
+          alert('로그인이 실패하였습니다. 다시 시도해주세요.')
+          this.username = ''
+          this.password = ''
         })
     }
   }

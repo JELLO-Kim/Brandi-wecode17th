@@ -98,16 +98,17 @@ export default {
     this.detailData = mockup.data
     // this.sizeData = mockup.sizeData
     // mockup.options
-    // API.methods.
-    //   .get(`${SERVER_IP}/product/${this.$route.params.id}`)
+    // API.methods
+    //   .get(`${SERVER_IP}/products/1`)
     //   .then((res) => {
-    //     this.detailData = res.result
-    //     this.purchaseId = this.detailData.product_id
+    //     // console.log(res.data.result)
+    //     this.detailData = res.data.result.product
     //   })
-    // .catch((error) => {
-    //   this.$router.push('/main')
-    //   alert('존재하지 않는 서비스 상품입니다.')
-    // })
+    //   .catch(() => {
+    //     // console.log(error)
+    //     this.$router.push('/main')
+    //     alert('존재하지 않는 서비스 상품입니다.')
+    //   })
   },
 
   data () {
@@ -234,7 +235,7 @@ export default {
             })
             .catch((error) => {
               alert(error)
-              this.$router.push('/error/500')
+              // this.$router.push('/error/500')
             })
         } else {
           alert('로그인이 필요한 서비스입니다.')
