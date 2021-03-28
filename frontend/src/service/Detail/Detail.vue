@@ -71,6 +71,7 @@
         </div>
       </div>
     </article>
+    <Toast :message="errorMessage" v-on:remove-message="removeMessage"/>
   </main>
 </template>
 
@@ -83,6 +84,7 @@ import DropDown from '@/service/Components/DropDown'
 import OptionQuantity from './OptionQuantity'
 import mockup from '@/Data/Detail.json'
 import { mapMutations, mapGetters } from 'vuex'
+import Toast from '@/service/Components/Toast'
 
 const serviceStore = 'serviceStore'
 
@@ -92,7 +94,8 @@ export default {
     agile: VueAgile,
     QnA,
     DropDown,
-    OptionQuantity
+    OptionQuantity,
+    Toast
   },
   created () {
     this.detailData = mockup.data
@@ -131,25 +134,9 @@ export default {
         discountPrice: 0,
         discountRate: 0
       },
-      // // colorToggleData: '[색상]을 선택하세요.',
-      // isColorToggle: false,
-      // // sizeToggleData: '[사이즈]를 선택하세요.',
-      // isSizeToggle: false,
-      // disabledSizeToggle: false,
-      // input: 0,
-      // isPurchaseBox: false,
-      // purchaseColor: '',
-      // purchaseColorId: '',
-      // purchaseSize: '',
-      // purchaseSizeId: '',
-      // purchaseId: '',
-      // // 이건 수정할 필요가 있음. colorData, sizeData
-      // colorData: [],
-      // sizeData: [],
-      // productQuantity: 0,
-      // noneDisplay: false,
       isMypage: false,
-      title: 'Q&A'
+      title: 'Q&A',
+      errorMessage: ''
     }
   },
   computed: {
@@ -216,34 +203,33 @@ export default {
           this.$router.push('/login')
         }
       } else {
-        alert('옵션을 1가지 이상 선택해주세요.')
+        this.errorMessage = '옵션을 한개 이상 선택해주세요.'
       }
-
-      // localStorage.setItem('purchaseColor', this.purchaseColorId)
-      // localStorage.setItem('purchaseSize', this.purchaseSizeId)
-      // localStorage.setItem('purchaseProductNumber', this.input)
-      // localStorage.setItem('purchaseId', this.purchaseId)
     },
 
     // 내가 짠 코드!
     addCart () {
+      console.log('이거 눌림???')
       if (this.optionQuantity.length > 0) {
         if (this.getToken) {
           API.methods.post(`${SERVER_IP}/cart`, this.optionQuantity)
             .then((res) => {
-              if (res.message === 'SUCCESS') alert('장바구니에 추가했습니다.')
+              if (res.message === 'SUCCESS') this.errorMessage = '선택한 상품이 장바구니에 담겼습니다.'
             })
             .catch((error) => {
-              alert(error)
-              // this.$router.push('/error/500')
+              alert(error.message)
             })
         } else {
           alert('로그인이 필요한 서비스입니다.')
           this.$router.push('/login')
         }
       } else {
-        alert('옵션을 1가지 이상 선택해주세요.')
+        this.errorMessage = '옵션을 한개 이상 선택해주세요.'
       }
+    },
+
+    removeMessage () {
+      this.errorMessage = ''
     }
   }
 }

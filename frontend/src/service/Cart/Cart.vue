@@ -4,8 +4,8 @@
     <div class="selectBox">
       <div>
         <label>
-          <CheckBox v-model="isSelectAll" />
-          <span>전체선택 (1/1)</span>
+          <CheckBox id="allSelect" @click="allCheckBtn" />
+          <span>전체선택 ({{ this.selectItems.length }}/{{ this.totalCount }})</span>
         </label>
       </div>
       <div>
@@ -21,32 +21,70 @@
         </tr>
       </thead>
       <tbody>
-        <div></div>
-        <CartOption />
+        <CartOption v-for="cart in cartList" :brand="cart" :key="cart" />
       </tbody>
     </table>
 
     <div class="price-box">
       <span class="price-title">총 결재 예상 금액</span>
       <div>
-        <span>총 상품 금액 99,999원 - 즉시할인 + 총 배송비 0원</span>
-        <span>총 결재 예상 금액 <span class="price">99,999</span>원</span>
+        <span>총 상품 금액 {{ this.calTotalPrice | makeComma }}원 - 즉시할인 + 총 배송비 {{ this.calTotalPrice > 30000 ? 0 : 3000 | makeComma}}원</span>
+        <span>총 결재 예상 금액 <span class="price">{{ this.calTotalPrice > 30000 ? this.calTotalPrice : this.calTotalPrice + 3000 | makeComma }}</span>원</span>
       </div>
     </div>
 
-    <button class="buy-btn">구매하기</button>
+    <button class="buy-btn" @click="buyBtn">구매하기</button>
   </div>
 </template>
 
 <script>
 import CheckBox from '@/service/Components/CheckBox'
 import CartOption from '@/service/Cart/CartOption'
+// import SERVER_IP from '@/config'
+// import API from '@/service/util/service-api'
+import mock from '@/Data/Cart'
+import { EventBus } from '@/service/util/event-bus'
+
+// const thisTarget = this
 
 export default {
+  created () {
+    // API.methods
+    //   .get(`${SERVER_IP}/cart`)
+    //   .then((res) => {
+    //     // 한번 수정하기
+    //     this.cartList = res.data
+    //   })
+    //   .catch()
+    this.cartList = mock.cartList
+    this.totalCount = mock.totalCount
+
+    EventBus.$on('check-item', item => {
+      this.selectItems.push(item)
+
+      if (this.totalCount === this.selectItems.length) {
+        document.getElementById('allSelect').attributes('checked')
+      } else {
+        document.getElementById('allSelect').removeAttribute('checked')
+      }
+    })
+  },
   data () {
     return {
-      isSelectAll: false,
-      selectItems: []
+      selectItems: [],
+      cartList: [],
+      totalCount: 0,
+      totalPrice: 0
+    }
+  },
+  computed: {
+    calTotalPrice () {
+      let sum = 0
+      for (const item in this.selectItems) {
+        sum += (item.price * item.quantity)
+      }
+
+      return sum
     }
   },
   components: {
@@ -56,6 +94,17 @@ export default {
   methods: {
     selectDelete () {
       this.selectItems = []
+    },
+    allCheckBtn () {
+      document.getElementsByClassName('checkItem').attributes('checked')
+    },
+    buyBtn () {
+      if (this.selectItems.length > 0) {
+        localStorage.setItem('cart', this.selectItems)
+        this.$router.push('/order')
+      } else {
+        // 여기에 Toast 넣기! data에 errorMessage도 넣기!
+      }
     }
   }
 }
@@ -127,81 +176,81 @@ export default {
       padding: 30px 0;
       text-align: left;
     }
-    .cart-list-brand {
-      font-size: 15px;
+    // .cart-list-brand {
+    //   font-size: 15px;
 
-      td {
-        border-bottom: solid 1px rgb(228, 228, 228);
-        padding: 20px 0;
-      }
-      td:first-child {
-        font-size: 18px;
-        font-weight: 600;
-        text-align: left;
-      }
-    }
-    .cart-list-product {
-      padding: 15px 0;
+    //   td {
+    //     border-bottom: solid 1px rgb(228, 228, 228);
+    //     padding: 20px 0;
+    //   }
+    //   td:first-child {
+    //     font-size: 18px;
+    //     font-weight: 600;
+    //     text-align: left;
+    //   }
+    // }
+    // .cart-list-product {
+    //   padding: 15px 0;
 
-      td {
-        padding: 15px 15px 15px 0;
-      }
-      td:nth-child(2) {
-        width: 80px;
-        height: 80px;
-        overflow: hidden;
+    //   td {
+    //     padding: 15px 15px 15px 0;
+    //   }
+    //   td:nth-child(2) {
+    //     width: 80px;
+    //     height: 80px;
+    //     overflow: hidden;
 
-        img {
-          width: 80px;
-          height: auto;
-        }
-      }
-      td:nth-child(3) {
-        width: 60%;
-        text-align: left;
+    //     img {
+    //       width: 80px;
+    //       height: auto;
+    //     }
+    //   }
+    //   td:nth-child(3) {
+    //     width: 60%;
+    //     text-align: left;
 
-        div:first-child {
-          font-size: 17px;
-        }
-        div:last-child {
-          color: rgb(135, 135, 135);
-        }
-      }
-      td:nth-child(4) {
-        div {
-          text-align: center;
+    //     div:first-child {
+    //       font-size: 17px;
+    //     }
+    //     div:last-child {
+    //       color: rgb(135, 135, 135);
+    //     }
+    //   }
+    //   td:nth-child(4) {
+    //     div {
+    //       text-align: center;
 
-          button {
-            background-color: white;
-            border: solid 1px rgb(228, 228, 228);
-            width: 25px;
-          }
-          span {
-            font-size: 10px;
-            padding: 4px 4px;
-          }
-        }
-      }
-      td:nth-child(5) {
-        display: flex;
-        flex-direction: column;
-        * {
-          display: inline-block;
-        }
-        span {
-          font-size: 23px;
-          font-weight: 600;
-        }
-        button {
-          font-size: 13px;
-          margin: 0 auto;
-          width: 120px;
-          background-color: black;
-          color: white;
-          padding: 10px 20px;
-        }
-      }
-    }
+    //       button {
+    //         background-color: white;
+    //         border: solid 1px rgb(228, 228, 228);
+    //         width: 25px;
+    //       }
+    //       span {
+    //         font-size: 10px;
+    //         padding: 4px 4px;
+    //       }
+    //     }
+    //   }
+    //   td:nth-child(5) {
+    //     display: flex;
+    //     flex-direction: column;
+    //     * {
+    //       display: inline-block;
+    //     }
+    //     span {
+    //       font-size: 23px;
+    //       font-weight: 600;
+    //     }
+    //     button {
+    //       font-size: 13px;
+    //       margin: 0 auto;
+    //       width: 120px;
+    //       background-color: black;
+    //       color: white;
+    //       padding: 10px 20px;
+    //     }
+    //   }
+    // }
   }
   .price-box {
     font-size: 25px;
