@@ -1,5 +1,7 @@
-from .product_service import ProductService
+from .product_service   import ProductService
+from .mypage_service    import MyPageService
 
 __all__ = [
-    'ProductService'
+    'ProductService',
+    'MyPageService'
 ]
