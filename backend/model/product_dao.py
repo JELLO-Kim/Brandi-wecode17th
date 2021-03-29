@@ -30,13 +30,13 @@ class ProductDao:
             products_info = """
                 SELECT
                     p.id,
-                    u.username,
+                    s.korean_brand_name AS sellerName,
                     name,
-                    CAST(ROUND(discount_rate, 0) AS CHAR),
+                    CAST(ROUND(discount_rate, 0) AS CHAR) AS discountRate,
                     CAST(ROUND(p.price, -2) AS CHAR) AS price,
-                    p.discounted_price,
+                    CAST(p.discounted_price AS CHAR) AS discountPrice,
                     min(i.image_url) AS thumbnailImage,
-                    p.total_sales
+                    p.total_sales AS totalSales
                 FROM
                     products AS p
                 INNER JOIN
