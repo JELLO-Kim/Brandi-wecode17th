@@ -10,12 +10,13 @@ class MyPageService:
 
         result = []
         for i in mypage_qna:
-            a = {}
-            a['id'] = i['id']
-            a['username'] = i['username']
-            a['contents'] = i['contents']
-            a['category'] = i['category']
-            a['created_at'] = i['created_at']
+            a = {
+                'id' : i['id'],
+                'username' : i['username'],
+                'contents' : i['contents'],
+                'category' : i['category'],
+                'created_at' : i['created_at']
+            }
             # 답변이 있는경우 answer에 담아줌
             if i['answer_id']:
                 a['answer'] = {
