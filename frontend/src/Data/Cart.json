@@ -1,0 +1,51 @@
+{
+  "totalCount": 4,
+  "cartList": [
+    {
+      "brandName": "Castle-joooun",
+      "detail": [
+        {
+          "id": 1,
+          "name": "이거 살꺼야?",
+          "price": 12700,
+          "quantity": 3,
+          "thumbnail": "https://image.brandi.me/cproduct/2021/03/05/SB000000000021761118_1614917527_image1_M.jpeg",
+          "color": "레드",
+          "size": "Free"
+        },
+        {
+          "id": 2,
+          "name": "이거 살꺼야?",
+          "price": 12700,
+          "quantity": 3,
+          "thumbnail": "https://image.brandi.me/cproduct/2021/03/05/SB000000000021761118_1614917527_image1_M.jpeg",
+          "color": "레드",
+          "size": "Free"
+        }
+      ]
+    },
+    {
+      "brandName": "joooun",
+      "detail": [
+        {
+          "id": 1,
+          "name": "이거 살꺼야?",
+          "price": 12700,
+          "quantity": 3,
+          "thumbnail": "https://image.brandi.me/cproduct/2021/03/05/SB000000000021761118_1614917527_image1_M.jpeg",
+          "color": "레드",
+          "size": "Free"
+        },
+        {
+          "id": 2,
+          "name": "이거 살꺼야?",
+          "price": 12700,
+          "quantity": 3,
+          "thumbnail": "https://image.brandi.me/cproduct/2021/03/05/SB000000000021761118_1614917527_image1_M.jpeg",
+          "color": "레드",
+          "size": "Free"
+        }
+      ]
+    }
+  ]
+}

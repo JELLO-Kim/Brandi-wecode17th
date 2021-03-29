@@ -4,8 +4,8 @@
     <div class="selectBox">
       <div>
         <label>
-          <CheckBox v-model="isSelectAll" />
-          <span>전체선택 (1/1)</span>
+          <CheckBox v-model="allCheckBtn" />
+          <span> 전체선택 ({{ this.selectItems.length }}/{{ this.totalCount }})</span>
         </label>
       </div>
       <div>
@@ -21,32 +21,115 @@
         </tr>
       </thead>
       <tbody>
-        <div></div>
-        <CartOption />
+        <CartOption v-for="cart in cartList" :brand="cart" :key="cart" />
       </tbody>
     </table>
 
     <div class="price-box">
       <span class="price-title">총 결재 예상 금액</span>
       <div>
-        <span>총 상품 금액 99,999원 - 즉시할인 + 총 배송비 0원</span>
-        <span>총 결재 예상 금액 <span class="price">99,999</span>원</span>
+        <span>총 상품 금액 {{ this.totalPrice | makeComma }}원 - 즉시할인 + 총 배송비 {{ this.totalPrice > 30000 ? 0 : 3000 | makeComma}}원</span>
+        <span>총 결재 예상 금액 <span class="price">{{ this.totalPrice > 30000 ? this.totalPrice : this.totalPrice + 3000 | makeComma }}</span>원</span>
       </div>
     </div>
 
-    <button class="buy-btn">구매하기</button>
+    <button class="buy-btn" @click="buyBtn">구매하기</button>
   </div>
 </template>
 
 <script>
 import CheckBox from '@/service/Components/CheckBox'
 import CartOption from '@/service/Cart/CartOption'
+// import SERVER_IP from '@/config'
+// import API from '@/service/util/service-api'
+import mock from '@/Data/Cart'
+import { EventBus } from '@/service/util/event-bus'
+
+// const thisTarget = this
 
 export default {
+  created () {
+    // API.methods
+    //   .get(`${SERVER_IP}/cart`)
+    //   .then((res) => {
+    //     // 한번 수정하기
+    //     this.cartList = res.data
+    //   })
+    //   .catch()
+    const copyMock = JSON.parse(JSON.stringify(mock))
+    for (let i = 0, len = copyMock.cartList.length; i < len; i++) {
+      for (let z = 0, len2 = copyMock.cartList[i].detail.length; z < len2; z++) {
+        copyMock.cartList[i].detail[z].checked = false
+      }
+    }
+
+    this.cartList = copyMock.cartList
+    this.totalCount = mock.totalCount
+
+    EventBus.$on('check-item', item => {
+      this.selectItems.push(item)
+
+      if (this.totalCount === this.selectItems.length) {
+        document.getElementById('allSelect').arrt('checked')
+      } else {
+        document.getElementById('allSelect').removeAttribute('checked')
+      }
+    })
+
+    EventBus.$on('unCheck-item', item => {
+      for (let i = 0; i < this.selectItems.length; i++) {
+        if (this.selectItems[i].id === item.id) {
+          this.selectItems.splice(i, 1)
+          break
+        }
+      }
+    })
+
+    EventBus.$on('cal-price', () => {
+      // this.totalPrice = this.calTotalPrice()
+    })
+  },
+  updated () {
+    // this.totalPrice = this.calTotalPrice()
+  },
   data () {
     return {
-      isSelectAll: false,
-      selectItems: []
+      cartList: [],
+      totalCount: 0
+      // totalPrice: 0
+    }
+  },
+  computed: {
+    selectItems () {
+      const list = []
+      for (let i = 0, len = this.cartList.length; i < len; i++) {
+        for (let z = 0, len2 = this.cartList[i].detail.length; z < len2; z++) {
+          if (this.cartList[i].detail[z].checked) {
+            list.push(this.cartList[i].detail[z])
+          }
+        }
+      }
+      return list
+    },
+    totalPrice () {
+      let sum = 0
+      for (let i = 0; i < this.selectItems.length; i++) {
+        sum += (this.selectItems[i].price * this.selectItems[i].quantity)
+      }
+
+      return sum
+    },
+    allCheckBtn: {
+      get () {
+        return this.selectItems.length === this.totalCount
+      },
+      set (v) {
+        for (let i = 0, len = this.cartList.length; i < len; i++) {
+          for (let z = 0, len2 = this.cartList[i].detail.length; z < len2; z++) {
+            this.cartList[i].detail[z].checked = v
+          }
+        }
+      }
     }
   },
   components: {
@@ -55,7 +138,25 @@ export default {
   },
   methods: {
     selectDelete () {
+      for (let i = 0, len = this.cartList.length; i < len; i++) {
+        for (let z = 0, len2 = this.cartList[i].detail.length; z < len2; z++) {
+          this.cartList[i].detail[z].checked = false
+        }
+      }
       this.selectItems = []
+    },
+    buyBtn () {
+      if (this.selectItems.length > 0) {
+        const data = {
+          items: this.selectItems,
+          totalPrice: this.totalPrice
+        }
+        localStorage.removeItem('cart')
+        localStorage.setItem('cart', JSON.stringify(data))
+        this.$router.push('/order')
+      } else {
+        // 여기에 Toast 넣기! data에 errorMessage도 넣기!
+      }
     }
   }
 }
@@ -127,81 +228,81 @@ export default {
       padding: 30px 0;
       text-align: left;
     }
-    .cart-list-brand {
-      font-size: 15px;
+    // .cart-list-brand {
+    //   font-size: 15px;
 
-      td {
-        border-bottom: solid 1px rgb(228, 228, 228);
-        padding: 20px 0;
-      }
-      td:first-child {
-        font-size: 18px;
-        font-weight: 600;
-        text-align: left;
-      }
-    }
-    .cart-list-product {
-      padding: 15px 0;
+    //   td {
+    //     border-bottom: solid 1px rgb(228, 228, 228);
+    //     padding: 20px 0;
+    //   }
+    //   td:first-child {
+    //     font-size: 18px;
+    //     font-weight: 600;
+    //     text-align: left;
+    //   }
+    // }
+    // .cart-list-product {
+    //   padding: 15px 0;
 
-      td {
-        padding: 15px 15px 15px 0;
-      }
-      td:nth-child(2) {
-        width: 80px;
-        height: 80px;
-        overflow: hidden;
+    //   td {
+    //     padding: 15px 15px 15px 0;
+    //   }
+    //   td:nth-child(2) {
+    //     width: 80px;
+    //     height: 80px;
+    //     overflow: hidden;
 
-        img {
-          width: 80px;
-          height: auto;
-        }
-      }
-      td:nth-child(3) {
-        width: 60%;
-        text-align: left;
+    //     img {
+    //       width: 80px;
+    //       height: auto;
+    //     }
+    //   }
+    //   td:nth-child(3) {
+    //     width: 60%;
+    //     text-align: left;
 
-        div:first-child {
-          font-size: 17px;
-        }
-        div:last-child {
-          color: rgb(135, 135, 135);
-        }
-      }
-      td:nth-child(4) {
-        div {
-          text-align: center;
+    //     div:first-child {
+    //       font-size: 17px;
+    //     }
+    //     div:last-child {
+    //       color: rgb(135, 135, 135);
+    //     }
+    //   }
+    //   td:nth-child(4) {
+    //     div {
+    //       text-align: center;
 
-          button {
-            background-color: white;
-            border: solid 1px rgb(228, 228, 228);
-            width: 25px;
-          }
-          span {
-            font-size: 10px;
-            padding: 4px 4px;
-          }
-        }
-      }
-      td:nth-child(5) {
-        display: flex;
-        flex-direction: column;
-        * {
-          display: inline-block;
-        }
-        span {
-          font-size: 23px;
-          font-weight: 600;
-        }
-        button {
-          font-size: 13px;
-          margin: 0 auto;
-          width: 120px;
-          background-color: black;
-          color: white;
-          padding: 10px 20px;
-        }
-      }
-    }
+    //       button {
+    //         background-color: white;
+    //         border: solid 1px rgb(228, 228, 228);
+    //         width: 25px;
+    //       }
+    //       span {
+    //         font-size: 10px;
+    //         padding: 4px 4px;
+    //       }
+    //     }
+    //   }
+    //   td:nth-child(5) {
+    //     display: flex;
+    //     flex-direction: column;
+    //     * {
+    //       display: inline-block;
+    //     }
+    //     span {
+    //       font-size: 23px;
+    //       font-weight: 600;
+    //     }
+    //     button {
+    //       font-size: 13px;
+    //       margin: 0 auto;
+    //       width: 120px;
+    //       background-color: black;
+    //       color: white;
+    //       padding: 10px 20px;
+    //     }
+    //   }
+    // }
   }
   .price-box {
     font-size: 25px;

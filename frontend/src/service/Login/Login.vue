@@ -31,8 +31,6 @@
 import { ClientId, SERVER_IP } from '@/config.js'
 import { GoogleLogin } from 'vue-google-login'
 import API from '@/service/util/service-api'
-// import axios from 'axios'
-// import Footer from '@/service/Components/Footer'
 import { mapMutations } from 'vuex'
 
 const serviceStore = 'serviceStore'

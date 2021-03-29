@@ -1,61 +1,53 @@
 <template>
   <div class="cart-option">
     <tr class="cart-list-brand">
-      <td colspan="20">가게명</td>
+      <td colspan="20">{{ brand.brandName }}</td>
       <td>수량</td>
       <td>주문금액</td>
     </tr>
-    <tr class="cart-list-product">
-      <td>
-        <CheckBox></CheckBox>
-      </td>
-      <td>
-        <img
-          src="https://image.brandi.me/cproduct/2021/02/26/SB000000000020525602_1614328241_image1_S.jpeg"
-          alt=""
-        />
-      </td>
-      <td>
-        <div>상품이름</div>
-        <div>color / size (일반배송)</div>
-      </td>
-      <td>
-        <div>
-          <button>-</button>
-          <span>1</span>
-          <button>+</button>
-        </div>
-      <td>
-        <span>99,999원</span>
-        <button>바로주문</button>
-      </td>
-    </tr>
+    <CartDetailOption v-for="list in brand.detail" :list="list" :key="list"/>
   </div>
 </template>
 
 <script>
-// import CheckBox from '@/service/Components/CheckBox'
+import CartDetailOption from '@/service/Cart/CartDetailOption'
 
 export default {
+  created () {
+  },
   components: {
-    // CheckBox
+    CartDetailOption
   },
   props: {
-    product: {
-      brandName: String,
-      ThumbnailImage: String,
-      name: String,
-      color: String,
-      size: String,
-      quantity: Number,
-      totalprice: Number
+    brand: {
+      type: Object,
+      default () {
+        return {
+          brandName: String,
+          detail: Array
+        }
+      }
     }
+  },
+  methods: {
+
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.cart-option {
-  width: 100%;
+.cart-list-brand {
+  font-size: 15px;
+
+  td {
+    border-bottom: solid 1px rgb(228, 228, 228);
+    padding: 20px 0;
+  }
+  td:first-child {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: left;
+  }
 }
+
 </style>
