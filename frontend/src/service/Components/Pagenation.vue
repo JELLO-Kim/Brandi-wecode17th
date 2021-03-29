@@ -20,6 +20,7 @@ export default {
 
 <style lang="scss" scoped>
 .pagenation {
+  width: 100%;
   display: flex;
   justify-content: center;
   text-align: center;

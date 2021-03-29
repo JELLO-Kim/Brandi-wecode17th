@@ -11,10 +11,30 @@
     </ul>
   </div>
 </template>
+
 <script>
+// import SERVER_IP from '@/config'
+// import API from '@/service/util/service-api'
 
 export default {
   name: 'CategoryMenu',
+  created () {
+    // API.methods
+    //   .get(`${SERVER_IP}/`)
+    //   .then(res => {
+    //     this.menu = res.data
+
+    //     this.menu.forEach(m => {
+    //       this.$set(m, 'open', false)
+    //     })
+    //   })
+    //   .catch(error => {
+    //     alert(error.message)
+    //   })
+    this.menu.forEach(m => {
+      this.$set(m, 'open', false)
+    })
+  },
   components: {
   },
   data () {
@@ -50,11 +70,6 @@ export default {
         }
       ]
     }
-  },
-  created () {
-    this.menu.forEach(m => {
-      this.$set(m, 'open', false)
-    })
   },
   methods: {
     toggleOpen (item) {

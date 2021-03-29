@@ -11,9 +11,10 @@ export default {
   beforeUpdate () {
     // this.toast(this.message)
   },
-  // updated () {
-  //   this.removeMessage()
-  // },
+  updated () {
+    this.toast(this.message)
+    // this.removeMessage()
+  },
   props: ['message'],
   methods: {
     toast (string) {

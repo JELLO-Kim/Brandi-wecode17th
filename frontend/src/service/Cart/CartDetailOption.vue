@@ -2,7 +2,7 @@
   <div>
     <tr class="cart-list-product">
       <td>
-        <CheckBox class="checkItem" @click="checkItem"></CheckBox>
+        <CheckBox class="checkItem" v-model="list.checked"></CheckBox>
       </td>
       <td>
         <img
@@ -23,7 +23,7 @@
       </td>
       <td>
         <span>{{ this.list.price * this.list.quantity | makeComma }}원</span>
-        <button>바로주문</button>
+        <button @click="nowBuyItem">바로주문</button>
       </td>
     </tr>
   </div>
@@ -34,8 +34,10 @@ import CheckBox from '@/service/Components/CheckBox'
 import { EventBus } from '@/service/util/event-bus'
 
 export default {
-  created () {
-    console.log(this.list)
+  data () {
+    return {
+      isChecked: false
+    }
   },
   props: {
     list: {
@@ -48,7 +50,8 @@ export default {
           price: Number,
           color: String,
           size: String,
-          quantity: Number
+          quantity: Number,
+          checked: Boolean
         }
       }
     }
@@ -58,20 +61,51 @@ export default {
   },
   methods: {
     subItem () {
+      if (this.list.quantity <= 1) return
       this.list.quantity = this.list.quantity - 1
+      if (this.isChecked) {
+        const totalPrice = -this.list.price
+        EventBus.$emit('cal-price', totalPrice)
+      }
     },
     addItem () {
       this.list.quantity = this.list.quantity + 1
+      if (this.isChecked) {
+        const totalPrice = +this.list.price
+        EventBus.$emit('cal-price', totalPrice)
+      }
     },
     checkItem () {
-      const data = {
-        id: this.id,
-        quantity: this.quantity,
-        color: this.color,
-        size: this.size
-      }
+      if (this.isChecked) {
+        const data = {
+          id: this.list.id,
+          quantity: this.list.quantity,
+          color: this.list.color,
+          size: this.list.size,
+          price: this.list.price
+        }
 
-      EventBus.$emit('check-item', data)
+        EventBus.$emit('check-item', data)
+      } else {
+        EventBus.$emit('unCheck-item', {
+          id: this.list.id
+        })
+      }
+    },
+    nowBuyItem () {
+      const nowData = {
+        totalPrice: this.list.price * this.list.quantity,
+        items: {
+          id: this.list.id,
+          quantity: this.list.quantity,
+          color: this.list.color,
+          size: this.list.size,
+          price: this.list.price
+        }
+      }
+      localStorage.removeItem('cart')
+      localStorage.setItem('cart', JSON.stringify(nowData))
+      this.$router.push('/order')
     }
   }
 

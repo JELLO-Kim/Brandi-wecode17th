@@ -71,7 +71,7 @@
         </div>
       </div>
     </article>
-    <Toast :message="errorMessage" v-on:remove-message="removeMessage"/>
+    <!-- <Toast :message="errorMessage" v-on:remove-message="removeMessage"/> -->
   </main>
 </template>
 
@@ -84,7 +84,7 @@ import DropDown from '@/service/Components/DropDown'
 import OptionQuantity from './OptionQuantity'
 import mockup from '@/Data/Detail.json'
 import { mapMutations, mapGetters } from 'vuex'
-import Toast from '@/service/Components/Toast'
+// import Toast from '@/service/Components/Toast'
 
 const serviceStore = 'serviceStore'
 
@@ -94,8 +94,8 @@ export default {
     agile: VueAgile,
     QnA,
     DropDown,
-    OptionQuantity,
-    Toast
+    OptionQuantity
+    // Toast
   },
   created () {
     this.detailData = mockup.data
@@ -203,7 +203,12 @@ export default {
           this.$router.push('/login')
         }
       } else {
-        this.errorMessage = '옵션을 한개 이상 선택해주세요.'
+        this.$toast.open({
+          message: '옵션을 한개 이상 선택해주세요.',
+          position: 'bottom',
+          duration: 3000,
+          type: 'default'
+        })
       }
     },
 

@@ -4,8 +4,8 @@
     <div class="selectBox">
       <div>
         <label>
-          <CheckBox id="allSelect" @click="allCheckBtn" />
-          <span>전체선택 ({{ this.selectItems.length }}/{{ this.totalCount }})</span>
+          <CheckBox v-model="allCheckBtn" />
+          <span> 전체선택 ({{ this.selectItems.length }}/{{ this.totalCount }})</span>
         </label>
       </div>
       <div>
@@ -28,8 +28,8 @@
     <div class="price-box">
       <span class="price-title">총 결재 예상 금액</span>
       <div>
-        <span>총 상품 금액 {{ this.calTotalPrice | makeComma }}원 - 즉시할인 + 총 배송비 {{ this.calTotalPrice > 30000 ? 0 : 3000 | makeComma}}원</span>
-        <span>총 결재 예상 금액 <span class="price">{{ this.calTotalPrice > 30000 ? this.calTotalPrice : this.calTotalPrice + 3000 | makeComma }}</span>원</span>
+        <span>총 상품 금액 {{ this.totalPrice | makeComma }}원 - 즉시할인 + 총 배송비 {{ this.totalPrice > 30000 ? 0 : 3000 | makeComma}}원</span>
+        <span>총 결재 예상 금액 <span class="price">{{ this.totalPrice > 30000 ? this.totalPrice : this.totalPrice + 3000 | makeComma }}</span>원</span>
       </div>
     </div>
 
@@ -56,35 +56,80 @@ export default {
     //     this.cartList = res.data
     //   })
     //   .catch()
-    this.cartList = mock.cartList
+    const copyMock = JSON.parse(JSON.stringify(mock))
+    for (let i = 0, len = copyMock.cartList.length; i < len; i++) {
+      for (let z = 0, len2 = copyMock.cartList[i].detail.length; z < len2; z++) {
+        copyMock.cartList[i].detail[z].checked = false
+      }
+    }
+
+    this.cartList = copyMock.cartList
     this.totalCount = mock.totalCount
 
     EventBus.$on('check-item', item => {
       this.selectItems.push(item)
 
       if (this.totalCount === this.selectItems.length) {
-        document.getElementById('allSelect').attributes('checked')
+        document.getElementById('allSelect').arrt('checked')
       } else {
         document.getElementById('allSelect').removeAttribute('checked')
       }
     })
+
+    EventBus.$on('unCheck-item', item => {
+      for (let i = 0; i < this.selectItems.length; i++) {
+        if (this.selectItems[i].id === item.id) {
+          this.selectItems.splice(i, 1)
+          break
+        }
+      }
+    })
+
+    EventBus.$on('cal-price', () => {
+      // this.totalPrice = this.calTotalPrice()
+    })
+  },
+  updated () {
+    // this.totalPrice = this.calTotalPrice()
   },
   data () {
     return {
-      selectItems: [],
       cartList: [],
-      totalCount: 0,
-      totalPrice: 0
+      totalCount: 0
+      // totalPrice: 0
     }
   },
   computed: {
-    calTotalPrice () {
+    selectItems () {
+      const list = []
+      for (let i = 0, len = this.cartList.length; i < len; i++) {
+        for (let z = 0, len2 = this.cartList[i].detail.length; z < len2; z++) {
+          if (this.cartList[i].detail[z].checked) {
+            list.push(this.cartList[i].detail[z])
+          }
+        }
+      }
+      return list
+    },
+    totalPrice () {
       let sum = 0
-      for (const item in this.selectItems) {
-        sum += (item.price * item.quantity)
+      for (let i = 0; i < this.selectItems.length; i++) {
+        sum += (this.selectItems[i].price * this.selectItems[i].quantity)
       }
 
       return sum
+    },
+    allCheckBtn: {
+      get () {
+        return this.selectItems.length === this.totalCount
+      },
+      set (v) {
+        for (let i = 0, len = this.cartList.length; i < len; i++) {
+          for (let z = 0, len2 = this.cartList[i].detail.length; z < len2; z++) {
+            this.cartList[i].detail[z].checked = v
+          }
+        }
+      }
     }
   },
   components: {
@@ -93,14 +138,21 @@ export default {
   },
   methods: {
     selectDelete () {
+      for (let i = 0, len = this.cartList.length; i < len; i++) {
+        for (let z = 0, len2 = this.cartList[i].detail.length; z < len2; z++) {
+          this.cartList[i].detail[z].checked = false
+        }
+      }
       this.selectItems = []
-    },
-    allCheckBtn () {
-      document.getElementsByClassName('checkItem').attributes('checked')
     },
     buyBtn () {
       if (this.selectItems.length > 0) {
-        localStorage.setItem('cart', this.selectItems)
+        const data = {
+          items: this.selectItems,
+          totalPrice: this.totalPrice
+        }
+        localStorage.removeItem('cart')
+        localStorage.setItem('cart', JSON.stringify(data))
         this.$router.push('/order')
       } else {
         // 여기에 Toast 넣기! data에 errorMessage도 넣기!

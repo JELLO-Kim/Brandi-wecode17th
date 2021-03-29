@@ -6,6 +6,9 @@
     <div class="products">
       <ProductBox :product="product" v-for="product in productList" :key="product" @linkToDetail="linkToDetail"></ProductBox>
     </div>
+    <div>
+      <button class="moreItemBtn" @click="moreItemBtn">더보기</button>
+    </div>
   </div>
 </template>
 
@@ -13,14 +16,14 @@
 import mockup from '@/Data/ProductList.json'
 import ProductBox from '@/service/Components/ProductBox'
 import DropDown from '@/service/Components/DropDown'
-// import API from '@/service/util/service-api'
-// import SERVER from '@/config.js'
+import API from '@/service/util/service-api'
+import SERVER from '@/config.js'
 
 export default {
   name: 'ProductList',
   created () {
     // API.methods
-    //   .get(`${SERVER.IP}/main`)
+    //   .get(`${SERVER.IP}/products/list`)
     //   .then((res) => {
     //     console.log(res.data.result.data)
     //     // console.log(res.result.data)
@@ -45,12 +48,25 @@ export default {
         { key: 'daily', label: '일간' },
         { key: 'weekly', label: '주간' },
         { key: 'mothy', label: '월간' }
-      ]
+      ],
+      offset: 0,
+      limit: 8
     }
   },
   methods: {
     linkToDetail (product) {
       this.$router.push(`/detail/${product.id}`)
+    },
+    moreItemBtn () {
+      this.offset++
+      API.methods
+        .get(`${SERVER.IP}/products/list`.concat(`?offset=${this.offset}`))
+        .then(res => {
+          this.productList.concat(res.data)
+        })
+        .catch(error => {
+          alert(error)
+        })
     }
   }
 }
@@ -70,5 +86,19 @@ export default {
     flex-wrap: wrap;
     justify-content: space-between;
   }
+}
+
+.moreItemBtn {
+  display: block;
+  margin: 30px auto 70px;
+  padding: 15px 120px;
+  border: solid 1px black;
+  background-color: white;
+  color: black;
+}
+.moreItemBtn:hover {
+  background-color: black;
+  color: white;
+  cursor: pointer;
 }
 </style>

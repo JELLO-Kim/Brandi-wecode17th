@@ -12,14 +12,8 @@
           <h3>비밀번호 <span class="required">(필수)</span></h3>
           <input class="loginInput" placeholder="비밀번호 입력" type="password" v-model="password" />
           <input class="loginInput" placeholder="비밀번호 재입력" type="password" v-model="rePassword" @keyup="checkPassword" />
-          <p v-if="!isPassword">비밀번호가 옳바르지 않습니다.</p>
+          <p v-if="!checkPassword">비밀번호가 옳바르지 않습니다.</p>
           <h3>휴대폰 번호 <span class="required">(필수)</span></h3>
-          <div class="phonenumber">
-            <input class="loginInput" placeholder="010" maxlength="3" v-model="phone1" />
-            <input class="loginInput" placeholder="0000"  maxlength="4" v-model="phone2" />
-            <input class="loginInput" placeholder="0000"  maxlength="4" v-model="phone3" />
-            <button v-bind:class="{ phoneOk:this.checkPhone }" type="button" @click="checkPhoneHandler">인증요청</button>
-          </div>
 
           <h3><label><CheckBox type="checkbox" v-model="allMark" /> 약관 모두 동의</label></h3>
           <div class="agreement">
@@ -86,10 +80,6 @@ export default {
       rePassword: '',
       isPassword: false,
       email: '',
-      phone1: '',
-      phone2: '',
-      phone3: '',
-      checkPhone: false,
       marks: {
         mark1: false,
         mark2: false,
@@ -121,15 +111,6 @@ export default {
           alert('가입이 실패하였습니다. 다시 시도해주세요.')
           this.$router.push('/signup')
         })
-    },
-
-    checkPhoneHandler () {
-      if (this.phone1.length === 3 && this.phone2.length === 4 && this.phone3.length === 4) {
-        alert('인증되었습니다.')
-        this.checkPhone = true
-      } else {
-        alert('핸드폰 정보를 다 입력해 주세요.')
-      }
     }
   },
   mounted () {
