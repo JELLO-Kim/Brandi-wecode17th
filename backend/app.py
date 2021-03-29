@@ -1,7 +1,7 @@
 import json
 
 from flask  import Flask, jsonify, Response
-from view   import ProductView
+from view   import ProductView, MyPageView
 from errors import *
 from flask_cors import CORS
 
@@ -10,6 +10,7 @@ def create_app():
     app = Flask(__name__)
 
     app.register_blueprint(ProductView.product_app)
+    app.register_blueprint(MyPageView.mypage_app)
     CORS(app, resources={'*': {'origins': '*'}})
     
     @app.after_request
