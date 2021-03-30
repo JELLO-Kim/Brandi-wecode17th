@@ -42,3 +42,33 @@ class MyPageView:
         finally:
             if connection is not None:
                 connection.close
+
+    @mypage_app.route('/order', methods=['GET'])
+    def mypage_order():
+        page_condition = {}
+
+        user_id = request.headers['Authorization']
+        limit   = request.args.get('limit', None)
+        offset  = request.args.get('offset', None)
+
+        if limit is None:
+            page_condition['limit'] = 5
+        else:
+            page_condition['limit'] = int(limit)
+        if offset is None:
+            page_condition['offset'] = 0
+        else:
+            page_condition['offset'] = int(offset)
+
+        try:
+            connection      = connect_db()
+            mypage_service  = MyPageService()
+            extra           = mypage_service.mypage_order(connection, user_id, page_condition)
+            return extra
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise e
+        finally:
+            if connection is not None:
+                connection.close()
