@@ -43,6 +43,8 @@ PAGE_NOT_FOUND = "존재하지 않는 페이지입니다"  # 잘못된 path para
 
 INTERNAL_SERVER_ERROR = "서버 요청 실패"  # backend 로직 에러 : 500 Internal Server Error
 
+WRONG_URI_PATH = "잘못된 경로 입니다" # 존재하지 않는 uri 입력 : 잘못된 url 입력시 message=SUCCESS & result=None 으로 반한되는 것을 방지하기 위한 수단
+
 NO_CURRENT_ORDER_EXISTS = '유저가 결제전인 오더가 없습니다' #유저가 결제전인 오더가 없을때: 400 Bad request
 
 NO_CART_EXISTS = '카트가 없습니다' #주어진 product_id, color, size에 맞는 카트 가 없을때: 400 Bad request
@@ -78,3 +80,39 @@ PRODUCT_OPTION_NOT_IN_KEYS = 'product_options key가 없습니다' #400 Bad requ
 PRICE_NOT_IN_KEYS = 'price key가 없습니다' #400 Bad request
 
 PRODUCT_MINIMUM_NOT_IN_KEYS = 'product_minimum key가 없습니다' #400 Bad request
+
+INVALID_FILTER_CONDITION = "잘못된 검색조건입니다" #유효하지 않은 filter 조건이 들어왔을 경우 : 404
+
+NOT_PROFILE = "프로필 사진이 입력되지 않았습니다"
+
+NOT_DESCRIPTION = "셀러 한줄 소개란이 비어있습니다"
+
+NOT_CALL_NUM = "고객센터 연락처를 입력해주세요"
+
+NOT_CALL_NAME = "고객센터 명을 입력해 주세요"
+
+NOT_CALL_START = "고객센터 영업시작 시간을 입력해 주세요"
+
+NOT_CALL_END = "고객센터 영업종료 시간을 입력해 주세요"
+
+NOT_POSTAL = "배송지 우편번호를 입력해 주세요"
+
+NOT_ADDRESS = "배송지 주소를 입력해 주세요"
+
+NOT_DETAIL_ADDRESS = "배송지 상세 주소를 입력해 주세요"
+
+NOT_SHIPPING_DESCRIPTION = "배송 정보를 입력해 주세요"
+
+NOT_ORDER_DESCRIPTION = "교환/환불 정보를 입력해 주세요"
+
+SHORT_INPUT_SELLER = "10글자 이상 입력해 주세요"
+
+NOT_MANAGER = "담당자 정보를 입력해 주세요"
+
+NOT_MANAGER_NAME = "담당자 이름을 입력해 주세요"
+
+NOT_MANAGER_NUMBER = "담당자 연락처를 입력해 주세요"
+
+NOT_MANAGER_EMAIL = "담당자 이메일을 입력해 주세요"
+
+EXSISTING_MANAGER = "이미 존재하는 담당자 정보입니다"

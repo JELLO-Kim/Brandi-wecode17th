@@ -27,8 +27,9 @@ class ProductService:
     def products_list(self, filter_data, connection, page_condition):
         products_dao = ProductDao()
         products_list = products_dao.products_list(filter_data, connection, page_condition)
+        product_total_count = products_dao.product_list_total_count(filter_data, connection)
 
-        return products_list
+        return {"data" : products_list, "totalCount" : product_total_count['COUNT(*)']}
 
 
     def get_product_detail(self, product_id, connection):
@@ -47,7 +48,6 @@ class ProductService:
         if product_detail["sizes"] is not None:
             size_group               = [item.split(':') for item in product_detail["sizes"].split(',')]
             product_detail["sizes"]  = [{"key" : int(size[0]), "label" : size[1]} for size in size_group]
-        
         return {"product" :product_detail}
 
 
@@ -57,7 +57,7 @@ class ProductService:
 
         for item in product_qna["qna"]:
             if item["parent_id"] is None:
-                if item["content"] == "비밀글입니다.":
+                if item["contents"] == "비밀글입니다.":
                     item["username"] = item["username"][:3]+"***" 
 
         qna_list = []
@@ -66,14 +66,14 @@ class ProductService:
                     "id" : item["id"],
                     "questionType" : item["questionType"],
                     "isFinished"   : item["isFinished"],
-                    "content"      : item["content"],
+                    "contents"     : item["contents"],
                     "writer"       : item["username"],
                     "createdAt"    : item["createdAt"],
                     "isPrivate"    : item["isPrivate"]
                 }
             if item["isFinished"] == 1:
                 tmp["answer"] = {
-                    "content"   : item["r_content"],
+                    "contents"   : item["r_contents"],
                     "writer"    : item["brand"],
                     "createdAt" : item["r_createdAt"]
                 }

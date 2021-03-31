@@ -55,8 +55,7 @@ def user_decorator(func):
             user_dao = UserDao()
             user = user_dao.user_identifier(user_info, connection)
             g.token_info = {
-                'user_id': user_id,
-                'user_type_id': user['user_type_id'],
+                'user_id': user_id
             }
         else:
             g.token_info = {

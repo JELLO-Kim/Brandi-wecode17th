@@ -1,8 +1,8 @@
-from flask          import request, Blueprint, jsonify
+from flask          import request, Blueprint, jsonify, g
 from db_connector   import connect_db
 from service        import ProductService 
-from responses         import *
-from utils import login_decorator, user_decorator
+from responses      import *
+from utils          import login_decorator, user_decorator
 
 class ProductView:
     product_app = Blueprint('product_app', __name__, url_prefix='/products')
@@ -73,15 +73,17 @@ class ProductView:
 
 
     @product_app.route('/<int:product_id>', methods=['GET'])
-    def get_product_detail(product_id):
+    def product_detail(product_id):
         connection = None
         try:
+
             connection = connect_db()
             if connection:
                 product_service = ProductService()
+
                 product_detail  = product_service.get_product_detail(product_id, connection)
 
-                return product_detail
+            return product_detail
 
         except Exception as e:
             raise ApiException(400, PAGE_NOT_FOUND)
@@ -113,25 +115,29 @@ class ProductView:
     @user_decorator
     @product_app.route('/<int:product_id>/question', methods=['GET'])
     def get_product_qna(product_id):
+        """
+        로그인 한 회원은 user_id로 누군지 특정. QnA에 작성한 글 있으면 보이게 하기위해.
+        로그인하지 않은 사용자도 접근 가능
+        """
         connection = None
         try: 
+            if "token_info" in g:
+                user_id = g.token_info["user_id"]
+            else:
+                user_id = None
             info = {
-                'user_id'    : g.get(token_info["user_id"], None),
+                'user_id'    : user_id,
                 'product_id' : product_id,
                 'limit'      : int(request.args.get("limit", 5)),
                 'offset'     : int(request.args.get("offset", 0))
             }
-
             connection = connect_db()
             if connection:
                 product_service = ProductService()
                 product_qna     = product_service.get_product_qna(info, connection)
-
                 return product_qna
-
         except Exception as e:
             raise ApiException(400, WRONG_URI_PATH)
-
         finally:
             if connection:
                 connection.close()
