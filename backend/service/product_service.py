@@ -29,3 +29,76 @@ class ProductService:
         products_list = products_dao.products_list(filter_data, connection, page_condition)
 
         return products_list
+
+
+    def get_product_detail(self, product_id, connection):
+        product_dao    = ProductDao()
+        product_detail = product_dao.product_detail(product_id, connection)
+
+        if product_detail["imageList"] is not None:
+            product_detail["imageList"] = product_detail["imageList"].split(', ')
+        else:
+            product_detail["imageList"] = 0
+
+        if product_detail["colors"] is not None:
+            color_group              = [item.split(':') for item in product_detail["colors"].split(',')]
+            product_detail["colors"] = [{"key" : int(color[0]), "label" : color[1]} for color in color_group]
+
+        if product_detail["sizes"] is not None:
+            size_group               = [item.split(':') for item in product_detail["sizes"].split(',')]
+            product_detail["sizes"]  = [{"key" : int(size[0]), "label" : size[1]} for size in size_group]
+        
+        return {"product" :product_detail}
+
+
+    def get_product_qna(self, info, connection):
+        product_dao = ProductDao()
+        product_qna = product_dao.get_product_question(info, connection)
+
+        for item in product_qna["qna"]:
+            if item["parent_id"] is None:
+                if item["content"] == "비밀글입니다.":
+                    item["username"] = item["username"][:3]+"***" 
+
+        qna_list = []
+        for item in product_qna["qna"]:
+            tmp = {
+                    "id" : item["id"],
+                    "questionType" : item["questionType"],
+                    "isFinished"   : item["isFinished"],
+                    "content"      : item["content"],
+                    "writer"       : item["username"],
+                    "createdAt"    : item["createdAt"],
+                    "isPrivate"    : item["isPrivate"]
+                }
+            if item["isFinished"] == 1:
+                tmp["answer"] = {
+                    "content"   : item["r_content"],
+                    "writer"    : item["brand"],
+                    "createdAt" : item["r_createdAt"]
+                }
+            qna_list.append(tmp)
+    
+        return {"data" : qna_list, "totalCount" : product_qna["totalCount"]}
+
+
+    def get_question_open(self, connection):
+        product_dao   = ProductDao()
+        question_open = product_dao.get_question_open(connection)
+        type_list     = [{ "key": i["id"], "value": i["name"]} for i in question_open]
+
+        return {'data' : type_list}
+
+
+    def post_product_qna(self, question_info, connection):
+        product_dao = ProductDao()
+        post_qna    = product_dao.post_product_qna(question_info, connection)
+
+        return post_qna
+
+
+    def get_other_products(self, info, connection):
+        product_dao   = ProductDao()
+        products_list = product_dao.get_other_products(info, connection)
+
+        return {'data' : products_list}
