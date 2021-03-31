@@ -7,6 +7,7 @@ from config         import SECRET_KEY, ALGORITHM
 from db_connector   import connect_db
 from model.user_dao import UserDao
 from errors         import *
+from utils          import login_decorator, user_decorator
 
 def login_decorator(func):
     @wraps(func)
@@ -35,4 +36,25 @@ def login_decorator(func):
                 raise (401, INVALID_USER)
             except not connection:
                 raise (500, INTERNAL_SERVER_ERROR)
+    return wrapper
+
+
+def user_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        access_token = request.headers.get('AUTHORIZATION')
+
+        if access_token:
+            payload = jwt.decode(access_token, SECRET_KEY, ALGORITHM)
+            user_id = payload.get('user_id', None)
+            connection = connect_db()
+            user_info = {'user_id': user_id}
+            user_dao = UserDao()
+            user = user_dao.user_identifier(user_info, connection)
+
+            g.token_info = {
+                'user_id': user_id,
+                'user_type_id': user['user_type_id'],
+            }
+        return func(*args, **kwargs)
     return wrapper

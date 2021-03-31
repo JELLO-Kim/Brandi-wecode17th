@@ -69,3 +69,137 @@ class ProductView:
         finally:
             if connection:
                 connection.close()
+
+
+    @product_app.route('/<int:product_id>', methods=['GET'])
+    def get_product_detail(product_id):
+        connection = None
+        try:
+            connection = connect_db()
+            if connection:
+                product_service = ProductService()
+                product_detail  = product_service.get_product_detail(product_id, connection)
+
+                return product_detail
+
+        except Exception as e:
+            raise ApiException(400, PAGE_NOT_FOUND)
+
+        finally:
+            if connection:
+                connection.close()
+
+    @login_decorator
+    @product_app.route('/question/open', methods=['GET'])
+    def get_question_open():
+        connection = None
+        try:
+            connection = connect_db()
+            if connection:
+                product_service = ProductService()
+                type_list       = product_service.get_question_open(connection)
+
+                return type_list
+
+        except Exception as e:
+            raise ApiException(400, WRONG_URI_PATH)
+
+        finally:
+            if connection:
+                connection.close()
+
+
+    @user_decorator
+    @product_app.route('/<int:product_id>/question', methods=['GET'])
+    def get_product_qna(product_id):
+        connection = None
+        try: 
+            info = {
+                'user_id'    : g.get(token_info["user_id"], None),
+                'product_id' : product_id,
+                'limit'      : int(request.args.get("limit", 5)),
+                'offset'     : int(request.args.get("offset", 0))
+            }
+
+            connection = connect_db()
+            if connection:
+                product_service = ProductService()
+                product_qna     = product_service.get_product_qna(info, connection)
+
+                return product_qna
+
+        except Exception as e:
+            raise ApiException(400, WRONG_URI_PATH)
+
+        finally:
+            if connection:
+                connection.close()
+
+
+
+    @login_decorator
+    @product_app.route('/question', methods=['POST'])
+    def post_product_qna():
+        connection = None
+        try: 
+            user_id = g.token_info["user_id"]
+            data    = request.json
+
+            if user_id is None:
+                raise ApiException(401, LOGIN_REQUIRED)
+
+            if 'questionType' not in data:
+                raise ApiException(400, SELECT_QUESTION_TYPE)
+            
+            if 'content' not in data:
+                raise ApiException(400, INVALID_CONTENT)
+
+            connection    = connect_db()
+            question_info = {
+                'question_type_id' : data['questionType'],
+                'contents'         : data['content'],
+                'is_private'       : data.get('isPrivate', 1),
+                'product_id'       : data['product_id'],
+                'user_id'          : user_id,
+            }
+
+            product_service = ProductService()
+            product_qna     = product_service.post_product_qna(question_info, connection)
+            connection.commit()
+            
+            return {"data" : product_qna}
+
+        except ApiException as e:
+            if connection:
+                connection.rollback()
+            raise ApiException(400, UPLOAD_FAILED)
+
+        finally:
+            if connection:
+                connection.close()
+        return Success
+
+
+
+    @product_app.route('/recommends', methods=['GET'])
+    def get_other_products():
+        connection = None
+        try: 
+            info = {
+                "seller_id"  : int(request.args['sellerId']),
+                "product_id" : int(request.args['productId'])
+            } 
+
+            connection = connect_db()
+            if connection:
+                product_service = ProductService()
+                products_list   = product_service.get_other_products(info, connection)
+
+                return products_list
+
+        except Exception as e:
+            raise ApiException(400, WRONG_URI_PATH)
+
+        finally:
+            if connection:
+                connection.close()
