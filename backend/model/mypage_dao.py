@@ -192,3 +192,86 @@ class MyPageDao:
             order_counting = cursor.fetchall()
 
             return order_counting
+
+    def mypage_order_detail_header_dao(self, connection, user_id, order_id):
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            order_detail_header = """
+                SELECT
+                    o.id,
+                    o.order_number,
+                    o.created_at,
+                    u.username,
+                    o.total_price,
+                    os.name,
+                    s.full_name,
+                    s.phone_number,
+                    s.address,
+                    sm.contents,
+                    o.is_delete
+                FROM
+                    orders AS o
+                JOIN
+                    user_info AS u
+                ON
+                    o.user_id = u.id
+                JOIN
+                    order_status_types AS os
+                ON
+                    o.order_status_type_id = os.id
+                JOIN
+                    shipping_info AS s
+                ON
+                    o.shipping_info_id = s.id
+                JOIN
+                    shipping_memo_types AS sm
+                ON
+                    s.shipping_memo_type_id = sm.id
+                WHERE
+                    o.id = %(order_id)s
+                """
+            
+            order_detail_products = """
+                SELECT
+                    c.id,
+                    s.korean_brand_name AS brand,
+                    p.name,
+                    color.name AS color,
+                    size.name AS size,
+                    c.quantity,
+                    CAST(c.calculated_price AS CHAR) AS price
+                FROM
+                    carts AS c
+                JOIN
+                    product_options AS po
+                ON
+                    c.product_option_id = po.id
+                JOIN
+                    products AS p
+                ON
+                    po.product_id = p.id
+                JOIN
+                    product_size_types AS size
+                ON
+                    po.product_size_type_id = size.id
+                JOIN
+                    product_color_types AS color
+                ON
+                    po.product_color_type_id = color.id
+                JOIN
+                    sellers AS s
+                ON
+                    p.seller_id = s.user_info_id
+                WHERE
+                    c.order_id = %(order_id)s
+                """
+
+            cursor.execute(order_detail_header, {'user_id' : user_id, 'order_id' : order_id})
+            order_detail_header = cursor.fetchone()
+
+            if order_detail_header['is_delete'] == 1:
+                raise ApiException(404, PAGE_NOT_FOUND)
+
+            cursor.execute(order_detail_products, {'user_id' : user_id, 'order_id' : order_id})
+            order_detail_list = cursor.fetchall()
+
+            return {"detailHeader" : order_detail_header, "detailProducts" : order_detail_list}

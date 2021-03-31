@@ -45,6 +45,7 @@ class MyPageService:
         # 해당되는 주문목록에 속하는 구매 목록 반환
         order_cart = mypage_dao.mypage_order_cart_dao(connection, user_id, page_condition, order_id)
         order_list = [{
+            "orderId" : order_head['id'],
             "ordernum" : order_head['order_number'],
             "ordertime" : order_head['created_at'],
             'product': []
@@ -63,3 +64,35 @@ class MyPageService:
             option_brand['option'].append(cart)
 
         return {"data" : order_list, "totalCount" : total_count}
+
+    # 상세 주문내역 (로그인 유저의 주문번호 1건에 대한 내용)
+    def mypage_order_detail(self, connection, user_id, order_id):
+        mypage_dao = MyPageDao()
+        mypage_order_detail= mypage_dao.mypage_order_detail_header_dao(connection, user_id, order_id)
+        products_list = mypage_order_detail['detailProducts']
+        order = mypage_order_detail['detailHeader']
+        brand_name = []
+
+        # 중복 없이 한건의 주문내역에 포함되는 판매 브랜드 이름 배열
+        for one_brand in products_list:
+            brand_name.append(one_brand['brand'])
+        brand_name_one = list(set(brand_name))
+
+        order_dict = {
+            "orderId" : order['id'],
+            "orderNum" : order['order_number'],
+            "orderTime" : order['created_at'],
+            "orderName" : order['username'], #username말고 order_name으로 바뀔것
+            "discountPrice" : order['total_price'],
+            "product" : 
+                [{
+                    "brand" : one
+                } for one in brand_name_one]
+        }
+        # 같은 브랜드의 상품을 배열 안에 묶어주는 로직
+        for one_brand_name in order_dict['product']:
+            brand = one_brand_name['brand']
+            product_options = list(filter(lambda x:x['brand'] == brand, products_list))
+            one_brand_name['option'] = product_options
+ 
+        return {"data" : order_dict}

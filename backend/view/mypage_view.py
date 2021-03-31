@@ -46,10 +46,11 @@ class MyPageView:
                 connection.close
 
     @mypage_app.route('/order', methods=['GET'])
-    @login_decorator
+    # @login_decorator
     def mypage_order():
         page_condition = {}
-        user_id = g.token_info['user_id']
+        user_id = 3
+        # user_id = g.token_info['user_id']
         limit   = request.args.get('limit', None)
         offset  = request.args.get('offset', None)
 
@@ -78,7 +79,8 @@ class MyPageView:
     @mypage_app.route('/order/<order_id>', methods=['GET'])
     # @login_decorator
     def mypage_order_detail(order_id):
-        user_id = g.token_info['user_id']
+        # user_id = g.token_info['user_id']
+        user_id = 3
         try:
             connection      = connect_db()
             mypage_service  = MyPageService()
