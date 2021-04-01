@@ -1,17 +1,15 @@
 import pymysql
-
+from config import DATABASE
 
 def connect_db():
     db = pymysql.connect(
-        host='wecode.cyokdecyw78y.ap-northeast-2.rds.amazonaws.com',
-        port=3306,
-        user='root',
-        password='wecode!wecode!',
-        database='brandi',
-        charset='utf8mb4',
-        autocommit=False,
-        read_timeout=20,
-        db='brandi',
-    )
-
+                        host     = DATABASE['host'],
+                        port     = DATABASE['port'],
+                        user     = DATABASE['user'],
+                        password = DATABASE['password'],
+                        database = DATABASE['database'],
+                        charset  = DATABASE['charset'],
+                        autocommit = False,
+                        read_timeout = 20
+                        )
     return db
