@@ -1,7 +1,7 @@
 from flask          import request, Blueprint, jsonify
 from db_connector   import connect_db
 from service        import MyPageService
-from errors         import *
+from responses         import *
 
 class MyPageView:
     mypage_app = Blueprint('mypage_app', __name__, url_prefix='/mypage')

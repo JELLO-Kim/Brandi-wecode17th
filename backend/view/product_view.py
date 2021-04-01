@@ -1,7 +1,7 @@
 from flask          import request, Blueprint, jsonify
 from db_connector   import connect_db
 from service        import ProductService 
-from errors         import *
+from responses         import *
 
 class ProductView:
     product_app = Blueprint('product_app', __name__, url_prefix='/products')
