@@ -1,6 +1,6 @@
 from model.product_dao import ProductDao
 from flask          import jsonify, json
-from errors         import *
+from responses         import *
 
 class ProductService:
     

@@ -1,5 +1,5 @@
 from flask  import jsonify
-from errors import *
+from responses import *
 
 import pymysql
 
