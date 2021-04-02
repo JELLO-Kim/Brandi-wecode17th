@@ -1,0 +1,113 @@
+{
+  "result": {
+    "data": [
+      {
+        "orderId": 1,
+        "orderNumber": "10001",
+        "orderTime": "2021-04-03 00:00:00",
+        "product": [
+          {
+            "brand": "말랑말랑",
+            "option": [
+              {
+                "brand": "말랑말랑",
+                "cartNumber": "110001",
+                "cartOrderId": 1,
+                "discountRate": 10,
+                "id": 1,
+                "name": "따듯한 아우터",
+                "onePrice": 20000,
+                "orderId": 1,
+                "orderNumber": "10001",
+                "productColor": "레드",
+                "productId": 1,
+                "productImage": "https://media.vlpt.us/images/c_hyun403/post/50dbacb7-246b-47c8-9bc5-3844c2611835/%E1%84%8C%E1%85%B5%E1%86%AB%E1%84%8E%E1%85%A9%E1%84%85%E1%85%A9%E1%86%A8%E1%84%89%E1%85%A9%E1%84%91%E1%85%A13.jpg",
+                "productSize": "Small",
+                "quantity": 2,
+                "sellerId": 1,
+                "status": "확정대기",
+                "totalPrice": 36000
+              }
+            ]
+          },
+          {
+            "brand": "우나나나",
+            "option": [
+              {
+                "brand": "우나나나",
+                "cartNumber": "110002",
+                "cartOrderId": 1,
+                "discountRate": 0,
+                "id": 2,
+                "name": "차가운 아우터",
+                "onePrice": 21000,
+                "orderId": 1,
+                "orderNumber": "10001",
+                "productColor": "레드",
+                "productId": 2,
+                "productImage": "https://images.theconversation.com/files/371985/original/file-20201130-13-xieqc.jpg?ixlib=rb-1.1.0&rect=0%2C0%2C5129%2C2560&q=45&auto=format&w=668&h=324&fit=crop",
+                "productSize": "Medium",
+                "quantity": 1,
+                "sellerId": 6,
+                "status": "확정대기",
+                "totalPrice": 18000
+              },
+              {
+                "brand": "우나나나",
+                "cartNumber": "110003",
+                "cartOrderId": 1,
+                "discountRate": 0,
+                "id": 3,
+                "name": "차가운 아우터",
+                "onePrice": 21000,
+                "orderId": 1,
+                "orderNumber": "10001",
+                "productColor": "레드",
+                "productId": 2,
+                "productImage": "https://images.theconversation.com/files/371985/original/file-20201130-13-xieqc.jpg?ixlib=rb-1.1.0&rect=0%2C0%2C5129%2C2560&q=45&auto=format&w=668&h=324&fit=crop",
+                "productSize": "Large",
+                "quantity": 1,
+                "sellerId": 6,
+                "status": "구매확정",
+                "totalPrice": 28000
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "orderId": 2,
+        "orderNumber": "10002",
+        "orderTime": "2021-04-05 00:00:00",
+        "product": [
+          {
+            "brand": "말랑말랑",
+            "option": [
+              {
+                "brand": "말랑말랑",
+                "cartNumber": "110004",
+                "cartOrderId": 2,
+                "discountRate": 10,
+                "id": 4,
+                "name": "따듯한 아우터",
+                "onePrice": 20000,
+                "orderId": 2,
+                "orderNumber": "10002",
+                "productColor": "레드",
+                "productId": 1,
+                "productImage": "https://media.vlpt.us/images/c_hyun403/post/50dbacb7-246b-47c8-9bc5-3844c2611835/%E1%84%8C%E1%85%B5%E1%86%AB%E1%84%8E%E1%85%A9%E1%84%85%E1%85%A9%E1%86%A8%E1%84%89%E1%85%A9%E1%84%91%E1%85%A13.jpg",
+                "productSize": "Medium",
+                "quantity": 1,
+                "sellerId": 1,
+                "status": "구매확정",
+                "totalPrice": 21000
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "totalCount": 2
+  },
+  "message": "SUCCESS"
+}

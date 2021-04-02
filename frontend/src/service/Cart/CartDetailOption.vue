@@ -6,7 +6,7 @@
       </td>
       <td>
         <img
-          :src="this.list.thumbnail"
+          :src="this.list.imageUrl"
           alt=""
         />
       </td>

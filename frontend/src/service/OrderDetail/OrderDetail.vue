@@ -6,23 +6,23 @@
         <table class="info-box">
             <tr>
                 <td>주문번호</td>
-                <td>20210317000056000</td>
+                <td>{{detailData.orderNum}}</td>
             </tr>
             <tr>
                 <td>주문일자</td>
-                <td>2021.03.17</td>
+                <td>{{detailData.orderTime}}</td>
             </tr>
             <tr>
                 <td>주문자</td>
-                <td>장성준</td>
+                <td>{{detailData.orderName}}</td>
             </tr>
             <tr>
                 <td>결제금액</td>
-                <td>36,020 원</td>
+                <td>{{detailData.discountPrice | makeComma}} 원</td>
             </tr>
             <tr>
                 <td>적립예정포인트</td>
-                <td>360 원</td>
+                <td>0 원</td>
             </tr>
         </table>
 
@@ -32,28 +32,31 @@
             <tr class="order-list-title">
                 <td colspan="4">일반 배송</td>
             </tr>
-            <tr class="order-list-brand">
-                <td colspan="2">가게명</td>
+            </thead>
+            <tbody>
+            <template v-for="product in detailData.product">
+            <tr class="order-list-brand" :key="product">
+                <td colspan="2">{{product.brand}}</td>
                 <td>주문금액</td>
                 <td>진행사항</td>
             </tr>
-            </thead>
-            <tbody>
-            <tr class="order-list-product">
+
+            <tr class="order-list-product" v-for="option in product.option" :key="option">
                 <td>
-                    <img src="https://image.brandi.me/cproduct/2021/02/26/SB000000000020525602_1614328241_image1_S.jpeg" alt="">
+                    <img :src="option.image" alt="">
                 </td>
                 <td>
-                    <div>상품이름</div>
-                    <div>color / size (일반배송)</div>
+                    <div>{{option.name}}</div>
+                    <div>{{option.productColor}} / {{option.prodcutSize}} (일반배송)</div>
                 </td>
                 <td>
-                    <span>99,999 원</span>
+                    <span>{{option.totalPrice | makeComma}} 원</span>
                 </td>
                 <td>
                     <span>결재완료</span>
                 </td>
             </tr>
+            </template>
             </tbody>
         </table>
 
@@ -66,7 +69,7 @@
                 </div>
                 <div>
                     <span>총 상품금액</span>
-                    <span>99,999 원</span>
+                    <span>{{detailData.discountPrice | makeComma}} 원</span>
                 </div>
                 <div>
                     <span>쿠폰 할인 금액</span>
@@ -83,7 +86,7 @@
             </div>
             <div class="buy-result-box">
                 <span>총 주문 금액</span>
-                <span>99,999 원</span>
+                <span>{{detailData.discountPrice | makeComma}} 원</span>
             </div>
         </div>
 
@@ -120,8 +123,31 @@
 </template>
 
 <script>
-export default {
+import API from '@/service/util/service-api'
+import SERVER from '@/config.js'
 
+export default {
+  data () {
+    return {
+      detailData: {}
+    }
+  },
+  mounted () {
+    // this.detailData = mockup.data
+    // this.sizeData = mockup.sizeData
+    // mockup.options
+    API.methods
+      .get(`${SERVER.IP}/mypage/order/1`)
+      .then((res) => {
+        // console.log(res.data.result)
+        this.detailData = res.data.result.data
+      })
+      .catch(() => {
+        // console.log(error)
+        this.$router.push('/main')
+        alert('존재하지 않는 서비스 상품입니다.')
+      })
+  }
 }
 </script>
 
@@ -186,12 +212,12 @@ export default {
         text-align: center;
         margin-bottom: 70px;
 
-        tr {
+        thead tr {
             border-bottom: solid 1px rgb(228, 228, 228);
         }
-        tr:last-child {
-            border: 0;
-        }
+        // tr:last-child {
+        //     border: 0;
+        // }
 
         .order-list-title>td {
             font-size: 20px;

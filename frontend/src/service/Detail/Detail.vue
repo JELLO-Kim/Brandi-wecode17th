@@ -1,7 +1,7 @@
 <template>
   <main>
     <article class="ProductInfo">
-      <agile v-if="detailData.imageList[1]" class="agile" :dots="false">
+      <agile v-if="detailData.imageList[0]" class="agile" :dots="false">
         <div class="imgContainer">
           <img alt="product  image" :src="detailData.imageList[0]" />
         </div>
@@ -63,7 +63,7 @@
           <div class="tab qna"><a href="#">Q&A</a></div>
           <div class="tab orderDetail"><a href="#">주문정보</a></div>
         </div>
-        <div>
+        <div class="detail-body">
           <div class="detailHtml" v-html="detailData.productContentImage" />
         </div>
         <div>
@@ -76,13 +76,13 @@
 </template>
 
 <script>
-import { SERVER_IP } from '@/config.js'
+import SERVER from '@/config.js'
 import API from '@/service/util/service-api'
 import { VueAgile } from 'vue-agile'
 import QnA from './QnA'
 import DropDown from '@/service/Components/DropDown'
 import OptionQuantity from './OptionQuantity'
-import mockup from '@/Data/Detail.json'
+// import mockup from '@/Data/Detail.json'
 import { mapMutations, mapGetters } from 'vuex'
 // import Toast from '@/service/Components/Toast'
 
@@ -97,23 +97,25 @@ export default {
     OptionQuantity
     // Toast
   },
-  created () {
-    this.detailData = mockup.data
+  mounted () {
+    // this.detailData = mockup.data
     // this.sizeData = mockup.sizeData
     // mockup.options
-    // API.methods
-    //   .get(`${SERVER_IP}/products/1`)
-    //   .then((res) => {
-    //     // console.log(res.data.result)
-    //     this.detailData = res.data.result.product
-    //   })
-    //   .catch(() => {
-    //     // console.log(error)
-    //     this.$router.push('/main')
-    //     alert('존재하지 않는 서비스 상품입니다.')
-    //   })
+    API.methods
+      .get(`${SERVER.IP}/products/${this.$route.params.id}`)
+      .then((res) => {
+        // console.log(res.data.result)
+        this.detailData = res.data.result.product
+      })
+      .catch(() => {
+        // console.log(error)
+        this.$router.push('/main')
+        alert('존재하지 않는 서비스 상품입니다.')
+      })
   },
-
+  props: {
+    id: String
+  },
   data () {
     return {
       color: null,
@@ -169,13 +171,23 @@ export default {
 
     selectOption () {
       if (this.color && this.size) {
-        this.optionQuantity.push({
-          size: this.size,
-          color: this.color,
-          price: this.detailData.discountPrice,
-          quantity: 1
-        })
+        const colorItem = this.detailData.colors.find(d => d.key === this.color)
+        const sizeItem = this.detailData.sizes.find(d => d.key === this.size)
 
+        const item = this.optionQuantity.find(d => this.size === d.size && this.color === d.color)
+        // 동일 옵션이 있다면
+        if (item) {
+          item.quantity += 1
+        } else {
+          this.optionQuantity.push({
+            size: this.size,
+            color: this.color,
+            sizeName: sizeItem.label,
+            colorName: colorItem.label,
+            price: this.detailData.discountPrice,
+            quantity: 1
+          })
+        }
         this.color = null
         this.size = null
       }
@@ -217,7 +229,7 @@ export default {
       console.log('이거 눌림???')
       if (this.optionQuantity.length > 0) {
         if (this.getToken) {
-          API.methods.post(`${SERVER_IP}/cart`, this.optionQuantity)
+          API.methods.post(`${SERVER.IP}/cart`, this.optionQuantity)
             .then((res) => {
               if (res.message === 'SUCCESS') this.errorMessage = '선택한 상품이 장바구니에 담겼습니다.'
             })
@@ -522,6 +534,9 @@ export default {
     width: 100%;
     /* height: 100%; */
     // border-bottom: 2px solid #dbdbdb;
+    .detail-body {
+      text-align: center;
+    }
 
     .tabs {
       position: sticky;

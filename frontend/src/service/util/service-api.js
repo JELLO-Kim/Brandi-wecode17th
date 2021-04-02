@@ -32,6 +32,7 @@ export default {
       if (config.headers === undefined) {
         config.headers = {}
       }
+      config.headers.authorization = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo5Nn0.Pr0585D-dkyqc-bjQIHtQZAJlalJsv59QPeLoCYMWkw'
       config.timeout = 10000
       return config
     }

@@ -1,7 +1,7 @@
 <template>
 <div class="container">
   <div class="selectTitle">
-    <p>{{ item.color }} / {{ item.size }}</p>
+    <p>{{ item.colorName }} / {{ item.sizeName }}</p>
     <div @click="remove" class="removeBtn">
       <img
         src="/images/img_icon_x.png"

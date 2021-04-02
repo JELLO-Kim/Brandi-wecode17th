@@ -1,0 +1,64 @@
+{
+  "result": {
+    "data": [
+      {
+        "answer": {
+          "content": "아닌데요!!!!",
+          "created_at": null,
+          "id": 4,
+          "parent_id": 1,
+          "replier": "jello"
+        },
+        "category": "취소/변경",
+        "contents": "이거상품 짝퉁 아입니까?",
+        "created_at": null,
+        "id": 1,
+        "username": "tinkiewinkie"
+      },
+      {
+        "answer": {
+          "content": "이건 상품입니다 고객님",
+          "created_at": null,
+          "id": 10,
+          "parent_id": 5,
+          "replier": "jello"
+        },
+        "category": "취소/변경",
+        "contents": "이게뭡니까?",
+        "created_at": null,
+        "id": 5,
+        "username": "tinkiewinkie"
+      },
+      {
+        "category": "취소/변경",
+        "contents": "어렵다어려워",
+        "created_at": null,
+        "id": 6,
+        "username": "tinkiewinkie"
+      },
+      {
+        "answer": {
+          "content": "사이즈답변입니다.",
+          "created_at": null,
+          "id": 9,
+          "parent_id": 8,
+          "replier": "burandi"
+        },
+        "category": "교환/반품",
+        "contents": "사이즈문의",
+        "created_at": null,
+        "id": 8,
+        "username": "tinkiewinkie"
+      },
+      {
+        "category": "교환/반품",
+        "contents": "테스트용 질문 또 한번",
+        "created_at": null,
+        "id": 19,
+        "username": "tinkiewinkie"
+      }
+    ],
+    "totalCount": 8
+  },
+  "message": "SUCCESS"
+}

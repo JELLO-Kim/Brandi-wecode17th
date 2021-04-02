@@ -1,65 +1,63 @@
 <template>
-  <div v-if="order.data.length">
+  <div v-if="orderList.length">
     <div class="container">
       <div
         class="orderContainer"
-        v-for="order in order.data"
+        v-for="order in orderList"
         v-bind:key="order.order_detail_no"
       >
         <div class="orderTop">
           <div class="topLeft">
-            <div>{{ getDate(order.start_time) }}</div>
+            <div>{{ getDate(order.orderTime) }}</div>
             <div class="divider"></div>
             <div class="orderDetailNo">
-              {{ getOrderDetailNo(order.start_time, order.order_detail_no) }}
+              <!-- {{ getOrderDetailNo(order.start_time, order.order_detail_no) }} -->
             </div>
           </div>
           <div
             class="toDetail"
-            @click="linkToOrderDetail(order.order_detail_no)"
+            @click="linkToOrderDetail(order.orderId)"
           >
             <span>주문상세보기</span>
             <img
-              src="/Images/ic-titleic-detailpage-moreaction@3x.png"
+              src="/images/ic-titleic-detailpage-moreaction@3x.png"
               alt=">"
             />
           </div>
         </div>
         <div class="orderMid">판매자 배송 상품</div>
-        <div class="orderDetail">
+        <div class="orderDetail" v-for="product in order.product" :key="product">
           <div class="detailTop">
-            <div class="cellerName">브랜디</div>
+            <div class="cellerName">{{product.brand}}</div>
             <div class="topMenu">
               <div>주문금액</div>
               <div>진행상황</div>
             </div>
           </div>
-          <div class="detailBottom">
+          <div class="detailBottom" v-for="option in product.option" :key="option">
             <div class="imgContainer">
               <img
-                :src="order.image_small"
+                :src="option.productImage"
                 alt="small_image"
-                @click="linkToProductDetail"
-                :value="order.product_no"
+                @click="linkToProductDetail(option.productId)"
               />
             </div>
             <div class="productDetail">
               <div
                 class="productName"
-                @click="linkToProductDetail"
-                :value="order.product_no"
+                @click="linkToProductDetail(option.productId)"
               >
-                {{ order.product_name }}
+                {{ option.name }}
               </div>
               <div class="productOption">
-                {{ order.color }} / {{ order.size }}
+                {{ option.productColor }} / {{ option.productSize }}
               </div>
-              <div class="orderQuantity">{{ order.quantity }} 개</div>
+              <div class="orderQuantity">{{ option.quantity }} 개</div>
             </div>
             <div class="orderPrice">
-              {{ numberWithCommas(order.total_price) }} 원
+              {{ option.totalPrice | makeComma }} 원
             </div>
-            <div class="orderStatus">{{ order.order_status }}</div>
+            <div class="orderStatus">{{ option.status }}</div>
           </div>
         </div>
       </div>
@@ -71,10 +69,14 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { SERVER_IP } from '@/config'
+// import axios from 'axios'
+// eslint-disable-next-line no-unused-vars
+import mockup from '@/Data/MypageOrderList.json'
 import { mapGetters } from 'vuex'
-
+// eslint-disable-next-line no-unused-vars
+import API from '@/service/util/service-api'
+// eslint-disable-next-line no-unused-vars
+import SERVER from '@/config.js'
 const serviceStore = 'serviceStore'
 
 export default {
@@ -83,28 +85,24 @@ export default {
   },
   data () {
     return {
+      orderList: [],
       order: { data: [] },
+      offset: 0,
       orderData: false
     }
   },
   methods: {
     getOrderData () {
-      const token = this.getToken
-      axios
-        .get(`${SERVER_IP}/user/mypage/orderlist`, {
-          headers: {
-            Authorization: token
-          }
+      // const token = this.getToken
+      // this.orderList = this.orderList.concat(mockup.result.data)
+      API.methods
+        .get(`${SERVER.IP}/mypage/order`)
+        .then(res => {
+          // console.log(res.data.result.data)
+          this.orderList = this.orderList.concat(res.data.result.data)
         })
-        .then((res) => {
-          this.order = res.data
-        })
-        .catch((error) => {
-          if (error.response.status === 401) {
-            this.$router.push('/error/400')
-          } else if (error.response.status === 400) {
-            this.$router.push('/error/400')
-          }
+        .catch(error => {
+          alert(error)
         })
     },
     // 2020-08-29 형태로 변환
@@ -126,12 +124,12 @@ export default {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     },
     // 상품 상세페이지로 이동
-    linkToProductDetail (e) {
-      console.log(e.target.attributes.value.value)
-      this.$router.push(`/detail/${e.target.attributes.value.value}`)
+    linkToProductDetail (no) {
+      this.$router.push(`/detail/${no}`)
     },
     // 주문 상세페이지로 이동
     linkToOrderDetail (orderDetailId) {
+      // console.log(orderDetailId)
       this.$router.push(`/mypage/orderDetail/${orderDetailId}`)
     },
 

@@ -1,51 +1,62 @@
 {
-  "totalCount": 4,
-  "cartList": [
-    {
-      "brandName": "Castle-joooun",
-      "detail": [
-        {
-          "id": 1,
-          "name": "이거 살꺼야?",
-          "price": 12700,
-          "quantity": 3,
-          "thumbnail": "https://image.brandi.me/cproduct/2021/03/05/SB000000000021761118_1614917527_image1_M.jpeg",
-          "color": "레드",
-          "size": "Free"
-        },
-        {
-          "id": 2,
-          "name": "이거 살꺼야?",
-          "price": 12700,
-          "quantity": 3,
-          "thumbnail": "https://image.brandi.me/cproduct/2021/03/05/SB000000000021761118_1614917527_image1_M.jpeg",
-          "color": "레드",
-          "size": "Free"
-        }
-      ]
-    },
-    {
-      "brandName": "joooun",
-      "detail": [
-        {
-          "id": 1,
-          "name": "이거 살꺼야?",
-          "price": 12700,
-          "quantity": 3,
-          "thumbnail": "https://image.brandi.me/cproduct/2021/03/05/SB000000000021761118_1614917527_image1_M.jpeg",
-          "color": "레드",
-          "size": "Free"
-        },
-        {
-          "id": 2,
-          "name": "이거 살꺼야?",
-          "price": 12700,
-          "quantity": 3,
-          "thumbnail": "https://image.brandi.me/cproduct/2021/03/05/SB000000000021761118_1614917527_image1_M.jpeg",
-          "color": "레드",
-          "size": "Free"
-        }
-      ]
-    }
-  ]
+  "result": {
+    "cartList": [
+      {
+        "brandName": "말랑말랑",
+        "detail": [
+          {
+            "color": "핑크",
+            "id": 4,
+            "imageUrl": "https://media.vlpt.us/images/c_hyun403/post/50dbacb7-246b-47c8-9bc5-3844c2611835/%E1%84%8C%E1%85%B5%E1%86%AB%E1%84%8E%E1%85%A9%E1%84%85%E1%85%A9%E1%86%A8%E1%84%89%E1%85%A9%E1%84%91%E1%85%A13.jpg",
+            "name": "따듯한 아우터",
+            "price": 20000,
+            "quantity": 1,
+            "size": "Extra Large"
+          },
+          {
+            "color": "레드",
+            "id": 5,
+            "imageUrl": "https://media.vlpt.us/images/c_hyun403/post/50dbacb7-246b-47c8-9bc5-3844c2611835/%E1%84%8C%E1%85%B5%E1%86%AB%E1%84%8E%E1%85%A9%E1%84%85%E1%85%A9%E1%86%A8%E1%84%89%E1%85%A9%E1%84%91%E1%85%A13.jpg",
+            "name": "따듯한 아우터",
+            "price": 20000,
+            "quantity": 19,
+            "size": "Medium"
+          }
+        ]
+      },
+      {
+        "brandName": "우나나나",
+        "detail": [
+          {
+            "color": "레드",
+            "id": 2,
+            "imageUrl": "https://images.theconversation.com/files/371985/original/file-20201130-13-xieqc.jpg?ixlib=rb-1.1.0&rect=0%2C0%2C5129%2C2560&q=45&auto=format&w=668&h=324&fit=crop",
+            "name": "차가운 아우터",
+            "price": 21000,
+            "quantity": 10,
+            "size": "Medium"
+          },
+          {
+            "color": "핑크",
+            "id": 6,
+            "imageUrl": "https://images.theconversation.com/files/371985/original/file-20201130-13-xieqc.jpg?ixlib=rb-1.1.0&rect=0%2C0%2C5129%2C2560&q=45&auto=format&w=668&h=324&fit=crop",
+            "name": "차가운 아우터",
+            "price": 21000,
+            "quantity": 10,
+            "size": "Large"
+          },
+          {
+            "color": "핑크",
+            "id": 7,
+            "imageUrl": "https://images.theconversation.com/files/371985/original/file-20201130-13-xieqc.jpg?ixlib=rb-1.1.0&rect=0%2C0%2C5129%2C2560&q=45&auto=format&w=668&h=324&fit=crop",
+            "name": "차가운 아우터",
+            "price": 21000,
+            "quantity": 16,
+            "size": "Extra Large"
+          }
+        ]
+      }
+    ],
+    "totalCount": 5
+  }
 }

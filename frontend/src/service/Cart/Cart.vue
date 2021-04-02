@@ -40,31 +40,30 @@
 <script>
 import CheckBox from '@/service/Components/CheckBox'
 import CartOption from '@/service/Cart/CartOption'
-// import SERVER_IP from '@/config'
-// import API from '@/service/util/service-api'
-import mock from '@/Data/Cart'
+// eslint-disable-next-line no-unused-vars
+import SERVER from '@/config'
+// eslint-disable-next-line no-unused-vars
+import API from '@/service/util/service-api'
+// import mock from '@/Data/Cart'
 import { EventBus } from '@/service/util/event-bus'
 
 // const thisTarget = this
 
 export default {
   created () {
-    // API.methods
-    //   .get(`${SERVER_IP}/cart`)
-    //   .then((res) => {
-    //     // 한번 수정하기
-    //     this.cartList = res.data
-    //   })
-    //   .catch()
-    const copyMock = JSON.parse(JSON.stringify(mock))
-    for (let i = 0, len = copyMock.cartList.length; i < len; i++) {
-      for (let z = 0, len2 = copyMock.cartList[i].detail.length; z < len2; z++) {
-        copyMock.cartList[i].detail[z].checked = false
-      }
-    }
-
-    this.cartList = copyMock.cartList
-    this.totalCount = mock.totalCount
+    API.methods
+      .get(`${SERVER.IP}/cart`)
+      .then((res) => {
+        // 한번 수정하기
+        const result = res.data.result.data.cartList
+        for (let i = 0, len = result.length; i < len; i++) {
+          for (let z = 0, len2 = result[i].detail.length; z < len2; z++) {
+            result[i].detail[z].checked = false
+          }
+        }
+        this.cartList = result
+        this.totalCount = res.data.result.totalCount
+      })
 
     EventBus.$on('check-item', item => {
       this.selectItems.push(item)
@@ -94,8 +93,8 @@ export default {
   },
   data () {
     return {
-      cartList: [],
-      totalCount: 0
+      cartList: []
+      // totalCount: 0
       // totalPrice: 0
     }
   },
@@ -110,6 +109,15 @@ export default {
         }
       }
       return list
+    },
+    totalCount () {
+      let total = 0
+      for (let i = 0, len = this.cartList.length; i < len; i++) {
+        for (let z = 0, len2 = this.cartList[i].detail.length; z < len2; z++) {
+          total++
+        }
+      }
+      return total
     },
     totalPrice () {
       let sum = 0
@@ -138,12 +146,28 @@ export default {
   },
   methods: {
     selectDelete () {
-      for (let i = 0, len = this.cartList.length; i < len; i++) {
-        for (let z = 0, len2 = this.cartList[i].detail.length; z < len2; z++) {
-          this.cartList[i].detail[z].checked = false
-        }
+      if (this.selectItems.length > 0) {
+        API.methods
+          .delete(`${SERVER.IP}/cart`, {
+            data: {
+              productOptionIds: this.selectItems.map(d => { return d.id })
+            }
+          })
+          .then((res) => {
+            if (res.data.message === 'SUCCESS') {
+              // 삭제 하였다면 리스트 삭제
+              for (let i = 0, len = this.cartList.length; i < len; i++) {
+                for (let z = 0; z < this.cartList[i].detail.length; z++) {
+                  if (this.cartList[i].detail[z].checked) {
+                    this.cartList[i].detail.splice(z, 1)
+                    z--
+                  }
+                }
+              }
+            }
+            // alert(res)
+          })
       }
-      this.selectItems = []
     },
     buyBtn () {
       if (this.selectItems.length > 0) {

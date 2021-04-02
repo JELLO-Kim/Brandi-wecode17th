@@ -11,7 +11,7 @@
             </h1>
           </div>
           <article class="productList">
-            <ProductBox :product="product" v-for="product in products.data" :key="product" @linkToDetail="linkToDetail"></ProductBox>
+            <ProductBox :product="product" v-for="product in products" :key="product.productId" @linkToDetail="linkToDetail"></ProductBox>
           </article>
         </section>
         <div>
@@ -24,9 +24,12 @@
 <script>
 import Banner from '@/service/Components/Banner'
 import ProductBox from '@/service/Components/ProductBox'
-// import API from '@/service/util/service-api'
-// import { SERVER_IP } from '@/config'
-import mockup from '@/Data/ProductList.json'
+// eslint-disable-next-line no-unused-vars
+import API from '@/service/util/service-api'
+// eslint-disable-next-line no-unused-vars
+import SERVER from '@/config.js'
+// eslint-disable-next-line no-unused-vars
+import mockup from '@/Data/ProductMain.json'
 // import axios from 'axios'
 
 export default {
@@ -44,20 +47,22 @@ export default {
   },
   methods: {
     getProductData () {
-      this.products = mockup
-      // API.methods.get(`${SERVER_IP}/products`)
-      //   .then((res) => {
-      //     this.products = res.data
-      //   })
-      //   .catch(() => {
-      //     this.$router.push('/error/500')
-      //   })
+      // this.products = mockup.result.data
+      API.methods.get(`${SERVER.IP}/products/list`)
+        .then((res) => {
+          // console.log(res)
+          this.products = res.data.result.data
+        })
+        .catch(() => {
+          this.$router.push('/error/500')
+        })
     },
     numberWithCommas (x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     },
     linkToDetail (product) {
-      this.$router.push(`/detail/${product.id}`)
+      // console.log(product)
+      this.$router.push(`/detail/${product.productId}`)
     },
     moreItemBtn () {
       this.$router.push('/category')
