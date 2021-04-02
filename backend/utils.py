@@ -38,7 +38,7 @@ def login_decorator(func):
                 raise (500, INTERNAL_SERVER_ERROR)
     return wrapper
 
-
+# 로그인 한 유저 한해 user_id 확인. 로그인 안한 유저경우도 에러 반환 없음.
 def user_decorator(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -53,8 +53,7 @@ def user_decorator(func):
             user = user_dao.user_identifier(user_info, connection)
 
             g.token_info = {
-                'user_id': user_id,
-                'user_type_id': user['user_type_id'],
+                'user_id': user_id
             }
         return func(*args, **kwargs)
     return wrapper

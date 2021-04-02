@@ -114,8 +114,19 @@ class ProductView:
     def get_product_qna(product_id):
         connection = None
         try: 
+
+            """
+            로그인 한 회원은 user_id로 누군지 특정. QnA에 작성한 글 있으면 보이게 하기위해.
+            로그인하지 않은 사용자도 접근 가능
+            """
+
+            if token_info["user_id"] in g:
+                user_id = g.token_info["user_id"]
+            else:
+                user_id = None
+
             info = {
-                'user_id'    : g.get(token_info["user_id"], None),
+                'user_id'    : user_id,
                 'product_id' : product_id,
                 'limit'      : int(request.args.get("limit", 5)),
                 'offset'     : int(request.args.get("offset", 0))
@@ -180,9 +191,13 @@ class ProductView:
         return Success
 
 
-
     @product_app.route('/recommends', methods=['GET'])
     def get_other_products():
+
+        """
+        현재 조희중인 제품의 판매자의 다른상품 5개 추천
+        """
+
         connection = None
         try: 
             info = {
