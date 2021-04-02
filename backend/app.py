@@ -49,23 +49,24 @@ def create_app(test_config=None):
     def apply_caching(response):
         # 올바르지 않는 주소입력으로 인해 response.json에 아무것도 담겨있지 않을 경우
         if not response.json:
-            return Response(
-                    json.dumps({"message": PAGE_NOT_FOUND}),
-                    status=404, 
-                    mimetype="application/json"
-                )
+            return response
+            # return Response(
+            #         json.dumps({"message": PAGE_NOT_FOUND}),
+            #         status=404,
+            #         mimetype="application/json"
+            #     )
 
         # error에 잡혀 message에 에러메세지가 이미 담겨있을 경우 그대로 반환
-        if 'message' in response.json:
-            return Response(
-                    json.dumps({"message": response.json['message']}),
-                    status=response.json['status'], 
-                    mimetype="application/json"
-                )
+      #  if 'message' in response.json:
+#            return Response(
+#                    json.dumps({"message": response.json['message']}),
+#                    status=response.json['status'],
+#                    mimetype="application/json"
+#                )
 
         response = app.response_class(
             response=json.dumps({
-                'result': response.json, 
+                'result': response.json,
                 'message': OK
             }),
             mimetype='application/json'

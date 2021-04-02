@@ -1,6 +1,6 @@
 class ApiException(Exception):
-    def __init__(self, code, message, extra=None):
-        self.extra = extra
+    def __init__(self, code, message, result=None):
+        self.result = result
         self.code = code
         self.message = message
 
@@ -55,4 +55,26 @@ QUANTITY_NOT_IN_INPUT = 'quantity key가 없습니다' #400 Bad request
 
 PRICE_NOT_IN_INPUT = 'price key가 없습니다' #400 Bad request
 
+STOCK_NOT_IN_INPUT = 'stock key가 없습니다' #400 Bad request
+
 PRODUCT_OPTION_NOT_IN_INPUT = 'product_optionkey가 없습니다' #400 Bad request
+
+IS_SELLING_NOT_IN_KEYS = 'is_selling key가 없습니다' #400 Bad request
+
+IS_DISPLAY_NOT_IN_KEYS = 'is_display key가 없습니다' #400 Bad request
+
+IS_DISCOUNT_NOT_IN_KEYS = 'is_discount key가 없습니다' #400 Bad request
+
+PRODUCT_CATEGORY_NOT_IN_KEYS = 'product_category key가 없습니다' #400 Bad request
+
+PRODUCT_NAME_NOT_IN_KEYS = 'product_name key가 없습니다' #400 Bad request
+
+PRODUCT_THUMBNAIL_IMAGE_NOT_IN_KEYS = 'product_thumbnail_image key가 없습니다' #400 Bad request
+
+PRODUCT_DETAIL_IMAGE_NOT_IN_KEYS = 'product_detail_image key가 없습니다' #400 Bad request
+
+PRODUCT_OPTION_NOT_IN_KEYS = 'product_options key가 없습니다' #400 Bad request
+
+PRICE_NOT_IN_KEYS = 'price key가 없습니다' #400 Bad request
+
+PRODUCT_MINIMUM_NOT_IN_KEYS = 'product_minimum key가 없습니다' #400 Bad request

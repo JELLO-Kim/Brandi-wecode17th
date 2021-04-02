@@ -11,7 +11,7 @@ from responses import *
 def login_decorator(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        access_token = request.headers.get('Authorization')
+        access_token = request.headers.get('AUTHORIZATION')
         try:
             if access_token:
                 payload = jwt.decode(access_token, SECRET_KEY, ALGORITHM)

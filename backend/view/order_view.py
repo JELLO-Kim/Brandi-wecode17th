@@ -41,7 +41,7 @@ class OrderView:
             order_service.post_cart(order_info, products, connection)
             connection.commit()
 
-            return jsonify({'MESSAGE': CREATED}), 201
+            return jsonify({'message': CREATED}), 201
 
         except ApiException as e:
             if connection:
@@ -62,7 +62,7 @@ class OrderView:
         if connection:
             connection.close()
 
-        return jsonify({'result': cart_details}), 200
+        return jsonify({'data': cart_details}), 200
 
     @order_app.route('/cart', methods=['DELETE'])
     @login_decorator
@@ -84,7 +84,7 @@ class OrderView:
             order_service.delete_cart(order_info, connection)
             connection.commit()
 
-            return jsonify({'MESSAGE': OK}), 200
+            return jsonify({'message': OK}), 200
 
         except ApiException as e:
             if connection:

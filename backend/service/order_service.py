@@ -123,7 +123,7 @@ class OrderService:
                         'name': product_detail['name'],
                         'price': product_detail['price'],
                         'quantity': product_detail['quantity'],
-                        'imageUrl': product_detail['image_url'],
+                        'imageUrl': product_detail['image'],
                         'color': product_detail['color'],
                         'size': product_detail['size']
                     } for product_detail in product_details
