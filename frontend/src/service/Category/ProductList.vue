@@ -18,12 +18,14 @@ import ProductBox from '@/service/Components/ProductBox'
 import DropDown from '@/service/Components/DropDown'
 import API from '@/service/util/service-api'
 import SERVER from '@/config.js'
+import { EventBus } from '@/service/util/event-bus'
 
 export default {
   name: 'ProductList',
   created () {
+    // const url = `${SERVER.SERVER}/products/list`
     // API.methods
-    //   .get(`${SERVER.IP}/products/list`)
+    //   .get(this.subId === 0 ? url : url + '?category=' + this.subId)
     //   .then((res) => {
     //     console.log(res.data.result.data)
     //     // console.log(res.result.data)
@@ -31,10 +33,13 @@ export default {
     //     // this.productList = res.data.result.product
     //   })
     //   .catch(() => {
-    //     // console.log(error)
     //     this.$router.push('/main')
     //     alert('존재하지 않는 서비스 상품입니다.')
     //   })
+
+    EventBus.$on('select-sub', item => {
+      this.subId = item
+    })
   },
   components: {
     ProductBox,
@@ -50,7 +55,8 @@ export default {
         { key: 'mothy', label: '월간' }
       ],
       offset: 0,
-      limit: 8
+      limit: 8,
+      subId: 0
     }
   },
   methods: {
@@ -60,7 +66,7 @@ export default {
     moreItemBtn () {
       this.offset++
       API.methods
-        .get(`${SERVER.IP}/products/list`.concat(`?offset=${this.offset}`))
+        .get(`${SERVER.IP}/products/list?offset=${this.offset}`)
         .then(res => {
           this.productList.concat(res.data)
         })

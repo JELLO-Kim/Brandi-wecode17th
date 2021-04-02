@@ -1,24 +1,24 @@
 <template>
   <div class="product">
     <div class="productImage" @click="linkToDetail(product)">
-      <img :src="product.productThumbnailImage" alt="thumbnail img" />
+      <img :src="product.thumbnailImage" alt="thumbnail img" />
     </div>
     <div class="brandName">{{ product.sellerName }}</div>
     <div class="productName">{{ product.name }}</div>
     <div class="productPrice">
-      <span class="discountRate" v-if="product.discountRate"
-        >{{ product.discountRate * 100 }}%</span
+      <span class="discountRate" v-if="product.discountRate != 0"
+        >{{ product.discountRate }}%</span
       >
-      <span class="discountPrice" v-if="product.discountRate">
-        {{ Math.round(product.price * (1 - product.discountRate) / 100 ) * 100 | makeComma }}
+      <span class="discountPrice" v-if="product.discountRate != 0">
+        {{ product.discountPrice | makeComma }}
       </span>
       <span
         :class="{
-          noneDisCountPrice: !product.discountRate,
-          price: product.discountRate,
+          noneDisCountPrice: product.discountRate == 0,
+          price: product.discountRate != 0,
         }"
         >{{
-            Math.round(product.price / 10) * 10 | makeComma
+            product.price | makeComma
         }}</span
       >
     </div>
@@ -37,9 +37,9 @@ export default {
         return {
           thumbnailImage: '',
           name: '',
-          // sales_price: this.methods.getDiscountPrice(this.original_price, this.discount_rate),
           price: 0,
           discountRate: 0,
+          discountPrice: 0,
           totalSales: 0,
           sellerName: ''
         }

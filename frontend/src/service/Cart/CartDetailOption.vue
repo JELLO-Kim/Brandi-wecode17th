@@ -6,7 +6,7 @@
       </td>
       <td>
         <img
-          :src="this.list.thumbnail"
+          :src="this.list.imageUrl"
           alt=""
         />
       </td>
@@ -46,14 +46,15 @@ export default {
         return {
           id: Number,
           name: String,
-          thumbnail: String,
+          imageUrl: String,
           price: Number,
           color: String,
           size: String,
           quantity: Number,
           checked: Boolean
         }
-      }
+      },
+      brandName: String
     }
   },
   components: {
@@ -82,7 +83,8 @@ export default {
           quantity: this.list.quantity,
           color: this.list.color,
           size: this.list.size,
-          price: this.list.price
+          price: this.list.price,
+          brandName: this.brandName
         }
 
         EventBus.$emit('check-item', data)
@@ -94,16 +96,17 @@ export default {
     },
     nowBuyItem () {
       const nowData = {
+        userId: localStorage.getItem('userId'),
         totalPrice: this.list.price * this.list.quantity,
         items: {
           id: this.list.id,
           quantity: this.list.quantity,
           color: this.list.color,
           size: this.list.size,
-          price: this.list.price
+          price: this.list.price,
+          brandName: this.brandName
         }
       }
-      localStorage.removeItem('cart')
       localStorage.setItem('cart', JSON.stringify(nowData))
       this.$router.push('/order')
     }

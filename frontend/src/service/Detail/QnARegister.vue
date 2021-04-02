@@ -4,13 +4,13 @@
       <tr>
         <td>질문유형</td>
         <td>
-          <DropDown :items="deliveryMock" v-model="deliveryType"></DropDown>
+          <DropDown :items="typeList" v-model="deliveryType"></DropDown>
         </td>
       </tr>
       <tr>
         <td>내용</td>
         <td>
-          <textarea rows="5" cols="3" placeholder="내용을 입력해주세요." nonesizing/>
+          <textarea v-model="content" rows="5" cols="3" placeholder="내용을 입력해주세요." nonesizing/>
         </td>
       </tr>
       <tr>
@@ -20,7 +20,7 @@
     </table>
     <div>
       <button class="cancle">취소하기</button>
-      <button class="ok">등록하기</button>
+      <button class="ok" @click="submit">등록하기</button>
     </div>
   </div>
 </template>
@@ -28,25 +28,57 @@
 <script>
 import CheckBox from '@/service/Components/CheckBox'
 import DropDown from '@/service/Components/DropDown'
+import API from '@/service/util/service-api'
+import SERVER from '@/config'
 
 export default {
+  created () {
+    API.methods
+      .get(`${SERVER.IP}/products/qna/type`)
+      .then(res => {
+        this.typeList = res.data
+      })
+  },
   data () {
     return {
       deliveryType: '',
-      // 삭제하기 이거!!
+      content: '',
       isPrivate: false,
-      deliveryMock: [{
-        label: '집 앞에 놓고 가주세요.',
-        key: '11'
-      },
-      {
-        label: '등등등..',
-        key: '12'
-      }
+      typeList: [
+        {
+          label: '집 앞에 놓고 가주세요.',
+          key: '11'
+        },
+        {
+          label: '등등등..',
+          key: '12'
+        }
       ]
     }
   },
-  components: { CheckBox, DropDown }
+  props: {
+    id: Number
+  },
+  components: { CheckBox, DropDown },
+  methods: {
+    submit () {
+      const data = {
+        productId: this.id,
+        questionType: this.deliveryType,
+        content: this.content,
+        isPrivate: this.isPrivate
+      }
+
+      API.methods
+        .post(`${SERVER.IP}/products/question`, data)
+        .then(res => {
+          alert('성공적으로 등록하였습니다.')
+        })
+        .catch(error => {
+          alert(error.message)
+        })
+    }
+  }
 }
 </script>
 

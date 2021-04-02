@@ -2,10 +2,10 @@
   <div class="body">
     <h2>Best</h2>
     <ul>
-      <li v-for="item in menu" :key="item" :class="{'open': item.open}">
-        <p @click="toggleOpen(item)">{{ item.label }}</p>
-        <ul v-if="item.child">
-          <li v-for="sub in item.child" :key="sub">{{ sub.label }}</li>
+      <li v-for="item in menu" :key="item.id" :class="{'open': item.open}">
+        <p @click="toggleOpen(item)">{{ item.name }}</p>
+        <ul v-if="item.subCategory">
+          <li v-for="sub in item.subCategory" :key="sub.id" :value="sub.id" @click="selectSub">{{ sub.name }}</li>
         </ul>
       </li>
     </ul>
@@ -13,16 +13,18 @@
 </template>
 
 <script>
-// import SERVER_IP from '@/config'
+// import SERVER from '@/config'
 // import API from '@/service/util/service-api'
+import { EventBus } from '@/service/util/event-bus'
 
 export default {
   name: 'CategoryMenu',
   created () {
     // API.methods
-    //   .get(`${SERVER_IP}/`)
+    //   .get(`${SERVER.SERVER}/products/category`)
     //   .then(res => {
-    //     this.menu = res.data
+    //     // console.log(res.data.result.data)
+    //     this.menu = res.data.result.data
 
     //     this.menu.forEach(m => {
     //       this.$set(m, 'open', false)
@@ -41,30 +43,36 @@ export default {
     return {
       menu: [
         {
-          label: '전체',
-          child: [
+          name: '전체',
+          subCategory: [
             {
-              label: '전체'
+              id: 1,
+              name: '전체'
             }
           ]
         },
         {
-          label: '쇼핑몰 · 마켓',
-          child: [
+          name: '쇼핑몰 · 마켓',
+          subCategory: [
             {
-              label: '전체'
+              id: 2,
+              name: '전체'
             },
             {
-              label: '아웃터'
+              id: 3,
+              name: '아웃터'
             },
             {
-              label: '상의'
+              id: 4,
+              name: '상의'
             },
             {
-              label: '바지'
+              id: 5,
+              name: '바지'
             },
             {
-              label: '원피스'
+              id: 6,
+              name: '원피스'
             }
           ]
         }
@@ -74,6 +82,10 @@ export default {
   methods: {
     toggleOpen (item) {
       item.open = !item.open
+    },
+    selectSub (e) {
+      // console.log(e.target.value)
+      EventBus.$emit('select-sub', e.target.value)
     }
   }
 }

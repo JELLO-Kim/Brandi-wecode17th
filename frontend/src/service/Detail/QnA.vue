@@ -9,7 +9,7 @@
         <label><input type="radio" name="answerType">&nbsp;미답변</label>
       </div>
     </div>
-    <QnARegister v-if="showQnA"></QnARegister>
+    <QnARegister v-bind:id="this.id" v-if="showQnA"></QnARegister>
     <table>
       <colgroup>
         <col v-if="!isMypage" width="15%">
@@ -29,72 +29,65 @@
         </tr>
       </thead>
       <tbody>
-        <template v-for="answer in answers">
-          <tr @click.prevent="togleAnswer(answer)" :key="answer">
-            <td v-if="!isMypage">배송 문의</td>
-            <td><span>답변대기</span></td>
-            <td><p class="scret">{{answer.title}}</p></td>
-            <td>{{answer.register}}</td>
-            <td>{{answer.regDate}}</td>
+        <template v-for="QnA in qnaList">
+          <tr @click.prevent="togleAnswer(QnA)" :key="QnA">
+            <td v-if="!isMypage">{{ QnA.questionType }}</td>
+            <td><span>{{ QnA.isFinished ? '답변 완료' : '답변 대기' }}</span></td>
+            <td><p class="scret">{{ QnA.content }}</p></td>
+            <td>{{ QnA.writer }}</td>
+            <td>{{ QnA.createdAt }}</td>
           </tr>
-          <tr class="answer" v-show="answer.answerShow" :key="answer">
+          <tr class="answer" :class="QnA.answer.isShow" v-if="QnA.answer" :key="QnA.answer">
             <td v-if="!isMypage"></td>
             <td></td>
-            <td><p class="scret">비밀글입니다.</p></td>
-            <td></td>
-            <td></td>
+            <td><p class="scret">{{ QnA.answer.content }}</p></td>
+            <td>{{ QnA.answer.writer }}</td>
+            <td>{{ QnA.answer.createdAt }}</td>
           </tr>
         </template>
-        <!--
-        <tr>
-          <td>배송 문의</td>
-          <td><span>답변대기</span></td>
-          <td><p>비밀글입니다.</p></td>
-          <td>dsd***</td>
-          <td>2021.03.11</td>
-        </tr> -->
       </tbody>
     </table>
-    <Pagenation></Pagenation>
+    <a-pagination class="pagination" :default-current="this.page" :total="this.totalCount" :current="this.nowPage" />
+    <!-- <Pagenation v-bind="{page:page, totalPage:totalPage}"></Pagenation> -->
   </div>
 </template>
 
 <script>
-// import { SERVER_IP } from '@/config.js'
 // import axios from 'axios'
 // import { VueAgile } from 'vue-agile'
 // import mockup from '@/Data/DetailOption.json'
-import Pagenation from '@/service/Components/Pagenation'
+// import Pagenation from '@/service/Components/Pagenation'
 import QnARegister from '@/service/Detail/QnARegister'
+import { EventBus } from '@/service/util/event-bus'
+
+const limit = 5
 
 export default {
-  created () {
+  updated () {
+    EventBus.$emit('crrent-page', this.nowPage)
   },
   props: {
     title: String,
-    isMypage: Boolean
+    isMypage: Boolean,
+    id: Number,
+    qnaList: Array,
+    totalCount: Number,
+    page: Number
   },
   data () {
     return {
-      answers: [
-        {
-          title: '비밀글입니다.',
-          regDate: '2021.03.11',
-          regster: 'dsd***',
-          answerShow: false
-        },
-        {
-          title: '비밀글입니다.',
-          regDate: '2021.03.11',
-          regster: 'dsd***',
-          answerShow: false
-        }
-      ],
-      showQnA: false
+      showQnA: false,
+      nowPage: 1
+    }
+  },
+  computed: {
+    totalPages () {
+      const calPage = this.totalCount / limit
+      return this.totalCount % limit === 0 ? calPage : calPage + 1
     }
   },
   components: {
-    Pagenation,
+    // Pagenation,
     QnARegister
   },
   methods: {
@@ -176,6 +169,10 @@ export default {
         }
       }
     }
+  }
+
+  .pagination {
+    margin-top: 30px;
   }
 }
 </style>

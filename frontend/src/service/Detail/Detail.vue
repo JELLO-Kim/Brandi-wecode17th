@@ -1,7 +1,7 @@
 <template>
   <main>
     <article class="ProductInfo">
-      <agile v-if="detailData.imageList[1]" class="agile" :dots="false">
+      <agile v-if="detailData.imageList[0]" class="agile" :dots="false">
         <div class="imgContainer">
           <img alt="product  image" :src="detailData.imageList[0]" />
         </div>
@@ -67,16 +67,23 @@
           <div class="detailHtml" v-html="detailData.productContentImage" />
         </div>
         <div>
-          <QnA v-bind:isMypage="isMypage" v-bind:title="title"></QnA>
+          <QnA v-bind="{
+            isMypage: isMypage,
+            title: title,
+            id: detailData.id,
+            totalCount: QnATotalCount,
+            qnaList: qnaList,
+            page: page
+            }" ></QnA>
         </div>
       </div>
     </article>
-    <!-- <Toast :message="errorMessage" v-on:remove-message="removeMessage"/> -->
+    <OtherProduct :products="this.others"/>
   </main>
 </template>
 
 <script>
-import { SERVER_IP } from '@/config.js'
+import { SERVER } from '@/config'
 import API from '@/service/util/service-api'
 import { VueAgile } from 'vue-agile'
 import QnA from './QnA'
@@ -84,45 +91,74 @@ import DropDown from '@/service/Components/DropDown'
 import OptionQuantity from './OptionQuantity'
 import mockup from '@/Data/Detail.json'
 import { mapMutations, mapGetters } from 'vuex'
-// import Toast from '@/service/Components/Toast'
+import OtherProduct from '@/service/Detail/BrandOtherProduct'
+import { Eventbus } from '@/service/util/event-bus'
 
 const serviceStore = 'serviceStore'
 
 export default {
   components: {
-    // 이미지 Caroucel
     agile: VueAgile,
     QnA,
     DropDown,
-    OptionQuantity
-    // Toast
+    OptionQuantity,
+    OtherProduct
   },
   created () {
     this.detailData = mockup.data
     // this.sizeData = mockup.sizeData
     // mockup.options
     // API.methods
-    //   .get(`${SERVER_IP}/products/1`)
+    //   .get(`${SERVER}/products/${this.$route.params.id}`)
     //   .then((res) => {
-    //     // console.log(res.data.result)
     //     this.detailData = res.data.result.product
     //   })
     //   .catch(() => {
-    //     // console.log(error)
     //     this.$router.push('/main')
     //     alert('존재하지 않는 서비스 상품입니다.')
     //   })
-  },
 
+    // {
+    //   headers: {
+    //     Authorization: `${localStorage.getItem('access_token')}`
+    //   }
+    // }
+    API.methods
+      .get(`${SERVER}/products/${this.$route.params.id}/question`)
+      .then(res => {
+        this.qnaList = res.data.result.data
+        this.QnATotalCount = res.data.result.totalCount
+
+        for (let i = 0; i < this.qnaList.length; i++) {
+          this.qnaList[i].isShow = false
+        }
+      })
+      .catch(error => {
+        alert(error.message)
+      })
+
+    API.methods
+      .get(`${SERVER}/products/recommands?productId=${this.$route.params.id}`)
+      .then(res => {
+        this.others = res.data.result
+      })
+      .catch(error => {
+        alert(error)
+      })
+
+    Eventbus.$on('crrent-id', item => {
+      this.page = item
+    })
+  },
   data () {
     return {
+      brandId: 0,
       color: null,
       size: null,
       optionQuantity: [],
-      sellerProducts: [],
-      qnaList: [],
       detailData: {
         id: 0,
+        brand: '',
         colors: [],
         sizes: [],
         name: '',
@@ -136,7 +172,11 @@ export default {
       },
       isMypage: false,
       title: 'Q&A',
-      errorMessage: ''
+      errorMessage: '',
+      qnaList: [],
+      QnATotalCount: 0,
+      others: [],
+      page: 1
     }
   },
   computed: {
@@ -164,6 +204,9 @@ export default {
       return total
     }
   },
+  // props: {
+  //   productId: Number
+  // }
   methods: {
     ...mapMutations(serviceStore, ['getStorageToken']),
 
@@ -173,7 +216,8 @@ export default {
           size: this.size,
           color: this.color,
           price: this.detailData.discountPrice,
-          quantity: 1
+          quantity: 1,
+          brandName: this.detailData.brand
         })
 
         this.color = null
@@ -190,14 +234,57 @@ export default {
     // 상품의 갯수가 0이라면 return
     buyNowHandler () {
       if (this.optionQuantity.length > 0) {
+        // if (this.getToken) {
+        const orderData = {
+          productId: this.id,
+          products: []
+        }
+        for (let i = 0; i < this.optionQuantity.length; i++) {
+          const nowOption = this.optionQuantity[i]
+          orderData.products.push({
+            brandName: nowOption.brandName,
+            options: {
+              name: 'ㅁㄴㅇ'
+            }
+          })
+        }
+
+        localStorage.setItem('cart', JSON.stringify(orderData))
+        this.$router.push('/order')
+      } else {
+        alert('로그인이 필요한 서비스입니다.')
+        this.$router.push('/login')
+      }
+      // } else {
+      //   this.$toast.open({
+      //     message: '옵션을 한개 이상 선택해주세요.',
+      //     position: 'bottom',
+      //     duration: 3000,
+      //     type: 'default'
+      //   })
+      // }
+    },
+
+    addCart () {
+      if (this.optionQuantity.length > 0) {
         if (this.getToken) {
-          const orderData = {
-            productId: this.id,
+          const addCartItem = {
+            userId: localStorage.getItem('userId'),
+            productId: this.detailData.id,
             products: this.optionQuantity
           }
 
-          localStorage.setItem('items', orderData)
-          this.$router.push('/order')
+          API.methods.post(`${SERVER}/cart`, addCartItem, {
+            headers: {
+              Authorization: `${localStorage.getItem('access_token')}`
+            }
+          })
+            .then((res) => {
+              if (res.message === 'SUCCESS') this.errorMessage = '선택한 상품이 장바구니에 담겼습니다.'
+            })
+            .catch((error) => {
+              alert(error.message)
+            })
         } else {
           alert('로그인이 필요한 서비스입니다.')
           this.$router.push('/login')
@@ -210,31 +297,6 @@ export default {
           type: 'default'
         })
       }
-    },
-
-    // 내가 짠 코드!
-    addCart () {
-      console.log('이거 눌림???')
-      if (this.optionQuantity.length > 0) {
-        if (this.getToken) {
-          API.methods.post(`${SERVER_IP}/cart`, this.optionQuantity)
-            .then((res) => {
-              if (res.message === 'SUCCESS') this.errorMessage = '선택한 상품이 장바구니에 담겼습니다.'
-            })
-            .catch((error) => {
-              alert(error.message)
-            })
-        } else {
-          alert('로그인이 필요한 서비스입니다.')
-          this.$router.push('/login')
-        }
-      } else {
-        this.errorMessage = '옵션을 한개 이상 선택해주세요.'
-      }
-    },
-
-    removeMessage () {
-      this.errorMessage = ''
     }
   }
 }
