@@ -1,7 +1,7 @@
 from flask          import request, Blueprint
 from db_connector   import connect_db
 from service        import SellerService
-from errors         import *
+from responses      import *
 from utils          import login_decorator
 
 class SellerView:

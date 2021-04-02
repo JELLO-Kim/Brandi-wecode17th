@@ -1,6 +1,6 @@
 from flask  import json, jsonify
 from model.seller_account_dao   import SellerDao
-from errors                     import *
+from responses                     import *
 
 class SellerService:
 
