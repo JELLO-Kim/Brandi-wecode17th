@@ -26,8 +26,6 @@ class UserView:
             if 'user_type_id' not in data:
                 raise ApiException(400, INVALID_INPUT)
 
-            if not validate_email(data['email']):
-                raise ApiException(400, INVALID_EMAIL)
             if not validate_password(data['password']):
                 raise ApiException(400, INVALID_PASSWORD)
 
@@ -44,7 +42,7 @@ class UserView:
             user_service.create_user(user_info, connection)
             connection.commit()
 
-            return jsonify({'MESSAGE': CREATED}), 201
+            return jsonify({'message': CREATED}), 201
 
         except ApiException as e:
             if connection:
@@ -63,7 +61,6 @@ class UserView:
         connection = None
         try:
             data = request.json
-            print(data)
             if 'username' not in data:
                 raise ApiException(400, INVALID_INPUT)
             if 'password' not in data:

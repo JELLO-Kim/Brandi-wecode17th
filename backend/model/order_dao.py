@@ -251,6 +251,8 @@ class OrderDao:
                     o.id = %(order_id)s
                 AND
                     order_status_type_id = 1
+                AND
+                    c.is_delete = 0
             """
             cursor.execute(query, order_info)
             seller_ids = cursor.fetchall()
@@ -264,7 +266,7 @@ class OrderDao:
                     p.name,
                     p.price,
                     c.quantity,
-                    pt.image_url,
+                    pt.image_url AS image,
                     pc.name as color,
                     ps.name as size
                 FROM 
@@ -287,6 +289,8 @@ class OrderDao:
                     order_id = %(order_id)s 
                 AND 
                     pt.ordering = 1
+                AND
+                    c.is_delete = 0
             """
             cursor.execute(query, order_info)
             product_details = cursor.fetchall()
@@ -301,6 +305,8 @@ class OrderDao:
                     carts
                 WHERE
                     order_id = %(order_id)s
+                AND
+                    carts.is_delete = 0
             """
             cursor.execute(query, order_info)
             total_carts = cursor.fetchone()
