@@ -29,12 +29,12 @@ class ProductDao:
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             products_info = """
                 SELECT
-                    p.id,
+                    p.id AS productId,
                     s.korean_brand_name AS sellerName,
                     name,
-                    CAST(ROUND(discount_rate, 0) AS CHAR) AS discountRate,
-                    CAST(ROUND(p.price, -2) AS CHAR) AS price,
-                    CAST(p.discounted_price AS CHAR) AS discountPrice,
+                    p.discount_rate AS discountRate,
+                    p.price AS price,
+                    p.discountPrice AS discountPrice,
                     min(i.image_url) AS thumbnailImage,
                     p.total_sales AS totalSales
                 FROM
@@ -83,9 +83,43 @@ class ProductDao:
                 """
 
             cursor.execute(products_info, filter_data)
-            product_list = cursor.fetchall()
 
-        return {"data" : product_list, "limit" : limit}
+            return cursor.fetchall()
+
+    def product_list_total_count(self, filter_data, connection):
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            count_query = """
+                SELECT
+                    COUNT(*)
+                FROM
+                    products AS p
+                INNER JOIN
+                    sellers AS s
+                ON
+                    p.seller_id=s.user_info_id
+                INNER JOIN
+                    user_info AS u
+                ON
+                    s.user_info_id=u.id
+                LEFT JOIN
+                    product_thumbnails AS i
+                ON
+                    p.id=i.product_id
+                WHERE
+                    p.is_selling=1
+                """
+
+            if 'category' in filter_data:
+                count_query += """
+                    AND p.product_category_id = %(category)s
+                """
+
+            # 그룹바이 위치
+            count_query += """
+                GROUP BY p.id
+            """
+            cursor.execute(count_query, filter_data)
+            return cursor.fetchone()
 
 
     def product_detail(self, product_id, connection):
@@ -105,7 +139,7 @@ class ProductDao:
                 p.name,
                 p.price,
                 p.discount_rate AS discountRate,
-                p.discounted_price AS discountPrice,
+                p.discountPrice AS discountPrice,
                 (
                     SELECT 
                         GROUP_CONCAT(DISTINCT CONCAT(ct.id, ':', name) ORDER BY ordering ASC)
@@ -186,7 +220,7 @@ class ProductDao:
                 q.is_finished AS isFinished,
                 IF(
                     %(user_id)s = q.writer_id OR q.is_private = 0, q.contents, "비밀글입니다."
-                ) AS content,
+                ) AS contents,
                 ui.username,
                 q.writer_id,
                 q.parent_id,
@@ -194,7 +228,7 @@ class ProductDao:
                 q.is_private AS isPrivate,
                 IF(
                     %(user_id)s = q.writer_id, self.contents, "비밀글입니다."
-                ) AS r_content,
+                ) AS r_contents,
                 self.parent_id AS r_parent_id,
                 s.korean_brand_name AS brand,
                 self.created_at AS r_createdAt
@@ -208,7 +242,7 @@ class ProductDao:
                 ON q.product_id = p.id
             INNER JOIN question_types AS qt
                 ON q.question_type_id = qt.id
-             INNER JOIN user_info AS ui
+            INNER JOIN user_info AS ui
                 ON q.writer_id = ui.id
             WHERE
                 p.id = %(product_id)s
@@ -276,7 +310,7 @@ class ProductDao:
                 p.name,
                 p.price,
                 p.discount_rate AS discountRate,
-                p.discounted_price AS discountPrice
+                p.discountPrice AS discountPrice
             FROM 
                 products AS p
             LEFT JOIN sellers AS s
