@@ -109,3 +109,4 @@ class MyPageView:
             raise e
         finally:
             if connection is not None:
+                connection.close()
