@@ -92,8 +92,27 @@ class MasterDao:
           m.ordering = 1 or m.ordering is null
       """
 
-    cursor.execute(account_count_sql)
-    account_count = cursor.fetchone()
-  
-    return account_count
+      cursor.execute(account_count_sql)
+      account_count = cursor.fetchone()
+    
+      return account_count
 
+  def action(self, connection, level):
+    with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+      action_sql = """
+        SELECT 
+          sa.name, sa.id
+        FROM
+          seller_action_types sa
+        JOIN
+          seller_level_types sl
+        ON
+          sa.seller_level_type_id = sl.id
+        WHERE
+          sl.name = %(level)s
+      """
+
+      cursor.execute(action_sql, {'level': level})
+      actions = cursor.fetchall()
+    
+      return actions
