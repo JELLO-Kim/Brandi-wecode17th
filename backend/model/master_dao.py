@@ -304,3 +304,19 @@ class MasterDao:
 			cursor.excute(sql, {'user_info_id': data['user_id']})
 			
 			return True
+
+	def check_action(self, connection, action):
+		with connection.cursor(pymysql.cursor.DictCursor) as cursor:
+			sql = """
+				SELECT
+					name
+				FROM
+					seller_action_types
+				WHERE
+					id = %(action)s
+			"""
+
+			cursor.execute(sql, {'action': action})
+			result = cursor.fetchone()
+
+			return result

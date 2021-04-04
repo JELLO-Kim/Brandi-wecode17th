@@ -65,17 +65,18 @@ class MasterService:
     action_id     = data['action_id']
     update_action = 0
 
-    # 똑같은 이름이면 해당 dao로 보내서 해당하는 id 값들만 받아올 수 있을듯!    
-    if action_id in [1, 5, 9]:
-      update_action = 3
-    if action_id in [2]:
-      update_action = 4
-    if action_id in [3, 11]:
-      update_action = 6
-    if action_id in [4, 6]:
-      update_action = 7
-    if action_id in [8]:
-      update_action = 8
+    check_action = master_dao.check_action(connection, action_id)
+
+    if check_action in ["입점 승인", "휴점 해제", "퇴점 철회 처리"]:
+      update_action = "입점"
+    if check_action in ["입점 거절"]:
+      update_action = "입점 거절"
+    if check_action in ["휴점 신청"]:
+      update_action = "휴점"
+    if check_action in ["퇴점 신청처리"]:
+      update_action = "퇴점 대기"
+    if check_action in ["퇴점 확정 처리"]:
+      update_action = "퇴점"
       master_dao.seller_delete(connection, data)
 
     data['update_action']
