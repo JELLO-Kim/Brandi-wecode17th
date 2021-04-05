@@ -7,16 +7,26 @@ from utils          import login_decorator, user_decorator
 class ProductView:
     product_app = Blueprint('product_app', __name__, url_prefix='/products')
 
-    # products의 카테고리 선택 목록에 대한 로직
     @product_app.route('/category', methods=['GET'])
     def products_category():
+        """ 상품 카테고리 list
+        Author  
+            : Chae hyun Kim
+        Returns 
+            : { "message"   : "SUCCESS"
+                "result"    : {
+                    "data"       : category_list,
+                    "totalCount" : 2차 카테고리 총 갯수
+                    }
+                }
+        """
         connection = None
         try:
             connection = connect_db()
             produts_category_service = ProductService()
-            result = produts_category_service.products_category(connection)
+            category_list = produts_category_service.products_category(connection)
 
-            return result
+            return category_list
 
         except Exception as e:
             if connection:
@@ -29,13 +39,28 @@ class ProductView:
     # products list에 대한 로직
     @product_app.route('/list', methods=['GET'])
     def products_list():
+        """ 상품 list
+        Author  
+            : Chae hyun Kim
+        Args    
+            : 필요할 경우 category의 id, limit과 offset 조건을 query paramter로 받는다
+        Returns 
+            : {
+                "message" : "SUCCESS",
+                "result" : {
+                    "data" : product list,
+                    "totalCount" : 상품 총 갯수
+                    }
+                }
+        Note    
+            : filtering 조건으로 category의 id가 query parameter를 통해 들어올 경우 해당 조건에 해당하는 product list로 결과 반환
+        """
         MINIMUM_CATEGORY_NUMBER = 4
         MAXIMUM_CATEGORY_NUMBER = 5
         connection = None
         try:
             connection = connect_db()
             products_service = ProductService()
-            filter_data = {}
             page_condition = {}
             category    = request.args.get('category', None)
             limit       = request.args.get('limit', None)
@@ -45,7 +70,7 @@ class ProductView:
             if category is not None:
                 if int(category) < MINIMUM_CATEGORY_NUMBER or int(category) > MAXIMUM_CATEGORY_NUMBER :
                     raise ApiException(404, INVALID_FILTER_CONDITION)
-                filter_data['category'] = category
+                page_condition['category'] = category
 
             # "더보기"를 누르기 전 limit 조건이 들어오지 않았을 경우 기본으로 30으로 지정
             if limit is None:
@@ -59,9 +84,9 @@ class ProductView:
             else:
                 page_condition['offset'] = int(offset)
 
-            result = products_service.products_list(filter_data, connection, page_condition)
+            product_list = products_service.products_list(connection, page_condition)
 
-            return result
+            return product_list
 
         except Exception as e:
             if connection:
