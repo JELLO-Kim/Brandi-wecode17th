@@ -5,6 +5,15 @@ from responses         import *
 class ProductService:
     
     def products_category(self, connection):
+        """ [서비스] products의 category list
+        Args:
+            connection: = 커넥션
+        Returns 
+            : {
+                "data" : category list,
+                "totalCount" : 2차 카테고리 총 갯수
+                }
+        """
         products_category_dao = ProductDao()
         products_category = products_category_dao.products_category(connection)
 
@@ -24,10 +33,20 @@ class ProductService:
             
         return {"data" : result}
 
-    def products_list(self, filter_data, connection, page_condition):
-        products_dao = ProductDao()
-        products_list = products_dao.products_list(filter_data, connection, page_condition)
-        product_total_count = products_dao.product_list_total_count(filter_data, connection)
+    def products_list(self, connection, page_condition):
+        """ [서비스] products의 category list
+        Args:
+            connection : 커넥션
+            page_condition : limt, offset, filtering용 category 조건
+        Returns 
+            : {
+                "data" : product list,
+                "totalCount" : 상품의 총 갯수
+                }
+        """
+        products_dao        = ProductDao()
+        products_list       = products_dao.products_list(connection, page_condition)
+        product_total_count = products_dao.product_list_total_count(connection, page_condition)
 
         return {"data" : products_list, "totalCount" : product_total_count['COUNT(*)']}
 

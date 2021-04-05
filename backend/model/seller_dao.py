@@ -390,7 +390,11 @@ class SellerDao:
                 VALUES(
                     %(user_type_id)s,
                     %(username)s,
+<<<<<<< HEAD
                     %(phone_number)s,
+=======
+                    %(phoneNumber)s,
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
                     %(password)s,
                     0
                 )
@@ -415,7 +419,11 @@ class SellerDao:
                     %(user_info_id)s,
                     %(user_type_id)s,
                     %(username)s,
+<<<<<<< HEAD
                     %(phone_number)s,
+=======
+                    %(phoneNumber)s,
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
                     %(password)s,
                     %(user_info_id)s,
                     NOW()
@@ -425,15 +433,28 @@ class SellerDao:
             new_seller_log_id = cursor.lastrowid
             return new_seller_log_id
 
+<<<<<<< HEAD
 #채현님 코드
     def seller_edit_get_dao(self, user_id, connection):
+=======
+#채현 : 정보수정페이지 내용 가져오기 (get)
+    def seller_edit_get_dao(self, user, connection):
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             get_info = """
                 SELECT
                     u.username,
+<<<<<<< HEAD
                     s.korean_brand_name AS brandKoreand,
                     s.english_brand_name AS brandEnglish,
                     s.image_url AS profile,
+=======
+                    s.korean_brand_name AS brandKorean,
+                    s.english_brand_name AS brandEnglish,
+                    s.image_url AS profile,
+                    sl.name AS sellerStatus,
+                    sc.name AS sellerCategory,
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
                     s.background_image_url AS backgroundImage,
                     s.introduce,
                     s.description,
@@ -452,6 +473,7 @@ class SellerDao:
                     user_info AS u
                     ON
                         s.user_info_id = u.id
+<<<<<<< HEAD
                 WHERE
                     s.user_info_id = %(user_id)s
             """
@@ -460,17 +482,40 @@ class SellerDao:
             return cursor.fetchone()
 
     def get_seller_manager(self, user_id, connection):
+=======
+                JOIN
+                    seller_level_types AS sl
+                    ON
+                    s.seller_level_type_id  = sl.id
+                JOIN
+                    seller_categories AS sc
+                    ON
+                    s.seller_category_id = sc.id
+                WHERE
+                    s.user_info_id = %(user_id)s
+            """
+            cursor.execute(get_info, {"user_id": user['user_id']})
+
+            return cursor.fetchone()
+# 채현 : seller의 manager 정보 가져오기
+    def get_seller_manager(self, user, connection):
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             manager_info = """
                 SELECT
                     m.id,
                     m.name,
                     m.email,
+<<<<<<< HEAD
                     m.phone_number
+=======
+                    m.phone_number AS phoneNumber
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
                 FROM
                     managers AS m
                 WHERE
                     m.seller_id = %(user_id)s
+<<<<<<< HEAD
 
             """
             cursor.execute(manager_info, {"user_id": user_id})
@@ -479,6 +524,18 @@ class SellerDao:
 
     # 수정화면을 처음 들어갔는지 확인하는 쿼리문(처음이라면 모든 값이 null)
     def find_seller_info(self, user_id, connection):
+=======
+                    AND
+                    is_delete = 0
+
+            """
+            cursor.execute(manager_info, {"user_id": user['user_id']})
+
+            return cursor.fetchall()
+# 채현 : seller의 정보수정내용 중 필수입력란만 확인하기
+    # 수정화면을 처음 들어갔는지 확인하는 쿼리문(처음이라면 모든 값이 null)
+    def find_seller_info(self, user, connection):
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             find_info = """
                 SELECT
@@ -498,16 +555,26 @@ class SellerDao:
                 WHERE
                     s.user_info_id = %(user_id)s
             """
+<<<<<<< HEAD
             cursor.execute(find_info, {"user_id": user_id})
             find = cursor.fetchall()
 
             return find
 
+=======
+            cursor.execute(find_info, {"user_id": user['user_id']})
+
+            return cursor.fetchone()
+# 채현 : 들어온 값들에 대해 update 해주기 (patch)
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
     def update_information(self, seller_edit_info, connection):
         """
         주석 추가 (# 필수입력 정보가 모두 작성되있던 상태에서 일부 값들을 수정할 경우(매니저 제외)) RESTFUL
         """
+<<<<<<< HEAD
         print('??????????????????????????????????')
+=======
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 UPDATE
@@ -558,6 +625,25 @@ class SellerDao:
                 query += """
                     customer_service_closing = %(callEnd)s,
                 """
+<<<<<<< HEAD
+=======
+            if seller_edit_info['brandKorean']:
+                query += """
+                    korean_brand_name = %(brandKorean)s,
+                """
+            if seller_edit_info['brandEnglish']:
+                query += """
+                    english_brand_name = %(brandEnglish)s,
+                """
+            if seller_edit_info['service_open']:
+                query += """
+                    customer_service_opening = %(service_open)s,
+                """
+            if seller_edit_info['service_close']:
+                query += """
+                    customer_serivce_closing = %(service_close)s,
+                """
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
             query += """
                     updated_at = now()
                 WHERE
@@ -566,6 +652,7 @@ class SellerDao:
 
             cursor.execute(query, seller_edit_info)
 
+<<<<<<< HEAD
             # 새로 변경된 값이 담긴 배열 생성 (token으로 부터 받은 user_id도 포함됨)
             values = [a for a in seller_edit_info.values()]
             changed_value = []
@@ -580,16 +667,41 @@ class SellerDao:
     def check_seller_manager(self, user_id, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             check_manager_query = """
+=======
+            # # 새로 변경된 값이 담긴 배열 생성 (token으로 부터 받은 user_id도 포함됨)
+            # values = [a for a in seller_edit_info.values()]
+            # changed_value = []
+            # for row in values:
+            #     if row is not None:
+            #         changed_value.append(row)
+
+            # # 실제로 새로 입력받은 seller의 정보갯수 반환
+            # return len(changed_value) - 1
+            return cursor.lastrowid
+
+    # 수정되는 유저에 배당된 is_delete=0 인 매니저의 수 파악
+    def check_seller_manager_number(self, user, connection):
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            check_manager_number = """
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
                 SELECT
                     COUNT(*)
                 FROM
                     managers AS m
                 WHERE
+<<<<<<< HEAD
                     m.user_info_id = %(user_id)s
                     AND
                     m.is_delete=0
             """
             cursor.execute(check_manager_query, {"user_id": user_id})
+=======
+                    m.seller_id = %(user_id)s
+                    AND
+                    m.is_delete=0
+            """
+            cursor.execute(check_manager_number, {"user_id": user['user_id']})
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
 
             return cursor.fetchone()
 
@@ -619,6 +731,7 @@ class SellerDao:
                 UPDATE
                     managers
                 SET
+<<<<<<< HEAD
             """
             if one['name']:
                 edit_manager += """
@@ -638,11 +751,25 @@ class SellerDao:
 
             cursor.execute(edit_manager, one)
             return cursor.fetchone()
+=======
+                    name = %(name)s,
+                    email = %(email)s,
+                    phone_number = %(phoneNumber)s,
+                    updated_at = now()
+                WHERE
+                    id = %(id)s
+            """
+            cursor.execute(edit_manager, one)
+            return True
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
 
     # 들어온 값에 대한 manager 신규 생성
     def insert_information_manager(self, one, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+<<<<<<< HEAD
             print('dao에서 받는 one=====', one)
+=======
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
             manager_query = """
                     INSERT INTO
                         managers
@@ -657,17 +784,39 @@ class SellerDao:
                             %(user_id)s,
                             %(name)s,
                             %(email)s,
+<<<<<<< HEAD
                             %(phone)s
+=======
+                            %(phoneNumber)s
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
                         )
             """
             cursor.execute(manager_query, one)
             return cursor.lastrowid
 
+<<<<<<< HEAD
     def create__manager_logs(self, one, connection):
+=======
+    def delete_manager_dao(self, man_id, connection):
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            delete_query = """
+                UPDATE
+                    managers
+                SET
+                    is_delete = 1
+                WHERE
+                    id IN %(man_id)s
+            """
+            cursor.execute(delete_query, {"man_id" : man_id})
+            return True
+
+    def create_manager_log(self, extra, connection):
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             log_query = """
                 INSERT INTO
                     manager_logs(
+<<<<<<< HEAD
                         name,
                         email,
                         phone_number,
@@ -686,6 +835,38 @@ class SellerDao:
 
     # seller_logs 생성
     def create_seller_update_log(self, user_id, connection):
+=======
+                        manager_id,
+                        name,
+                        email,
+                        phone_number,
+                        created_at,
+                        updated_at,
+                        seller_id,
+                        changer_id,
+                        change_date
+                    )
+                SELECT
+                    m.id,
+                    m.name,
+                    m.email,
+                    m.phone_number,
+                    m.created_at,
+                    m.updated_at,
+                    m.seller_id,
+                    %(user_id)s,
+                    now()
+                FROM
+                    managers AS m
+                WHERE
+                    m.id = %(changeId)s
+            """
+            cursor.execute(log_query, {"changeId" :extra['changeId'], "user_id" : extra['user_id']})
+            return "ok"
+
+    # seller_logs 생성
+    def create_seller_update_log(self, user, connection):
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             log_query = """
                 INSERT INTO
@@ -697,7 +878,11 @@ class SellerDao:
                         korean_brand_name,
                         english_brand_name,
                         customer_service_name,
+<<<<<<< HEAD
                         customer_serice_opening,
+=======
+                        customer_service_opening,
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
                         customer_service_closing,
                         customer_service_number,
                         created_at,
@@ -740,14 +925,24 @@ class SellerDao:
                         s.delivery_information,
                         s.refund_information,
                         s.is_delete,
+<<<<<<< HEAD
                         %(user_id)s,
+=======
+                        %(changer_id)s,
+>>>>>>> b17f311... [어드민] seller 상세정보 수정
                         now()
                     FROM
                         sellers AS s
                     WHERE
                         s.user_info_id = %(user_id)s
                 """
+<<<<<<< HEAD
             cursor.execute(log_query, {"user_id": user_id})
 
             return cursor.fetchone()
 
+=======
+            cursor.execute(log_query, {"user_id" : user['user_id'], "changer_id": user['changer_id']})
+
+            return True
+>>>>>>> b17f311... [어드민] seller 상세정보 수정

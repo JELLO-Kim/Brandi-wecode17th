@@ -65,15 +65,5 @@ def create_app(test_config=None):
             mimetype='application/json'
         )
         return response
-
-    # error 메세지 반환 from errors.py
-    @app.errorhandler(ApiException)
-    def handle_bad_request(e):
-        return_message = {}
-        return_message['message'] = e.message
-        return_message['status'] = e.code
-        # if e.result:
-        #     return_message['result'] = e.result
-        return jsonify(return_message), e.code
     return app
 

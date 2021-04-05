@@ -7,6 +7,14 @@ class ProductDao:
 
     # category 정보
     def products_category(self, connection):
+        """ [서비스] products의 category list
+        Author
+            : Chae hyun Kim
+        Args
+            : connection = 커넥션
+        Returns 
+            : category list
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 
             category_info = """
@@ -24,8 +32,18 @@ class ProductDao:
         return categories
 
     #products 정보
-    def products_list(self, filter_data, connection, page_condition):
-        self.page_condition = page_condition
+    def products_list(self, connection, page_condition):
+        """ [서비스] products의 category list
+        Author
+            : Chae hyun Kim
+        Args
+            : connection = 커넥션
+            : page_condition = limit, offset, filtering 조건이 될 category 정보 
+        Returns 
+            : product list
+        Note
+            : filtering 될시 해당 조건에 부합하는 products 만 반환
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             products_info = """
                 SELECT
@@ -55,7 +73,7 @@ class ProductDao:
                     p.is_selling=1
                 """
 
-            if 'category' in filter_data:
+            if 'category' in page_condition:
                 products_info += """
                     AND p.product_category_id = %(category)s
                 """
@@ -69,7 +87,7 @@ class ProductDao:
                 ORDER BY p.id ASC
             """
 
-            cursor.execute(products_info, filter_data)
+            cursor.execute(products_info, page_condition)
             product_list = cursor.fetchall()
             total_count = len(product_list)
 
@@ -82,11 +100,22 @@ class ProductDao:
                     OFFSET {offset}
                 """
 
-            cursor.execute(products_info, filter_data)
+            cursor.execute(products_info, page_condition)
 
             return cursor.fetchall()
 
-    def product_list_total_count(self, filter_data, connection):
+    def product_list_total_count(self, connection, page_condition):
+        """ [서비스] product 총 갯수
+        Author
+            : Chae hyun Kim
+        Args
+            : connection = 커넥션
+            : page_condition = iltering 조건이 될 category 정보 
+        Returns 
+            : product list 총 갯수
+        Note
+            : filtering 될시 해당 조건에 부합하는 products의 총 갯수로 반환
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             count_query = """
                 SELECT
@@ -109,7 +138,7 @@ class ProductDao:
                     p.is_selling=1
                 """
 
-            if 'category' in filter_data:
+            if 'category' in page_condition:
                 count_query += """
                     AND p.product_category_id = %(category)s
                 """
@@ -118,7 +147,7 @@ class ProductDao:
             count_query += """
                 GROUP BY p.id
             """
-            cursor.execute(count_query, filter_data)
+            cursor.execute(count_query, page_condition)
             return cursor.fetchone()
 
 
