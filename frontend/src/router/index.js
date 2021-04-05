@@ -54,6 +54,17 @@ Vue.use(Router)
 export default new Router({
   mode: 'history',
   routes: [
+    // 로그인
+    {
+      path: '/admin/login',
+      name: 'Login',
+      component: AdminLogin
+    },
+    {
+      path: '/admin/signup',
+      name: 'SignUp',
+      component: AdminSignUp
+    },
     {
       path: '/',
       component: Layout,
@@ -260,21 +271,7 @@ export default new Router({
     //   path: '/error/404',
     //   component: NotFound
     // },
-
-    // 로그인
-    {
-      path: '/admin/login',
-      name: 'Login',
-      component: AdminLogin
-    },
-
     // 회원가입
-    {
-      path: '/admin/signup',
-      name: 'SignUp',
-      component: AdminSignUp
-    },
-
     // 어드민 내부
     {
       path: '/admin',

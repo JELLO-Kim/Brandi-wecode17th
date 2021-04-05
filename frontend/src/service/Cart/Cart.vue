@@ -40,13 +40,9 @@
 <script>
 import CheckBox from '@/service/Components/CheckBox'
 import CartOption from '@/service/Cart/CartOption'
-<<<<<<< HEAD
-import SERVER from '@/config'
-=======
 // eslint-disable-next-line no-unused-vars
 import SERVER from '@/config'
 // eslint-disable-next-line no-unused-vars
->>>>>>> 90ca5ac47eb6555b836e4fdaecf400ec5add259b
 import API from '@/service/util/service-api'
 // import mock from '@/Data/Cart'
 import { EventBus } from '@/service/util/event-bus'
@@ -56,32 +52,6 @@ import { EventBus } from '@/service/util/event-bus'
 export default {
   created () {
     API.methods
-<<<<<<< HEAD
-      .get(`${SERVER.SERVER}/cart`, {
-        headers: {
-          Authorization: `${localStorage.getItem('access_token')}`
-        }
-      })
-      .then((res) => {
-        // 한번 수정하기
-        console.log(res)
-        this.cartList = res.data.result.cartList
-        this.totalCount = res.data.result.totalCount
-
-        // 확인해보기!
-        for (let i = 0, len = this.cartList.length; i < len; i++) {
-          for (let z = 0, len2 = this.cartList[i].detail.length; z < len2; z++) {
-            this.cartList[i].detail[z].checked = false
-          }
-        }
-      })
-      .catch(error => {
-        alert(error)
-      })
-    // const copyMock = JSON.parse(JSON.stringify(mock))
-    // this.cartList = copyMock.cartList
-    // this.totalCount = mock.totalCount
-=======
       .get(`${SERVER.IP}/cart`)
       .then((res) => {
         // 한번 수정하기
@@ -94,7 +64,6 @@ export default {
         this.cartList = result
         this.totalCount = res.data.result.totalCount
       })
->>>>>>> 90ca5ac47eb6555b836e4fdaecf400ec5add259b
 
     EventBus.$on('check-item', item => {
       this.selectItems.push(item)
@@ -195,23 +164,6 @@ export default {
             // alert(res)
           })
       }
-<<<<<<< HEAD
-
-      const deleteItems = []
-      for (const item in this.selectItems) {
-        deleteItems.push(item.id)
-      }
-
-      // then, catch
-      API.methods
-        .delete(`${SERVER.SERVER}/cart`, deleteItems, {
-          headers: {
-            Authorization: `${localStorage.getItem('access_token')}`
-          }
-        })
-      this.selectItems = []
-=======
->>>>>>> 90ca5ac47eb6555b836e4fdaecf400ec5add259b
     },
     buyBtn () {
       if (this.selectItems.length > 0) {
