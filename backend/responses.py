@@ -163,3 +163,8 @@ SERVICE_USER_NO_ACCESS = "일반 유저는 접근 권한이 없습니다"
 MAXIMUN_MANAGER = "매니저 입력 최대치는 3명 입니다."
 
 UPDATED = "정보를 수정하였습니다"
+# 마스터 API에 user나 seller가 들어왔을 때
+USER_NOT_MASTER = 'msater 계정이 아닙니다.' #400 Bad request
+NOT_SELLER = "샐러를 선택해주세요."
+NOT_ACTION = "액션 버튼을 선택해주세요."
+NOT_SEARCH_ITEM = "필요한 검색창의 조건들이 없습니다."

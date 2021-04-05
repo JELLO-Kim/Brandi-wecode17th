@@ -1,7 +1,7 @@
 import json
 
 from flask import Flask, jsonify, Response
-from view import ProductView, MyPageView, UserView, OrderView, SellerView
+from view import ProductView, MyPageView, UserView, OrderView, SellerView, MasterView
 from flask_cors import CORS
 from flask.json import JSONEncoder
 from decimal import Decimal

@@ -117,7 +117,7 @@ class ProductView:
             if connection:
                 connection.close()
 
-    @login_decorator
+    # @login_decorator
     @product_app.route('/question/open', methods=['GET'])
     def get_question_open():
         connection = None
@@ -137,7 +137,7 @@ class ProductView:
                 connection.close()
 
 
-    @user_decorator
+    # @user_decorator
     @product_app.route('/<int:product_id>/question', methods=['GET'])
     def get_product_qna(product_id):
         """
@@ -169,7 +169,7 @@ class ProductView:
 
 
 
-    @login_decorator
+    # @login_decorator
     @product_app.route('/question', methods=['POST'])
     def post_product_qna():
         connection = None
