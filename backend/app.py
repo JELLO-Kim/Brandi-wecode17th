@@ -1,7 +1,7 @@
 import json
 
 from flask import Flask, jsonify, Response
-from view import ProductView, MyPageView, UserView, OrderView, SellerView, MasterView
+from view import ProductView, MyPageView, UserView, OrderView, SellerView, MasterView, MasterEditView
 from flask_cors import CORS
 from flask.json import JSONEncoder
 from decimal import Decimal
@@ -37,22 +37,27 @@ def create_app(test_config=None):
     app.register_blueprint(SellerView.seller_app)
     app.register_blueprint(ProductView.product_app)
     app.register_blueprint(MyPageView.mypage_app)
+    app.register_blueprint(MasterView.master_app)
+    app.register_blueprint(MasterEditView.master_edit_app)
     # 모든 곳에서 호출하는 것을 허용
     CORS(app, resources={'*': {'origins': '*'}}, expose_header='Authorization')
     # error 메세지 반환 from errors.py
     @app.errorhandler(ApiException)
     def handle_bad_request(e):
-        return_message = {'message': e.message, 'status': e.code}
+        return_message = {'error_message': e.error_message, 'status': e.code}
         if e.result:
             return_message['result'] = e.result
         return jsonify(return_message), e.code
 
     @app.after_request
-    def apply_caching(response):
+    def final_return(response):
+        if not response.json:
+            return response
+            
         # error에 잡혀 message에 에러메세지가 이미 담겨있을 경우 그대로 반환
-        if 'message' in response.json:
+        if 'error_message' in response.json:
             return Response(
-                    json.dumps({"message": response.json['message']}),
+                    json.dumps({"message": response.json['error_message']}),
                     status=response.json['status'],
                     mimetype="application/json"
                 )

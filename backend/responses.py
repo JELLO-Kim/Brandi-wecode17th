@@ -1,8 +1,8 @@
 class ApiException(Exception):
-    def __init__(self, code, message, result=None):
+    def __init__(self, code, error_message, result=None):
         self.result = result
         self.code = code
-        self.message = message
+        self.error_message = error_message
 
 # 에러메세지
 OK = "SUCCESS"  # GET 성공 : 200 Ok
@@ -11,7 +11,7 @@ DELETED = "삭제되었습니다"  # DELETE (soft_delete) 성공 : 200 Ok
 INVALID_USER = "유효하지 않은 유저입니다"  # 잘못된 token : 400 Bad request
 INVALID_EMAIL = "형식에 맞는 이메일을 입력해 주세요"  # 이메일 validation 미충족 : 400 Bad request
 INVALID_INPUT = "필수 정보가 입력되지 않았습니다"  # 필수정보가 입력되지 않았을 시 : 400 Bad request
-INVALID_PASSWORD = '형식에 맞는 패쓰워드를 입력해 주세요' #패쓰워드 validation 미퐁족: 400 Bad request
+INVALID_PASSWORD = '형식에 맞는 패스워드를 입력해 주세요' #패쓰워드 validation 미퐁족: 400 Bad request
 USER_NOT_FOUND = "존재하지 않는 유저입니다"  # 로그인 시 존재하지 않는 email 입력 시 : 400 Bad request
 USER_HAS_BEEN_DELETED = '유저가 삭제 되었습니다'
 INVALID_TOKEN = "유효하지 않은 토큰 입니다"
@@ -157,6 +157,7 @@ NOT_MANAGER_NUMBER = "담당자 연락처를 입력해 주세요"
 NOT_MANAGER_EMAIL = "담당자 이메일을 입력해 주세요"
 EXSISTING_MANAGER_NAME = "이미 존재하는 담당자 이름입니다"
 EXSISTING_MANAGER_EMAIL = "이미 존재하는 담당자 이메일입니다"
+EXSISTING_MANAGER_PHONE = "이미 존재하는 담당자 연락처입니다"
 
 SERVICE_USER_NO_ACCESS = "일반 유저는 접근 권한이 없습니다"
 

@@ -89,6 +89,11 @@ class SellerService:
         # 로그인한 seller의 추가정보 내용 확인 (첫번째 수정이라면 회원가입시 입력했던 정보 외에 null과 빈 string으로 처리되어 있음)
         find_information = seller_dao.find_seller_info(user, connection)
         # 필수입력 정보중 None이 있다면 첫 수정으로 간주. 필수 parameter들이 요구된다.
+        managers = None
+        if 'managers' in seller_edit_info:
+            managers = seller_edit_info.pop('managers')
+            SellerService().manager_service(user, {'managers': managers}, connection)
+
         if None in find_information.values():
             SellerService().first_update(user, seller_edit_info, connection)
         else:
@@ -123,8 +128,8 @@ class SellerService:
             raise ApiException(400, NOT_ADDRESS)
         if not seller_edit_info['detailAddress']:
             raise ApiException(400, NOT_DETAIL_ADDRESS)
-        if not seller_edit_info['manager']:
-            raise ApiException(400, NOT_MANAGER)
+        # if not seller_edit_info['managers']:
+        #     raise ApiException(400, NOT_MANAGER)
         if not seller_edit_info['delivery_info']:
             raise ApiException(400, NOT_SHIPPING_DESCRIPTION)
         if not seller_edit_info['refund_info']:
@@ -135,36 +140,17 @@ class SellerService:
             if len(seller_edit_info['description']) < 10:
                 raise ApiException(400, SHORT_INPUT_SELLER)
 
-        # 필수정보인 매니저의 상세 정보들중에 빈 값이 있을 경우
-        for one_manager in seller_edit_info['manager']:
-            if 'name' not in one_manager:
-                raise ApiException(400, NOT_MANAGER_NAME)
-            if 'phoneNumber' not in one_manager:
-                raise ApiException(400, NOT_MANAGER_NUMBER)
-            if 'email' not in one_manager:
-                raise ApiException(400, NOT_MANAGER_EMAIL)
-            else:
-                one = {
-                    'name'      : one_manager['name'],
-                    'email'     : one_manager['email'],
-                    'phoneNumber'     : one_manager['phoneNumber'],
-                    'user_id'   : seller_edit_info['user_id']
-                }
-                result = seller_dao.insert_information_manager(one, connection)
-                extra = {
-                    'changeId' : result,
-                    'user_id' : seller_edit_info['user_id']
-                }
-                seller_dao.create_manager_log(result, extra, connection)
         # 첫 내용 기입과 이력 생성
         seller_edit = seller_dao.update_information(seller_edit_info, connection)
-        seller_dao.create_seller_update_log(seller_edit_info, connection)
-
+        seller_dao.create_seller_update_log(user, connection)
+        
+        check_manager_num = seller_dao.check_seller_manager_number(user, connection)
+        if check_manager_num['COUNT(*)'] == 0:
+            raise ApiException(400, NOT_MANAGER)
 
         return True
 
-        # 첫 수정페이지 작업 이후 필수값들이 모두 입력되어있는 상태에서 일부 값들만 수정할 경우
-        
+    # 첫 수정페이지 작업 이후 필수값들이 모두 입력되어있는 상태에서 일부 값들만 수정할 경우        
     def seconde_update(self, user, seller_edit_info, connection):
         """ [어드민] seller의 본인 상세 정보 수정 : 필수정보 입력 후 두번째 수정(일부 내역만 수정 가능)
         Author : Chae hyun Kim
@@ -181,119 +167,20 @@ class SellerService:
         """
         seller_dao = SellerDao()
 
-        # 새로 들어온 담당자 정보가 기존에 존재하는 정보인지 확인하는 과정 (id가 같은데 입력된 정보가 다를 경우)
-        if seller_edit_info['manager'] != None:
-            check_manager = seller_dao.check_seller_manager(seller_edit_info, connection)
-            for check_one in check_manager:
-                for one_input_manager in seller_edit_info['manager']:
-                    if check_one['name'] == one_input_manager['name']:
-                        raise ApiException(400, EXSISTING_MANAGER_NAME)
-                    if check_one['email'] == one_input_manager['email']:
-                        raise ApiException(400, EXSISTING_MANAGER_EMAIL)
-                    # if check_one['phone'] == one_input_manager['phone_number']:
-                    #     raise (400, EXSISTING_MANAGER_PHONE)
+        # 선택 추가사항인 새로 입력될 셀러 상세소개의 길이가 10자 미만일 경우
+        if seller_edit_info['description']:
+            if len(seller_edit_info['description']) < 10:
+                raise ApiException(400, SHORT_INPUT_SELLER)
 
-        # 로그인한 seller의 추가정보 내용 확인 (첫번째 수정이라면 회원가입시 입력했던 정보 외에 null로 처리되어 있음)
-        find_information = seller_dao.find_seller_info(user_id, connection)
+        seller_dao.update_information(seller_edit_info, connection)
+        seller_dao.create_seller_update_log(user, connection)
+        return True
 
-        # 필수입력 정보중 None이 있다면 첫 수정으로 간주. 필수 parameter들이 요구된다.
-        if None in find_information[0].values():
-            print('??????????', seller_edit_info)
-            if not seller_edit_info['profile']:
-                raise ApiException(400, NOT_PROFILE)
-            if not seller_edit_info['introduce']:
-                raise ApiException(400, NOT_DESCRIPTION)
-            if not seller_edit_info['callName']:
-                raise ApiException(400, NOT_CALL_NAME)
-            if not seller_edit_info['callStart']:
-                raise ApiException(400, NOT_CALL_START)
-            if not seller_edit_info['callEnd']:
-                raise ApiException(400, NOT_CALL_END)
-            if not seller_edit_info['postalCode']:
-                raise ApiException(400, NOT_POSTAL)
-            if not seller_edit_info['address']:
-                raise ApiException(400, NOT_ADDRESS)
-            if not seller_edit_info['detailAddress']:
-                raise ApiException(400, NOT_DETAIL_ADDRESS)
-            if not seller_edit_info['delivery_info']:
-                raise ApiException(400, NOT_SHIPPING_DESCRIPTION)
-            if not seller_edit_info['refund_info']:
-                raise ApiException(400, NOT_ORDER_DESCRIPTION)
-            if not seller_edit_info['manager']:
-                raise ApiException(400, NOT_MANAGER)
-
-            # 선택 추가사항인 새로 입력될 셀러 상세소개의 길이가 10자 미만일 경우
-            if 'description' in seller_edit_info:
-                if len(seller_edit_info['description']) < 10:
-                    raise ApiException(400, SHORT_INPUT_SELLER)
-
-            # 필수정보인 매니저의 상세 정보들중에 빈 값이 있을 경우
-            if seller_edit_info['manager']:
-                for one_manager in seller_edit_info['manager']:
-                    if 'name' not in one_manager:
-                        raise ApiException(400, NOT_MANAGER_NAME)
-                    if 'phone' not in one_manager:
-                        raise ApiException(400, NOT_MANAGER_NUMBER)
-                    if 'email' not in one_manager:
-                        raise ApiException(400, NOT_MANAGER_EMAIL)
-                    else:
-                        managers = seller_edit_info['manager']
-                        for row in managers:
-                            one = {
-                                'name': row['name'],
-                                'email': row['email'],
-                                'phone': row['phone'],
-                                'user_id': seller_edit_info['user_id']
-                            }
-                            seller_dao.insert_information_manager(one, connection)
-
-            # 고객센터의 주말 운영 여부가 체크되지 않아 값이 들어오지 않았을 경우 기본값인 0으로 지정
-            if 'isWeekend' not in seller_edit_info:
-                seller_edit_info['isWeekend'] = 0
-
-            # 첫 내용 기입과 이력 생성
-            seller_edit = seller_dao.update_information(seller_edit_info, connection)
-            seller_dao.create_seller_update_log(seller_edit_info, connection)
-
-            return seller_edit
-
-        # 첫 수정페이지 작업 이후 필수값들이 모두 입력되어있는 상태에서 일부 값들만 수정할 경우
-        else:
-            # 수정내용에 manager 가 있을 경우 배열로 처리된 것을 for loop을 통해 한명의 매니저에 대한 내용 반복적으로 생성
-            if seller_edit_info['manager']:
-                for one_manager in seller_edit_info['manager']:
-                    if 'name' not in one_manager:
-                        raise ApiException(400, NOT_MANAGER_NAME)
-                    if 'phone' not in one_manager:
-                        raise ApiException(400, NOT_MANAGER_NUMBER)
-                    if 'email' not in one_manager:
-                        raise ApiException(400, NOT_MANAGER_EMAIL)
-                managers = seller_edit_info['manager']
-                # body에 담겨져 들어온 manager에 대한 정보가 신규정보가 아닌 기존 정보의 수정일 경우 update 진행
-                check_manager = seller_dao.check_seller_manager(seller_edit_info, connection)
-                for row in managers:
-                    for check_one in check_manager:
-                        one = {
-                            'id': row.get('id', None),
-                            'name': row.get('name', None),
-                            'email': row.get('email', None),
-                            'phone': row.get('phone', None),
-                            'user_id': user_id
-                        }
-                        if check_one['id'] == one['id']:
-                            seller_dao.update_manager(one, connection)
-                        # 작성된 manager와 같은 id 값이 아닐 경우 매니저 신규 생성
-                    print('one은 이거==========', one)
-                    seller_dao.insert_information_manager(one, connection)
-            # 일부 수정과 이력 생성
-            # result = seller_dao.update_information(seller_edit_info, connection)
-            # create_log = seller_dao.create_seller_update_log(user_id, connection)
-            print('return 직전입니당!!!!!!!!!!!!!!!!!!!')
-            return "okokok"
-
-        # 수정내용에 manager 가 있을 경우 배열로 처리된 것을 for loop을 통해 한명의 매니저에 대한 내용 반복적으로 생성
-        # 먼저 name, phone, email 키값이 다 들어왔는지 확인하기
+    # manager 수정/삭제/생성
+    def manager_service(self, user, seller_edit_info, connection):
+        seller_dao = SellerDao()
         if seller_edit_info['managers']:
+            new_manager_id = []
             for one_manager in seller_edit_info['managers']:
                 if 'name' not in one_manager:
                     raise ApiException(400, NOT_MANAGER_NAME)
@@ -302,58 +189,72 @@ class SellerService:
                 if 'email' not in one_manager:
                     raise ApiException(400, NOT_MANAGER_EMAIL)
 
-            # body에 담겨져 들어온 manager에 대한 정보가 신규정보가 아닌 기존 정보의 수정일 경우 update 진행 + 이력 생성
-            for row in seller_edit_info['managers']:
-                check_manager_num = seller_dao.check_seller_manager_number(user, connection)
-                if check_manager_num['COUNT(*)'] >3:
-                    raise ApiException(400, MAXIMUN_MANAGER)
-                check_manager = seller_dao.get_seller_manager(user, connection)
+                # body에 담겨져 들어온 manager에 대한 정보가 신규정보가 아닌 기존 정보의 수정일 경우 update 진행 + 이력 생성
+
                 one = {
-                    'id': row.get('id', None),
-                    'name': row.get('name', None),
-                    'email': row.get('email', None),
-                    'phoneNumber': row.get('phoneNumber', None),
+                    'id': one_manager.get('id', None),
+                    'name': one_manager.get('name', None),
+                    'email': one_manager.get('email', None),
+                    'phoneNumber': one_manager.get('phoneNumber', None),
                     'user_id': user['user_id']
                 }
+                check_manager = seller_dao.get_seller_manager(user, connection)
+                origin_id = [] #db에 저장된 원래 manager id들이 담긴 list
+                for row in check_manager:
+                    origin_id.append(row['id'])
+                new_manager_id.append(one['id'])
+                extra = {
+                    "manager_id" : []
+                }
+                for row in origin_id:
+                    if row not in new_manager_id:
+                        extra['manager_id'].append(row)
+                extra['user_id'] = user['user_id']
+                SellerService().seller_edit_delete(extra, connection)
                 for check_one in check_manager:
-                    if check_one['id'] == one['id']:
-                        seller_dao.update_manager(one, connection)
-                        extra = {
-                            'changeId' : one['id'],
-                            'user_id' : seller_edit_info['user_id']
-                        }
-                        seller_dao.create_manager_log(extra, connection)
+                    if one['id']:
+                        if check_one['id'] == one['id']:
+                            seller_dao.update_manager(one, connection)
+                            extra = {
+                                'changeId' : one['id'],
+                                'user_id' : user['user_id']
+                            }
+                            seller_dao.create_manager_log(extra, connection)
                     else:
                         if check_one['email'] == one['email']:
                             raise ApiException(400, EXSISTING_MANAGER_EMAIL)
                         if check_one['phoneNumber'] == one['phoneNumber']:
-                            raise (400, EXSISTING_MANAGER_PHONE)
+                            raise ApiException(400, EXSISTING_MANAGER_PHONE)
                             
                     # 작성된 manager와 같은 id 값이 아닐 경우 매니저 신규 생성&이력 생성
                 if one['id'] is None:
+                    check_manager_num = seller_dao.check_seller_manager_number(user, connection)
+                    if check_manager_num['COUNT(*)'] >= 10:
+                        raise ApiException(400, MAXIMUN_MANAGER)
                     result = seller_dao.insert_information_manager(one, connection)
                     extra = {
                         'changeId' : result,
-                        'user_id' : seller_edit_info['user_id']
+                        'user_id' : user['user_id']
                     }
                     seller_dao.create_manager_log(extra, connection)
-        # 그 외의 정보에 대해 일부 수정과 이력 생성
-        else:
-            seller_dao.update_information(seller_edit_info, connection)
-            seller_dao.create_seller_update_log(user, connection)
         return True
 
 
-
-# 채현 : delete
-    def seller_edit_delete(self, man_id, connection):
+    # 채현 : delete
+    def seller_edit_delete(self, extra, connection):
         try:
             seller_dao = SellerDao()
-            seller_dao.delete_manager_dao(man_id, connection)
+            seller_dao.delete_manager_dao(extra, connection)
+            for row in extra['manager_id']:
+                extra = {
+                    'changeId'  : row,
+                    'user_id'   : extra['user_id']
+                }
+                seller_dao.create_manager_log(extra, connection)
         except ApiException as e:
             raise e
 
-# 하성님 코드
+    # 하성님 코드
     def post_product(self, product_info, product_options, connection):
         try:
             seller_dao = SellerDao()

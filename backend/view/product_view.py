@@ -10,15 +10,15 @@ class ProductView:
     @product_app.route('/category', methods=['GET'])
     def products_category():
         """ 상품 카테고리 list
-        Author  
-            : Chae hyun Kim
-        Returns 
-            : { "message"   : "SUCCESS"
-                "result"    : {
-                    "data"       : category_list,
-                    "totalCount" : 2차 카테고리 총 갯수
+        Author:  
+            Chae hyun Kim
+        Returns: 
+            - 200: { "message"   : "SUCCESS"
+                     "result"    : {
+                        "data"       : category_list,
+                        "totalCount" : 2차 카테고리 총 갯수
+                        }
                     }
-                }
         """
         connection = None
         try:
@@ -39,21 +39,20 @@ class ProductView:
     # products list에 대한 로직
     @product_app.route('/list', methods=['GET'])
     def products_list():
-        """ 상품 list
-        Author  
-            : Chae hyun Kim
-        Args    
-            : 필요할 경우 category의 id, limit과 offset 조건을 query paramter로 받는다
-        Returns 
-            : {
-                "message" : "SUCCESS",
-                "result" : {
-                    "data" : product list,
-                    "totalCount" : 상품 총 갯수
+        """ products list
+        Author:  
+            Chae hyun Kim
+        Args:    
+            - query parameter : 필요할 경우 category의 id, limit과 offset 조건을 query paramter로 받는다
+        Returns: 
+            - 200: { "message" : "SUCCESS",
+                     "result"  : {
+                        "data" : product list,
+                        "totalCount" : 상품 총 갯수
+                        }
                     }
-                }
-        Note    
-            : filtering 조건으로 category의 id가 query parameter를 통해 들어올 경우 해당 조건에 해당하는 product list로 결과 반환
+        Note:    
+            - filtering 조건으로 category의 id가 query parameter를 통해 들어올 경우 해당 조건에 해당하는 product list로 결과 반환
         """
         MINIMUM_CATEGORY_NUMBER = 4
         MAXIMUM_CATEGORY_NUMBER = 5
