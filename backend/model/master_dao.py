@@ -6,57 +6,26 @@ from responses import *
 class MasterDao:
 
 	def account(self, connection, page_condition, filters):
-		""" 샐러 계정 관리(마스터) - 리스트
-        Author  
-            : Sung joun Jang
-        Args:
-			# page_condition
-            limit           : 페이지당 보여질 데이터 갯수
-            offset          : 현재 페이지
-			# filters
-            no              : 샐러의 no
-            username        : 샐러 id
-            english         : 브랜드의 영어 이름
-            korean          : 브랜드의 한글 이름
-            sellerType      : 샐러의 타입(일반, 헬피)
-            sellerStatus    : 샐러의 상태(입점, 입점대기 등등)
-            sellerAttribute : 샐러의 속성(쇼핑몰, 뷰티 등등)
-            managerName     : 매니저의 이름
-            managerPhone    : 매니저의 핸드폰 번호
-            managerEmail    : 매니저의 이메일
-            startDate       : 샐러 생성된 날짜의 시작 값
-            endDate         : 샐러 생성된 날짜의 끝 값
-        Returns 
-            {
-                "message": 결과에 따른 메세지,
-                "result": [
-                    {
-                        "actions": [
-                            {
-                                "id": 1,
-                                "name": "입점 승인",
-                                "sl.id": 2
-                            },
-                            {
-                                "id": 2,
-                                "name": "입점 거절",
-                                "sl.id": 2
-                            }
-                        ],
-                        "attribute": "로드샵",
-                        "createdAt": "Fri, 03 Apr 2020 00:00:00 GMT",
-                        "english": "nanauhh",
-                        "korean": "우나나나",
-                        "managerEmail": "t2@gmail.com",
-                        "managerName": "담2",
-                        "managerPhone": "010-2",
-                        "no": 6,
-                        "sellerStatus": "입점 대기",
-                        "sellerType": "일반",
-                        "username": "nana"
-                    }
-                ]
-            }
+		""" [어드민] 샐러 계정 관리(마스터) - 데이터 리스트
+        Author: 
+            Sung joun Jang
+        Args:    
+            - limit           : 페이지당 보여질 데이터 갯수
+            - offset          : 현재 페이지
+            - no              : 샐러의 no
+            - username        : 샐러 id
+            - english         : 브랜드의 영어 이름
+            - korean          : 브랜드의 한글 이름
+            - sellerType      : 샐러의 타입(일반, 헬피)
+            - sellerStatus    : 샐러의 상태(입점, 입점대기 등등)
+            - sellerAttribute : 샐러의 속성(쇼핑몰, 뷰티 등등)
+            - managerName     : 매니저의 이름
+            - managerPhone    : 매니저의 핸드폰 번호
+            - managerEmail    : 매니저의 이메일
+            - startDate       : 샐러 생성된 날짜의 시작 값
+            - endDate         : 샐러 생성된 날짜의 끝 값
+        Returns:
+			account_list : 전달하는 데이터 값
         """
 		# 페이지에 관련된 변수들
 		limit = page_condition['limit']
@@ -92,54 +61,67 @@ class MasterDao:
 					s.created_at as created
 				FROM
 					sellers s
-				LEFT JOIN
-					user_info u
-					ON
-						s.user_info_id = u.id
-				LEFT JOIN
-					seller_tier_types st
-					ON
-						s.seller_tier_type_id = st.id
-				LEFT JOIN
-					managers m
-					ON
-						u.id = m.seller_id
-				LEFT JOIN
-					seller_level_types sl
-					ON
-						s.seller_level_type_id = sl.id
-				LEFT JOIN
-					seller_categories sc
-					ON
-						s.seller_category_id = sc.id
+				LEFT JOIN user_info u
+					ON s.user_info_id = u.id
+				LEFT JOIN seller_tier_types st
+					ON s.seller_tier_type_id = st.id
+				LEFT JOIN managers m
+					ON u.id = m.seller_id
+				LEFT JOIN seller_level_types sl
+					ON s.seller_level_type_id = sl.id
+				LEFT JOIN seller_categories sc
+					ON s.seller_category_id = sc.id
 				WHERE
 					(m.ordering = 1 or m.ordering is null)
 			"""
 
 			# filter에 관한 값들을 검사
 			if no: 
-				account_sql += """ AND u.id = %(no)s """
+				account_count_sql += """ 
+					AND u.id = %(no)s 
+				"""
 			if username: 
-				account_sql += """ AND u.username = %(username)s """
+				account_count_sql += """ 
+					AND u.username = %(username)s 
+				"""
 			if english: 
-				account_sql += """ AND s.english_brand_name = %(english)s """
+				account_count_sql += """ 
+					AND s.english_brand_name = %(english)s 
+				"""
 			if korean: 
-				account_sql += """ AND u.korean_brand_name = %(korean)s """
+				account_count_sql += """ 
+					AND u.korean_brand_name = %(korean)s 
+				"""
 			if seller_type: 
-				account_sql += """ AND st.id = %(seller_type)s """
+				account_count_sql += """ 
+					AND st.id = %(seller_type)s 
+				"""
 			if seller_status: 
-				account_sql += """ AND sl.id = %(seller_status)s """
+				account_count_sql += """ 
+					AND sl.id = %(seller_status)s 
+				"""
 			if seller_attribute: 
-				account_sql += """ AND sc.id = %(seller_attribute)s """
+				account_count_sql += """ 
+					AND sc.id = %(seller_attribute)s 
+				"""
 			if manager_name: 
-				account_sql += """ AND m.name = %(manager_name)s """
+				account_count_sql += """ 
+					AND m.name = %(manager_name)s 
+				"""
 			if manager_phone: 
-				account_sql += """ AND m.phone_number = %(manager_phone)s """
+				account_count_sql += """ 
+					AND m.phone_number = %(manager_phone)s 
+				"""
 			if manager_email: 
-				account_sql += """ AND m.email = %(manager_email)s """
+				account_count_sql += """ 
+					AND m.email = %(manager_email)s 
+				"""
 			# 날짜의 경우 start_date, end_date가 둘 다 넘어온다고 가정하고 between으로 처리
 			if start_date and end_date:
-				account_sql += """ AND (created_at BETWEEN %(start_date)s AND %(end_date)s) """
+				account_count_sql += """ 
+					AND (created_at BETWEEN %(start_date)s 
+					AND %(end_date)s) 
+				"""
 
 			# 질문 목록에 대한 limit & offset 설정
 			account_sql += """
@@ -168,28 +150,26 @@ class MasterDao:
 			return account_list
 		
 	def account_count(self, connection, filters):
-		""" 샐러 계정 관리(마스터) - 전체 데이터의 개수 출력
-        Author  
-            : Sung joun Jang
-        Args:
-			# page_condition
-            limit           : 페이지당 보여질 데이터 갯수
-            offset          : 현재 페이지
-			# filters
-            no              : 샐러의 no
-            username        : 샐러 id
-            english         : 브랜드의 영어 이름
-            korean          : 브랜드의 한글 이름
-            sellerType      : 샐러의 타입(일반, 헬피)
-            sellerStatus    : 샐러의 상태(입점, 입점대기 등등)
-            sellerAttribute : 샐러의 속성(쇼핑몰, 뷰티 등등)
-            managerName     : 매니저의 이름
-            managerPhone    : 매니저의 핸드폰 번호
-            managerEmail    : 매니저의 이메일
-            startDate       : 샐러 생성된 날짜의 시작 값
-            endDate         : 샐러 생성된 날짜의 끝 값
-        Returns 
-			4
+		""" [어드민] 샐러 계정 관리(마스터) - 전체 개수
+        Author: 
+            Sung joun Jang
+        Args:    
+            - limit           : 페이지당 보여질 데이터 갯수
+            - offset          : 현재 페이지
+            - no              : 샐러의 no
+            - username        : 샐러 id
+            - english         : 브랜드의 영어 이름
+            - korean          : 브랜드의 한글 이름
+            - sellerType      : 샐러의 타입(일반, 헬피)
+            - sellerStatus    : 샐러의 상태(입점, 입점대기 등등)
+            - sellerAttribute : 샐러의 속성(쇼핑몰, 뷰티 등등)
+            - managerName     : 매니저의 이름
+            - managerPhone    : 매니저의 핸드폰 번호
+            - managerEmail    : 매니저의 이메일
+            - startDate       : 샐러 생성된 날짜의 시작 값
+            - endDate         : 샐러 생성된 날짜의 끝 값
+        Returns:
+			account_count : 전달하는 데이터 개수
         """
 
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -213,54 +193,67 @@ class MasterDao:
 					COUNT(*)
 				FROM
 					sellers s
-				LEFT JOIN
-					user_info u
-					ON
-						s.user_info_id = u.id
-				LEFT JOIN
-					seller_tier_types st
-					ON
-						s.seller_tier_type_id = st.id
-				LEFT JOIN
-					managers m
-					ON
-						u.id = m.seller_id
-				LEFT JOIN
-					seller_level_types sl
-					ON
-						s.seller_level_type_id = sl.id
-				LEFT JOIN
-					seller_categories sc
-					ON
-						s.seller_category_id = sc.id
+				LEFT JOIN user_info u
+					ON s.user_info_id = u.id
+				LEFT JOIN seller_tier_types st
+					ON s.seller_tier_type_id = st.id
+				LEFT JOIN managers m
+					ON u.id = m.seller_id
+				LEFT JOIN seller_level_types sl
+					ON s.seller_level_type_id = sl.id
+				LEFT JOIN seller_categories sc
+					ON s.seller_category_id = sc.id
 				WHERE
 					(m.ordering = 1 or m.ordering is null)
 			"""
 
 			# filter에 관한 값들을 검사
 			if no: 
-				account_count_sql += """ AND u.id = %(no)s """
+				account_count_sql += """ 
+					AND u.id = %(no)s 
+				"""
 			if username: 
-				account_count_sql += """ AND u.username = %(username)s """
+				account_count_sql += """ 
+					AND u.username = %(username)s 
+				"""
 			if english: 
-				account_count_sql += """ AND s.english_brand_name = %(english)s """
+				account_count_sql += """ 
+					AND s.english_brand_name = %(english)s 
+				"""
 			if korean: 
-				account_count_sql += """ AND u.korean_brand_name = %(korean)s """
+				account_count_sql += """ 
+					AND u.korean_brand_name = %(korean)s 
+				"""
 			if seller_type: 
-				account_count_sql += """ AND st.id = %(seller_type)s """
+				account_count_sql += """ 
+					AND st.id = %(seller_type)s 
+				"""
 			if seller_status: 
-				account_count_sql += """ AND sl.id = %(seller_status)s """
+				account_count_sql += """ 
+					AND sl.id = %(seller_status)s 
+				"""
 			if seller_attribute: 
-				account_count_sql += """ AND sc.id = %(seller_attribute)s """
+				account_count_sql += """ 
+					AND sc.id = %(seller_attribute)s 
+				"""
 			if manager_name: 
-				account_count_sql += """ AND m.name = %(manager_name)s """
+				account_count_sql += """ 
+					AND m.name = %(manager_name)s 
+				"""
 			if manager_phone: 
-				account_count_sql += """ AND m.phone_number = %(manager_phone)s """
+				account_count_sql += """ 
+					AND m.phone_number = %(manager_phone)s 
+				"""
 			if manager_email: 
-				account_count_sql += """ AND m.email = %(manager_email)s """
+				account_count_sql += """ 
+					AND m.email = %(manager_email)s 
+				"""
 			# 날짜의 경우 start_date, end_date가 둘 다 넘어온다고 가정하고 between으로 처리
 			if start_date and end_date:
-				account_count_sql += """ AND (created_at BETWEEN %(start_date)s AND %(end_date)s) """
+				account_count_sql += """ 
+					AND (created_at BETWEEN %(start_date)s 
+					AND %(end_date)s) 
+				"""
 
 			cursor.execute(account_count_sql, {
 				'no'               : no,
@@ -281,44 +274,23 @@ class MasterDao:
 			return account_count
 
 	def action(self, connection, level):
-		""" 샐러 계정 관리(마스터) - action에 대한 값을 출력하는 함수
-        Author  
-            : Sung joun Jang
-        Args:
-			# page_condition
-            limit           : 페이지당 보여질 데이터 갯수
-            offset          : 현재 페이지
-			# filters
-            no              : 샐러의 no
-            username        : 샐러 id
-            english         : 브랜드의 영어 이름
-            korean          : 브랜드의 한글 이름
-            sellerType      : 샐러의 타입(일반, 헬피)
-            sellerStatus    : 샐러의 상태(입점, 입점대기 등등)
-            sellerAttribute : 샐러의 속성(쇼핑몰, 뷰티 등등)
-            managerName     : 매니저의 이름
-            managerPhone    : 매니저의 핸드폰 번호
-            managerEmail    : 매니저의 이메일
-            startDate       : 샐러 생성된 날짜의 시작 값
-            endDate         : 샐러 생성된 날짜의 끝 값
-        Returns 
-            [{
-				name: 브랜드네임,
-				id: 1,
-				id: 2
-			}]
+		""" [어드민] 샐러 계정 관리(마스터) - 액션 리스트
+        Author: 
+            Sung joun Jang
+        Args:    
+			- level: product_level의 name 값
+        Returns:
+            actions : 액션 리스트 데이터 값
         """
 
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			action_sql = """
 				SELECT 
-					sa.name, sa.id, sl.id
+					sa.name, sa.id
 				FROM
 					seller_action_types sa
-				LEFT JOIN
-					seller_level_types sl
-					ON
-						sa.seller_level_type_id = sl.id
+				LEFT JOIN seller_level_types sl
+					ON sa.seller_level_type_id = sl.id
 				WHERE
 					sl.name = %(level)s
 			"""
@@ -328,22 +300,13 @@ class MasterDao:
 			return actions
 			
 	def seller_type(self, connection):
-		""" 샐러 계정 관리(마스터) - 리스트(초기값 중 샐러 타입 리스트)
-        Author  
-            : Sung joun Jang
-        Args:
+		""" [어드민] 샐러 계정 관리(마스터) - 초기값
+        Author: 
+            Sung joun Jang
+        Args:    
 
-        Returns 
-            [
-				{
-					id: 1,
-					name: 일반
-				},
-				{
-					id: 2,
-					name: 헬피
-				}
-			]
+        Returns:
+            result : 샐러 타입 값
         """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
@@ -361,23 +324,13 @@ class MasterDao:
 			return result
 	
 	def seller_status(self, connection):
-		""" 샐러 계정 관리(마스터) - 리스트(초기값 중 샐러 상태 리스트)
-        Author  
-            : Sung joun Jang
-        Args:
+		""" [어드민] 샐러 계정 관리(마스터) - 초기값
+        Author: 
+            Sung joun Jang
+        Args:    
 
-        Returns 
-            [
-				{
-					id: 1,
-					name: 입점
-				},
-				{
-					id: 2,
-					name: 입점 대기
-				},
-				...
-			]
+        Returns:
+            result : 샐러 상태 값
         """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
@@ -395,6 +348,14 @@ class MasterDao:
 			return result
 	
 	def seller_attribute(self, connection):
+		""" [어드민] 샐러 계정 관리(마스터) - 초기값
+        Author: 
+            Sung joun Jang
+        Args:    
+
+        Returns:
+            result : 샐러 속성 값
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				SELECT 
@@ -411,6 +372,15 @@ class MasterDao:
 			return result
 	
 	def account_level(self, connection, data):
+		""" [어드민] 샐러 계정 관리(마스터) - level 값 변경하기
+        Author: 
+            Sung joun Jang
+        Args:    
+			- seller_id : 샐러의 pk 값
+        	- update_level : 변경할 level의 pk 값
+        Returns:
+			성공시 True
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				UPDATE
@@ -429,6 +399,14 @@ class MasterDao:
 			return True
 
 	def seller_delete(self, connection, data):
+		""" [어드민] 샐러 계정 관리(마스터) - 퇴점 확정 시 soft delete
+        Author: 
+            Sung joun Jang
+        Args:    
+			- user_info_id : 유저의 pk 값
+        Returns:
+			성공시 True
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				UPDATE
@@ -444,6 +422,14 @@ class MasterDao:
 			return True
 
 	def check_action_id(self, connection, action):
+		""" [어드민] 샐러 계정 관리(마스터) - id로 넘어온 값을 name으로 반환
+        Author: 
+            Sung joun Jang
+        Args:    
+			- action : 액션의 id 값
+        Returns:
+			result: 액션의 name 값
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				SELECT
@@ -460,6 +446,14 @@ class MasterDao:
 			return result
 	
 	def check_action_name(self, connection, action):
+		""" [어드민] 샐러 계정 관리(마스터) - name으로 넘어온 값을 id로 반환
+        Author: 
+            Sung joun Jang
+        Args:    
+			- action : 액션의 name 값
+        Returns:
+			result: 액션의 id 값
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				SELECT
@@ -476,6 +470,15 @@ class MasterDao:
 			return result
 
 	def account_level_log(self, connection, data):
+		""" [어드민] 샐러 계정 관리(마스터) - level 값 변경하기(log)
+        Author: 
+            Sung joun Jang
+        Args:    
+			- seller_id : 샐러의 pk 값
+        	- user_info_id : 변경한 user_id의 값
+        Returns:
+			성공시 True
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				INSERT INTO
@@ -548,6 +551,14 @@ class MasterDao:
 			return True
 
 	def seller_category(self, connection):
+		""" [어드민] 주문관리(마스터) - 상품준비(카테고리)
+        Author: 
+            Sung joun Jang
+        Args:    
+
+        Returns:
+			result: 카테고리의 값
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				SELECT
@@ -564,61 +575,51 @@ class MasterDao:
 			return result
 
 	def order_ready(self, connection, filters):
+		""" [어드민] 주문관리(마스터) - 상품준비(카테고리)
+        Author: 
+            Sung joun Jang
+        Args:    
+
+        Returns:
+			result: 카테고리의 값
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				SELECT
-					u.user_info_id,
-					o.payment order_date,
-					o.order_number,
-					c.cart_number order_detail_number,
+					u.user_info_id userInfoId,
+					o.payment orderDate,
+					o.order_number orderNumber,
+					c.cart_number orderDetailNumber,
 					s.korean_brand_name name,
-					p.name product_name,
-					pc.name color_name,
-					ps.name size_name,
-					po.additional_price,
+					p.name productName,
+					pc.name colorName,
+					ps.name sizeName,
+					po.additional_price additionalPrice,
 					c.quantity,
-					o.order_name,
-					o.order_phone,
-					o.total_price,
-					os.name order_status
+					o.order_name orderName,
+					o.order_phone orderPhone,
+					o.total_price totalPrice,
+					os.name orderStatus
 				FROM
 					orders o
-				LEFT JOIN
-					users u
-					ON
-						o.user_id = u.user_info_id
-				LEFT JOIN
-					carts c
-					ON
-						o.id = c.order_id
-				LEFT JOIN
-					product_options po
-					ON
-						c.product_option_id = po.id
-				LEFT JOIN
-					products p
-					ON
-						p.id = po.product_id
-				LEFT JOIN
-					sellers s
-					ON
-						s.user_info_id = p.seller_id
-				LEFT JOIN
-					product_color_types pc
-					ON
-						po.product_color_type_id = pc.id
-				LEFT JOIN
-					product_size_types ps
-					ON
-						po.product_size_type_id = ps.id
-				LEFT JOIN
-					order_status_types os
-					ON
-						o.order_status_type_id = os.id
-				LEFT JOIN
-					seller_categories sc
-					ON
-						s.seller_category_id = sc.id
+				LEFT JOIN users u
+					ON o.user_id = u.user_info_id
+				LEFT JOIN carts c
+					ON o.id = c.order_id
+				LEFT JOIN product_options po
+					ON c.product_option_id = po.id
+				LEFT JOIN products p
+					ON p.id = po.product_id
+				LEFT JOIN sellers s
+					ON s.user_info_id = p.seller_id
+				LEFT JOIN product_color_types pc
+					ON po.product_color_type_id = pc.id
+				LEFT JOIN product_size_types ps
+					ON po.product_size_type_id = ps.id
+				LEFT JOIN order_status_types os
+					ON o.order_status_type_id = os.id
+				LEFT JOIN seller_categories sc
+					ON s.seller_category_id = sc.id
 				WHERE
 					os.id = 2
 			"""
@@ -642,48 +643,38 @@ class MasterDao:
 			return result
 	
 	def order_ready_count(self, connection, filters):
+		""" [어드민] 주문관리(마스터) - 상품준비(카테고리)
+        Author: 
+            Sung joun Jang
+        Args:    
+			- categories : 검색 하고자 하는 샐러 속성의 리스트 값
+        Returns:
+			result: 검색 결과의 데이터 값
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				SELECT
 					COUNT(*)
 				FROM
 					orders o
-				LEFT JOIN
-					users u
-					ON
-						o.user_id = u.user_info_id
-				LEFT JOIN
-					carts c
-					ON
-						o.id = c.order_id
-				LEFT JOIN
-					product_options po
-					ON
-						c.product_option_id = po.id
-				LEFT JOIN
-					products p
-					ON
-						p.id = po.product_id
-				LEFT JOIN
-					sellers s
-					ON
-						s.user_info_id = p.seller_id
-				LEFT JOIN
-					product_color_types pc
-					ON
-						po.product_color_type_id = pc.id
-				LEFT JOIN
-					product_size_types ps
-					ON
-						po.product_size_type_id = ps.id
-				LEFT JOIN
-					order_status_types os
-					ON
-						o.order_status_type_id = os.id
-				LEFT JOIN
-					seller_categories sc
-					ON
-						s.seller_category_id = sc.id
+				LEFT JOIN users u
+					ON o.user_id = u.user_info_id
+				LEFT JOIN carts c
+					ON o.id = c.order_id
+				LEFT JOIN product_options po
+					ON c.product_option_id = po.id
+				LEFT JOIN products p
+					ON p.id = po.product_id
+				LEFT JOIN sellers s
+					ON s.user_info_id = p.seller_id
+				LEFT JOIN product_color_types pc
+					ON po.product_color_type_id = pc.id
+				LEFT JOIN product_size_types ps
+					ON po.product_size_type_id = ps.id
+				LEFT JOIN order_status_types os
+					ON o.order_status_type_id = os.id
+				LEFT JOIN seller_categories sc
+					ON s.seller_category_id = sc.id
 				WHERE
 					os.id = 2
 			"""
@@ -707,6 +698,14 @@ class MasterDao:
 			return result
 
 	def order_ready_update(self, connection, data):
+		""" [어드민] 주문관리(마스터) - 상품준비(주문 상태 변경)
+        Author: 
+            Sung joun Jang
+        Args:    
+			- categories : 검색 하고자 하는 샐러 속성의 리스트 값
+        Returns:
+			result: 검색 결과의 데이터 값
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				UPDATE
@@ -722,6 +721,15 @@ class MasterDao:
 			return True
 
 	def order_ready_update_log(self, connection, data):
+		""" [어드민] 주문관리(마스터) - 상품준비(주문 상태 변경 log)
+        Author: 
+            Sung joun Jang
+        Args:    
+			- user_id : 변경하는 유저의 pk 값
+			- order_id : 변경하고자 하는 주문의 pk 값
+        Returns:
+			성공시 True
+        """
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				INSERT INTO
@@ -769,3 +777,118 @@ class MasterDao:
 			cursor.execute(sql, data)
 
 			return True
+
+	def order_detail(self, connection, product_id, cart_number):
+		""" [어드민] 주문 상세 관리(마스터)
+        Author: 
+            Sung joun Jang
+        Args:    
+			- product_id : 조회하고자 하는 상품의 pk 값
+			- cart_number : 조회하고자 하는 카트의 외부 고유 값
+        Returns:
+			성공시 True
+        """
+		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+			sql = """
+				SELECT
+					o.order_number orderNumber,
+					o.payment orderDate,
+					o.total_price totalPrice,
+					c.cart_number cartNumber,
+					o.payment cartDate,
+					o.order_phone orderPhone,
+					p.id productId,
+					p.name productName,
+					c.calculated_price discountPrice,
+					pl.discount_rate discountRate,
+					pl.price unitOriginalPrice,
+					s.korean_brand_name brandName,
+					pc.name colorName,
+					ps.name sizeName,
+					c.quantity,
+					os.name orderStatus,
+					u.user_info_id userNo,
+					o.order_name orderName,
+					si.recipient_name recipientName,
+					si.recipient_phone recipientPhone,
+					si.recipient_postal_code recipientPostalCode,
+					si.recipient_address recipientAddress,
+					si.recipient_address_detail recipientAddressDetail,
+					sm.contents orderMessage
+				FROM
+					orders o
+				LEFT JOIN users u
+					ON o.user_id = u.user_info_id
+				LEFT JOIN carts c
+					ON o.id = c.order_id
+				LEFT JOIN product_options po
+					ON c.product_option_id = po.id
+				LEFT JOIN products p
+					ON p.id = po.product_id
+				LEFT JOIN sellers s
+					ON s.user_info_id = p.seller_id
+				LEFT JOIN product_color_types pc
+					ON po.product_color_type_id = pc.id
+				LEFT JOIN product_size_types ps
+					ON po.product_size_type_id = ps.id
+				LEFT JOIN order_status_types os
+					ON o.order_status_type_id = os.id
+				LEFT JOIN seller_categories sc
+					ON s.seller_category_id = sc.id
+				LEFT JOIN shipping_info si
+					ON o.shipping_info_id = si.id
+				LEFT JOIN shipping_memo_types sm
+					ON o.shipping_memo_type_id = sm.id
+				LEFT JOIN product_logs pl
+					ON pl.product_id = p.id
+				WHERE
+					pl.id = (
+						SELECT 
+							max(id) 
+						FROM 
+							product_logs
+						WHERE 
+							product_id = %(product_id)s AND change_date <= now()
+						)
+					AND
+					c.cart_number = %(cart_number)s;
+			"""
+
+			cursor.execute(sql, {
+				'cart_number' : cart_number,
+				'product_id'  : product_id
+			})
+			result = cursor.fetchone()
+
+			return result
+	
+	def order_detail_log(self, connection, cart_number):
+		""" [어드민] 주문 상세 관리(마스터) - 로그
+        Author: 
+            Sung joun Jang
+        Args:    
+			- cart_number : 조회하고자 하는 카트의 외부 고유 값
+        Returns:
+			성공시 True
+        """
+		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+			sql = """
+				SELECT 
+					ol.created_at createdAt, 
+					os.name orderStatus
+				FROM 
+					order_logs ol
+				LEFT JOIN carts c
+					ON c.order_id = ol.order_id
+				LEFT JOIN order_status_types os
+					ON ol.order_status_type_id = os.id
+				WHERE 
+					ol.order_status_type_id > 1
+					AND 
+					c.cart_number = %(cart_number)s
+			"""
+
+			cursor.execute(sql, {'cart_number' : cart_number})
+			result = cursor.fetchall()
+
+			return result

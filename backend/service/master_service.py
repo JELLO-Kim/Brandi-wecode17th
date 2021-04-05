@@ -5,56 +5,29 @@ from responses          import *
 class MasterService:
   
   def account(self, connection, page_condition, filters):
-    """ 샐러 계정 관리(마스터) - 리스트
-      Author  
-        : Sung joun Jang
-      Args:
-        # page_condition  
-        limit           : 페이지당 보여질 데이터 갯수
-        offset          : 현재 페이지
-        # filters
-        no              : 샐러의 no
-        username        : 샐러 id
-        english         : 브랜드의 영어 이름
-        korean          : 브랜드의 한글 이름
-        sellerType      : 샐러의 타입(일반, 헬피)
-        sellerStatus    : 샐러의 상태(입점, 입점대기 등등)
-        sellerAttribute : 샐러의 속성(쇼핑몰, 뷰티 등등)
-        managerName     : 매니저의 이름
-        managerPhone    : 매니저의 핸드폰 번호
-        managerEmail    : 매니저의 이메일
-        startDate       : 샐러 생성된 날짜의 시작 값
-        endDate         : 샐러 생성된 날짜의 끝 값
-      Returns 
-        {
-          "message": "SUCCESS",
-          "result": [
-            {
-              "actions": [
-                {
-                  "id": 1,
-                  "name": "입점 승인",
-                  "sl.id": 2
-                },
-                {
-                  "id": 2,
-                  "name": "입점 거절",
-                  "sl.id": 2
-                }
-            ],
-              "attribute": "로드샵",
-              "createdAt": "Fri, 03 Apr 2020 00:00:00 GMT",
-              "english": "nanauhh",
-              "korean": "우나나나",
-              "managerEmail": "t2@gmail.com",
-              "managerName": "담2",
-              "managerPhone": "010-2",
-              "no": 6,
-              "sellerStatus": "입점 대기",
-              "sellerType": "일반",
-              "username": "nana"
-            }
-          ]
+    """ [어드민] 샐러 계정 관리(마스터)
+      Author: 
+        Sung joun Jang
+      Args:    
+        - limit           : 페이지당 보여질 데이터 갯수
+        - offset          : 현재 페이지
+        - no              : 샐러의 no
+        - username        : 샐러 id
+        - english         : 브랜드의 영어 이름
+        - korean          : 브랜드의 한글 이름
+        - sellerType      : 샐러의 타입(일반, 헬피)
+        - sellerStatus    : 샐러의 상태(입점, 입점대기 등등)
+        - sellerAttribute : 샐러의 속성(쇼핑몰, 뷰티 등등)
+        - managerName     : 매니저의 이름
+        - managerPhone    : 매니저의 핸드폰 번호
+        - managerEmail    : 매니저의 이메일
+        - startDate       : 샐러 생성된 날짜의 시작 값
+        - endDate         : 샐러 생성된 날짜의 끝 값
+      Returns:
+        message : 반환되는 메세지
+        result  : {
+            data : 전달하는 데이터 값
+            totalCount : 전체 데이터 개수
         }
     """
 
@@ -87,6 +60,16 @@ class MasterService:
     return {"data" : result, "totalCount" : total_count}
 
   def account_init(self, connection):
+    """ [어드민] 샐러 계정 관리(마스터) - 초기값
+      Author: 
+        Sung joun Jang
+      Args:    
+
+      Returns:
+        sellerType : 샐러의 타입 값
+        sellerStatus : 샐러의 상태 값
+        sellerAttribue : 샐러의 속성 값
+    """
     master_dao = MasterDao()
 
     seller_type      = master_dao.seller_type(connection)
@@ -94,12 +77,22 @@ class MasterService:
     seller_attribute = master_dao.seller_attribute(connection)
 
     return {"data" : {
-      "seller_type"      : seller_type,
-      "seller_status"    : seller_status,
-      "seller_attribute" : seller_attribute
+      "sellerType"      : seller_type,
+      "sellerStatus"    : seller_status,
+      "sellerAttribute" : seller_attribute
     }}
 
   def account_level(self, connection, data):
+    """ [어드민] 샐러 계정 관리(마스터) - level 값 변경하기
+      Author: 
+        Sung joun Jang
+      Args:    
+        - sellerId : 샐러의 pk 값
+        - actionId : 액션의 pk 값
+      Returns:
+        custom_message : 개인화 메세지
+        data : method 종류
+    """
     master_dao    = MasterDao()
     action_id     = data['action_id']
     update_action = ""
@@ -127,13 +120,32 @@ class MasterService:
     return {'custom_message':'updated', 'data':'PATCH'}
 
   def order_ready_init(self, connection):
+    """ [어드민] 주문관리(마스터) - 상품준비(초기값)
+      Author: 
+        Sung joun Jang
+      Args:    
+
+      Returns:
+        data : 전달하는 데이터 값
+    """
     master_dao = MasterDao()
 
     categories =  master_dao.seller_category(connection)
 
-    return {"data" : categories}
+    return {"data" : {
+      "sellerAttribute" : categories
+    }}
 
   def order_ready(self, connection, filters):
+    """ [어드민] 주문관리(마스터) - 상품준비(검색값)
+      Author: 
+        Sung joun Jang
+      Args:    
+
+      Returns:
+        data : 전달하는 데이터 값
+        totalCount : 전체 데이터 개수
+    """
     master_dao = MasterDao()
 
     data        = master_dao.order_ready(connection, filters)
@@ -143,10 +155,42 @@ class MasterService:
     return {"data" : data, "totalCount" : total_count}
 
   def order_ready_update(self, connection, data):
+    """ [어드민] 주문관리(마스터) - 상품준비(주문 상태 변경)
+      Author: 
+        Sung joun Jang
+      Args:    
+
+      Returns:
+        custom_message : 개인화 메세지
+        data : method 종류
+    """
     master_dao = MasterDao()
 
     master_dao.order_ready_update(connection, data)
     master_dao.order_ready_update_log(connection, data)
 
     return {'custom_message':'updated', 'data':'PATCH'}
-      
+  
+  def order_detail(self, connection, product_id, cart_number):
+    """ [어드민] 주문 상세 관리(마스터)
+      Author: 
+        Sung joun Jang
+      Args:    
+        - product_id : 조회하는 상품의 pk 값
+        - cart_number : 조회하는 카트의 외부 고유 값
+      Returns:
+        orderDetails : 주문 상세의 필요한 값
+        orderLogs : 해당 주문의 로그 값
+    """
+    master_dao = MasterDao()
+
+    order_detail = master_dao.order_detail(connection, product_id, cart_number)
+    order_detail['originalPrice'] = order_detail['unitOriginalPrice'] * order_detail['quantity']
+
+    order_log = master_dao.order_detail_log(connection, cart_number)
+
+    data = {
+      'orderDetails' : order_detail,
+      'orderLogs'    : order_log
+    }
+    return {'data': data}

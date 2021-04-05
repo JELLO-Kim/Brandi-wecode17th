@@ -11,55 +11,31 @@ class MasterView:
     @master_app.route('/account', methods=['GET'])
     # @login_decorator
     def master_account():
-        """ 샐러 계정 관리(마스터) - 리스트
-        Author  
-            : Sung joun Jang
+        """ [어드민] 샐러 계정 관리(마스터)
+        Author: 
+            Sung joun Jang
         Args:    
-            limit           : 페이지당 보여질 데이터 갯수
-            offset          : 현재 페이지
-            no              : 샐러의 no
-            username        : 샐러 id
-            english         : 브랜드의 영어 이름
-            korean          : 브랜드의 한글 이름
-            sellerType      : 샐러의 타입(일반, 헬피)
-            sellerStatus    : 샐러의 상태(입점, 입점대기 등등)
-            sellerAttribute : 샐러의 속성(쇼핑몰, 뷰티 등등)
-            managerName     : 매니저의 이름
-            managerPhone    : 매니저의 핸드폰 번호
-            managerEmail    : 매니저의 이메일
-            startDate       : 샐러 생성된 날짜의 시작 값
-            endDate         : 샐러 생성된 날짜의 끝 값
-        Returns 
-            {
-                "message": "SUCCESS",
-                "result": [
-                    {
-                        "actions": [
-                            {
-                                "id": 1,
-                                "name": "입점 승인",
-                                "sl.id": 2
-                            },
-                            {
-                                "id": 2,
-                                "name": "입점 거절",
-                                "sl.id": 2
-                            }
-                        ],
-                        "attribute": "로드샵",
-                        "createdAt": "Fri, 03 Apr 2020 00:00:00 GMT",
-                        "english": "nanauhh",
-                        "korean": "우나나나",
-                        "managerEmail": "t2@gmail.com",
-                        "managerName": "담2",
-                        "managerPhone": "010-2",
-                        "no": 6,
-                        "sellerStatus": "입점 대기",
-                        "sellerType": "일반",
-                        "username": "nana"
-                    }
-                ]
-            }
+            - limit           : 페이지당 보여질 데이터 갯수
+            - offset          : 현재 페이지
+            - no              : 샐러의 no
+            - username        : 샐러 id
+            - english         : 브랜드의 영어 이름
+            - korean          : 브랜드의 한글 이름
+            - sellerType      : 샐러의 타입(일반, 헬피)
+            - sellerStatus    : 샐러의 상태(입점, 입점대기 등등)
+            - sellerAttribute : 샐러의 속성(쇼핑몰, 뷰티 등등)
+            - managerName     : 매니저의 이름
+            - managerPhone    : 매니저의 핸드폰 번호
+            - managerEmail    : 매니저의 이메일
+            - startDate       : 샐러 생성된 날짜의 시작 값
+            - endDate         : 샐러 생성된 날짜의 끝 값
+        Returns:
+            - 200:
+                message : 반환되는 메세지
+                result  : {
+                    data : 전달하는 데이터 값
+                    totalCount : 전체 데이터 개수
+                }
         """
 
         # 로그인 했을 때 3(마스터)인지 확인
@@ -119,6 +95,18 @@ class MasterView:
     @master_app.route('/account/init', methods=['GET'])
     # @login_decorator
     def master_account_init():
+        """ [어드민] 샐러 계정 관리(마스터) - 초기값
+        Author: 
+            Sung joun Jang
+        Args:    
+
+        Returns:
+            - 200:
+                message : 반환되는 메세지
+                result  : {
+                    data : 전달하는 데이터 값
+                }
+        """
         # 로그인 했을 때 3(마스터)인지 확인
         # if g.token_info['user_type_id'] != 3:
         #     raise ApiException(400, USER_NOT_MASTER)
@@ -142,17 +130,31 @@ class MasterView:
     @master_app.route('/account/level', methods=['PATCH'])
     # @login_decorator
     def account_level():
+        """ [어드민] 샐러 계정 관리(마스터) - level 값 변경하기
+        Author: 
+            Sung joun Jang
+        Args:    
+
+        Returns:
+            - 200:
+                message : 반환되는 메세지
+                result  : {
+                    data : 전달하는 데이터 값
+                }
+        """
         # 로그인 했을 때 3(마스터)인지 확인
         # if g.token_info['user_type_id'] != 3:
         #     raise ApiException(400, USER_NOT_MASTER)
 
-        if not request.args.get('seller_id'):
+        body = request.json
+
+        if not body.get('sellerId'):
             raise ApiException(400, NOT_SELLER)
-        if not request.args.get('seller_id'):
+        if not body.get('actionId'):
             raise ApiException(400, NOT_ACTION)
 
-        seller_id = request.args['seller_id']
-        action_id = request.args['action_id']
+        seller_id = body['sellerId']
+        action_id = body['actionId']
 
         data = {
             # 'user_id'   : g.token_info['user_id'],
@@ -182,6 +184,18 @@ class MasterView:
     @master_app.route('/order/ready/init', methods=['GET'])
     # @login_decorator
     def order_ready_init():
+        """ [어드민] 주문관리(마스터) - 상품준비(초기값)
+        Author: 
+            Sung joun Jang
+        Args:    
+
+        Returns:
+            - 200:
+                message : 반환되는 메세지
+                result  : {
+                    data : 전달하는 데이터 값
+                }
+        """
         # 로그인 했을 때 3(마스터)인지 확인
         # if g.token_info['user_type_id'] != 3:
         #     raise ApiException(400, USER_NOT_MASTER)
@@ -205,6 +219,18 @@ class MasterView:
     @master_app.route('/order/ready', methods=['GET'])
     # @login_decorator
     def order_ready():
+        """ [어드민] 주문관리(마스터) - 상품준비(검색값)
+        Author: 
+            Sung joun Jang
+        Args:    
+
+        Returns:
+            - 200:
+                message : 반환되는 메세지
+                result  : {
+                    data : 전달하는 데이터 값
+                }
+        """
         # 로그인 했을 때 3(마스터)인지 확인
         # if g.token_info['user_type_id'] != 3:
         #     raise ApiException(400, USER_NOT_MASTER)
@@ -235,6 +261,18 @@ class MasterView:
     @master_app.route('/order/ready/<order_id>', methods=['PATCH'])
     # @login_decorator
     def order_ready_update(order_id):
+        """ [어드민] 주문관리(마스터) - 상품준비(주문 상태 변경)
+        Author: 
+            Sung joun Jang
+        Args:    
+            - order_id : 변경하고자 하는 주문의 pk 값
+        Returns:
+            - 200:
+                message : 반환되는 메세지
+                result  : {
+                    data : 전달하는 데이터 값
+                }
+        """
         # 로그인 했을 때 3(마스터)인지 확인
         # if g.token_info['user_type_id'] != 3:
         #     raise ApiException(400, USER_NOT_MASTER)
@@ -251,6 +289,40 @@ class MasterView:
             result         = master_service.order_ready_update(connection, data)
 
             connection.commit()
+
+            return {"result" : result}
+        except Exception as e:
+            if connection:
+                connection.rollback
+            raise e
+        finally:
+            if connection is not None:
+                connection.close 
+
+    @master_app.route('/order/<product_id>/<cart_number>', methods=['GET'])
+    # @login_decorator
+    def order_detail(cart_number, product_id):
+        """ [어드민] 주문 상세 관리(마스터)
+        Author: 
+            Sung joun Jang
+        Args:    
+            - product_id : 조회하고자 하는 상품의 pk 값
+            - cart_number : 조회하고자 하는 카트의 외부 고유 값
+        Returns:
+            - 200:
+                message : 반환되는 메세지
+                result  : {
+                    data : 전달하는 데이터 값
+                }
+        """
+        # 로그인 했을 때 3(마스터)인지 확인
+        # if g.token_info['user_type_id'] != 3:
+        #     raise ApiException(400, USER_NOT_MASTER)
+
+        try:
+            connection     = connect_db()
+            master_service = MasterService()
+            result         = master_service.order_detail(connection, product_id, cart_number)
 
             return {"result" : result}
         except Exception as e:
