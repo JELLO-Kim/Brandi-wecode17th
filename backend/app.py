@@ -67,8 +67,8 @@ def create_app(test_config=None):
 
         response = app.response_class(
             response=json.dumps({
-                'result': response.json, 
-                'message': OK
+                'result': response.json['result'], 
+                'message': response.json['custom_message']
             }),
             mimetype='application/json'
         )

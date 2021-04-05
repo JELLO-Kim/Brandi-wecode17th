@@ -63,22 +63,23 @@ class MasterService:
   def account_level(self, connection, data):
     master_dao    = MasterDao()
     action_id     = data['action_id']
-    update_action = 0
+    # update_action = ""
 
-    check_action = master_dao.check_action(connection, action_id)
+    # check_action = master_dao.check_action_id(connection, action_id)
 
-    if check_action in ["입점 승인", "휴점 해제", "퇴점 철회 처리"]:
-      update_action = "입점"
-    if check_action in ["입점 거절"]:
-      update_action = "입점 거절"
-    if check_action in ["휴점 신청"]:
-      update_action = "휴점"
-    if check_action in ["퇴점 신청처리"]:
-      update_action = "퇴점 대기"
-    if check_action in ["퇴점 확정 처리"]:
-      update_action = "퇴점"
-      master_dao.seller_delete(connection, data)
+    # if check_action in ["입점 승인", "휴점 해제", "퇴점 철회 처리"]:
+    #   update_action = "입점"
+    # if check_action in ["입점 거절"]:
+    #   update_action = "입점 거절"
+    # if check_action in ["휴점 신청"]:
+    #   update_action = "휴점"
+    # if check_action in ["퇴점 신청처리"]:
+    #   update_action = "퇴점 대기"
+    # if check_action in ["퇴점 확정 처리"]:
+    #   update_action = "퇴점"
+    #   master_dao.seller_delete(connection, data)
 
-    data['update_action']
+    # data['update_level'] = master_dao.check_action_name(connection, update_action)
+    master_dao.account_level(connection, data)
 
-    return master_dao.account_level(connection, data)
+    return {'custom_message':'updated', 'result':'PATCH'}

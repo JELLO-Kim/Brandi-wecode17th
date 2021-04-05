@@ -1,15 +1,19 @@
-from flask          import request, Blueprint, jsonify
-from db_connector   import connect_db
-from service        import MasterService
-from responses         import *
+from flask        import request, Blueprint, jsonify
+from db_connector import connect_db
+from service      import MasterService
+from responses    import *
+from utils        import login_decorator
 
 class MasterView:
 
-    master_app      = Blueprint('master_app', __name__, url_prefix='/master')
+    master_app = Blueprint('master_app', __name__, url_prefix='/master')
 
+    # @login_decorator
     @master_app.route('/account', methods=['GET'])
     def master_account():
-        user_id         = request.headers['Authorization'] # 마스터 계정일때 확인하는 로그인 데코레이션 확인
+        # 로그인 했을 때 3(마스터)인지 확인
+        # if g.token_info['user_type_id'] != 3:
+        #     raise ApiException(400, USER_NOT_MASTER)
 
         # 페이지에 대한 조건들을 담은 객체
         page_condition  = {}
@@ -61,10 +65,14 @@ class MasterView:
             if connection is not None:
                 connection.close
     
+    # @login_decorator
     @master_app.route('/account/init', methods=['GET'])
     def master_account_init():
-        user_id         = request.headers['Authorization'] # 마스터 계정일때 확인하는 로그인 데코레이션 확인
-        connection      = None
+        # 로그인 했을 때 3(마스터)인지 확인
+        # if g.token_info['user_type_id'] != 3:
+        #     raise ApiException(400, USER_NOT_MASTER)
+
+        connection = None
 
         try:
             connection      = connect_db()
@@ -80,10 +88,15 @@ class MasterView:
             if connection is not None:
                 connection.close
     
+    # @login_decorator
     @master_app.route('/account/level', methods=['PATCH'])
     def account_level():
-        # user_id   = request.headers['Authorization']
+        # 로그인 했을 때 3(마스터)인지 확인
+        # if g.token_info['user_type_id'] != 3:
+        #     raise ApiException(400, USER_NOT_MASTER)
+
         data = {
+            # 'user_id'   : g.token_info['user_id'],
             'user_id'   : 1,
             'action_id' : request.args.get('action_id', None)
         }

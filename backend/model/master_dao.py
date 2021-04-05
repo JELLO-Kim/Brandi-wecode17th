@@ -42,24 +42,24 @@ class MasterDao:
 					sellers s
 				LEFT JOIN
 					user_info u
-				ON
-					s.user_info_id = u.id
+					ON
+						s.user_info_id = u.id
 				LEFT JOIN
 					seller_tier_types st
-				ON
-					s.seller_tier_type_id = st.id
+					ON
+						s.seller_tier_type_id = st.id
 				LEFT JOIN
 					managers m
-				ON
-					u.id = m.seller_id
+					ON
+						u.id = m.seller_id
 				LEFT JOIN
 					seller_level_types sl
-				ON
-					s.seller_level_type_id = sl.id
+					ON
+						s.seller_level_type_id = sl.id
 				LEFT JOIN
 					seller_categories sc
-				ON
-					s.seller_category_id = sc.id
+					ON
+						s.seller_category_id = sc.id
 				WHERE
 					m.ordering = 1 or m.ordering is null
 			"""
@@ -139,24 +139,24 @@ class MasterDao:
 					sellers s
 				LEFT JOIN
 					user_info u
-				ON
-					s.user_info_id = u.id
+					ON
+						s.user_info_id = u.id
 				LEFT JOIN
 					seller_tier_types st
-				ON
-					s.seller_tier_type_id = st.id
+					ON
+						s.seller_tier_type_id = st.id
 				LEFT JOIN
 					managers m
-				ON
-					u.id = m.seller_id
+					ON
+						u.id = m.seller_id
 				LEFT JOIN
 					seller_level_types sl
-				ON
-					s.seller_level_type_id = sl.id
+					ON
+						s.seller_level_type_id = sl.id
 				LEFT JOIN
 					seller_categories sc
-				ON
-					s.seller_category_id = sc.id
+					ON
+						s.seller_category_id = sc.id
 				WHERE
 					m.ordering = 1 or m.ordering is null
 			"""
@@ -213,8 +213,8 @@ class MasterDao:
 					seller_action_types sa
 				JOIN
 					seller_level_types sl
-				ON
-					sa.seller_level_type_id = sl.id
+					ON
+						sa.seller_level_type_id = sl.id
 				WHERE
 					sl.name = %(level)s
 			"""
@@ -274,24 +274,35 @@ class MasterDao:
 	
 	def account_level(self, connection, data):
 		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+			# sql = """
+			# 	UPDATE
+			# 		sellers
+			# 	SET
+			# 		seller_level_type_id = %(update_level)s
+			# 	WHERE
+			# 		user_info_id = %(user_info_id)s
+			# """
+
 			sql = """
 				UPDATE
 					sellers
 				SET
-					seller_level_type_id = %(update_action)s
+					seller_level_type_id = (
+						select id from seller_level_types where name = "입점"
+					)
 				WHERE
 					user_info_id = %(user_info_id)s
 			"""
 
 			cursor.execute(sql, {
-				'update_action' : data['update_action'],
-				'user_info_id'  : data['user_id']
+				# 'update_level' : data['update_level'],
+				'user_info_id' : data['user_id']
 			})
 
 			return True
 
 	def seller_delete(self, connection, data):
-		with connection.cursor(pymysql.cursor.DictCursor) as cursor:
+		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				UPDATE
 					seller
@@ -305,8 +316,8 @@ class MasterDao:
 			
 			return True
 
-	def check_action(self, connection, action):
-		with connection.cursor(pymysql.cursor.DictCursor) as cursor:
+	def check_action_id(self, connection, action):
+		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 			sql = """
 				SELECT
 					name
@@ -314,6 +325,22 @@ class MasterDao:
 					seller_action_types
 				WHERE
 					id = %(action)s
+			"""
+
+			cursor.execute(sql, {'action': action})
+			result = cursor.fetchone()
+
+			return result
+	
+	def check_action_name(self, connection, action):
+		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+			sql = """
+				SELECT
+					id
+				FROM
+					seller_action_types
+				WHERE
+					name = %(action)s
 			"""
 
 			cursor.execute(sql, {'action': action})
