@@ -38,24 +38,15 @@ class SellerService:
 
         seller = seller_dao.login_seller(seller_login_info, connection)
 
-<<<<<<< HEAD
-        if seller['user_type_id'] != 2:
-            raise ApiException(403, IS_NOT_SELLER)
-=======
         if seller['user_type_id'] not in [2, 3]:
             raise ApiException(400, IS_NOT_SELLER)
->>>>>>> b17f311... [어드민] seller 상세정보 수정
 
         if seller:
             if bcrypt.checkpw(seller_login_info['password'].encode('utf-8'), seller['password'].encode('utf-8')):
                 token = jwt.encode({'user_id': seller['id']}, SECRET_KEY, ALGORITHM)
                 user_id = seller['id']
-<<<<<<< HEAD
-                return jsonify({'accessToken': token, 'userId': user_id}), 201
-=======
                 user_type_id = seller['user_type_id']
                 return jsonify({'accessToken': token, 'userId': user_id, "userTypeId" : user_type_id}), 201
->>>>>>> b17f311... [어드민] seller 상세정보 수정
 
             if seller['is_delete'] == 1:
                 raise ApiException(400, USER_NOT_FOUND)
@@ -77,10 +68,6 @@ class SellerService:
         seller_get_service = seller_dao.seller_edit_get_dao(user, connection)
         seller_get_service['managers'] = seller_dao.get_seller_manager(user, connection)
 
-<<<<<<< HEAD
-    def seller_edit_get(self, user_id, connection):
-        """ [어드민] seller의 본인 상세 정보수정 페이지 입장 시 확인되는 정보
-=======
         return seller_get_service
 
     # 채현 : patch
@@ -109,27 +96,10 @@ class SellerService:
 
     def first_update(self, user, seller_edit_info, connection):
         """ [어드민] seller의 본인 상세 정보 수정 : 회원가입 후 첫 수정
->>>>>>> b17f311... [어드민] seller 상세정보 수정
         Author : Chae hyun Kim
         Args:
             connection : 커넥션
             user_id : 로그인 유저의 user_id
-<<<<<<< HEAD
-        Returns
-            : seller의 상세 정보 반환
-        Note
-            : n개로 존재할 수 있는 manager에 대한 정보들은 manager라는 key값 안에 존재
-        """
-        seller_dao = SellerDao()
-        seller_get_service = seller_dao.seller_edit_get_dao(user_id, connection)
-        seller_get_manager = seller_dao.get_seller_manager(user_id, connection)
-        seller_get_service['managers'] = seller_get_manager
-
-        return seller_get_service
-
-    def seller_edit_service(self, user_id, seller_edit_info, connection):
-        """ [어드민] seller의 본인 상세 정보수정 페이지 입장 시 확인되는 정보
-=======
             seller_edit_info : 새로 입력될 내용들
         Returns
             : True
@@ -197,18 +167,16 @@ class SellerService:
         
     def seconde_update(self, user, seller_edit_info, connection):
         """ [어드민] seller의 본인 상세 정보 수정 : 필수정보 입력 후 두번째 수정(일부 내역만 수정 가능)
->>>>>>> b17f311... [어드민] seller 상세정보 수정
         Author : Chae hyun Kim
         Args:
             connection : 커넥션
             user_id : 로그인 유저의 user_id
-<<<<<<< HEAD
             seller_edit_info : 새로 입력될 내용들 (dict 형태)
         Returns
-            : 수정된 정보의 갯수 반환
-        Note
-            1. 회원가입 후 첫 수정 : 필수입력란이 null 이면 모든 값을 다 입력하도록 함 / 빠진 정보가 있다면 적절한 error 반환
-            2. 필수입력란 작성 후 개별 수정 : 수정을 원하는 값에 한하여 새로 입력되도록 함
+            : True
+        Note:
+            1. 삭제되어있지 않은 manager가 이미 3명이라면 error message 반환
+            2. 기존에 입력된 manager에 대한 정보 수정일 경우 insert가 아닌 update 진행
             3. manager는 한번에 여러개의 정보를 입력할 수 있도록 "배열"로 받은 뒤 for loop 진행
         """
         seller_dao = SellerDao()
@@ -323,16 +291,6 @@ class SellerService:
             print('return 직전입니당!!!!!!!!!!!!!!!!!!!')
             return "okokok"
 
-=======
-            seller_edit_info : 새로 입력될 내용들
-        Returns
-            : True
-        Note:
-            1. 삭제되어있지 않은 manager가 이미 3명이라면 error message 반환
-            2. 기존에 입력된 manager에 대한 정보 수정일 경우 insert가 아닌 update 진행
-            3. manager는 한번에 여러개의 정보를 입력할 수 있도록 "배열"로 받은 뒤 for loop 진행
-        """
-        seller_dao = SellerDao()
         # 수정내용에 manager 가 있을 경우 배열로 처리된 것을 for loop을 통해 한명의 매니저에 대한 내용 반복적으로 생성
         # 먼저 name, phone, email 키값이 다 들어왔는지 확인하기
         if seller_edit_info['managers']:
@@ -396,7 +354,6 @@ class SellerService:
             raise e
 
 # 하성님 코드
->>>>>>> b17f311... [어드민] seller 상세정보 수정
     def post_product(self, product_info, product_options, connection):
         try:
             seller_dao = SellerDao()

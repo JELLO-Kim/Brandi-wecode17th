@@ -123,7 +123,6 @@ NOT_MANAGER_EMAIL = "담당자 이메일을 입력해 주세요"
 
 EXSISTING_MANAGER = "이미 존재하는 담당자 정보입니다"
 
-<<<<<<< HEAD
 INVALID_INPUT_USERNAME = "아이디가 입력되지 않았습니다" # 아이디 입력되지 않았을 시 : 400 Bad request
 INVALID_INPUT_PASSWORD = "패스워드가 입력되지 않았습니다" # 패스워드 입력되지 않았을 시 : 400 Bad request
 INVALID_INPUT_KOREAN_BRAND_NAME = "셀러명이 입력되지 않았습니다" # 셀러명 미입력 시 :400 Bad request
@@ -156,18 +155,11 @@ NOT_MANAGER = "담당자 정보를 입력해 주세요"
 NOT_MANAGER_NAME = "담당자 이름을 입력해 주세요"
 NOT_MANAGER_NUMBER = "담당자 연락처를 입력해 주세요"
 NOT_MANAGER_EMAIL = "담당자 이메일을 입력해 주세요"
-EXSISTING_MANAGER = "이미 존재하는 담당자 정보입니다"
 EXSISTING_MANAGER_NAME = "이미 존재하는 담당자 이름입니다"
 EXSISTING_MANAGER_EMAIL = "이미 존재하는 담당자 이메일입니다"
-=======
-EXSISTING_MANAGER_NAME = "이미 존재하는 담당자 이름입니다"
 
-EXSISTING_MANAGER_EMAIL = "이미 존재하는 담당자 이메일입니다"
-
-# 추가 210404
 SERVICE_USER_NO_ACCESS = "일반 유저는 접근 권한이 없습니다"
 
 MAXIMUN_MANAGER = "매니저 입력 최대치는 3명 입니다."
 
 UPDATED = "정보를 수정하였습니다"
->>>>>>> b17f311... [어드민] seller 상세정보 수정

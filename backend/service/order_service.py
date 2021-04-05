@@ -2,6 +2,7 @@ from model.order_dao import OrderDao
 from responses import ApiException, NO_CURRENT_ORDER_EXISTS, NO_CART_EXISTS
 from flask           import jsonify, json
 from datetime        import date, datetime
+from utils  import *
 
 class OrderService:
     def __init__(self):
