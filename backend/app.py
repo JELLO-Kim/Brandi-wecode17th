@@ -5,7 +5,7 @@ from view import ProductView, MyPageView, UserView, OrderView, SellerView, Maste
 from flask_cors import CORS
 from flask.json import JSONEncoder
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, date
 from responses import *
 
 
@@ -23,7 +23,8 @@ class CustomJSONEncoder(JSONEncoder):
             return obj.decode("utf-8")
         if isinstance(obj, datetime):
             return obj.strftime('%Y-%m-%d %H:%M:%S')
-
+        if isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
         return JSONEncoder.default(self, obj)
 
 
@@ -34,11 +35,10 @@ def create_app(test_config=None):
     app.register_blueprint(UserView.user_app)
     app.register_blueprint(OrderView.order_app)
     app.register_blueprint(SellerView.seller_app)
-    app.register_blueprint(SellerView.seller_app)
-    app.register_blueprint(MasterView.master_app)
+    app.register_blueprint(ProductView.product_app)
+    app.register_blueprint(MyPageView.mypage_app)
     # 모든 곳에서 호출하는 것을 허용
-    CORS(app, resources={'*': {'origins': '*'}})
-
+    CORS(app, resources={'*': {'origins': '*'}}, expose_header='Authorization')
     # error 메세지 반환 from errors.py
     @app.errorhandler(ApiException)
     def handle_bad_request(e):
@@ -49,17 +49,14 @@ def create_app(test_config=None):
 
     @app.after_request
     def apply_caching(response):
-        # 올바르지 않는 주소입력으로 인해 response.json에 아무것도 담겨있지 않을 경우
-        if not response.json:
-            return response
-
         # error에 잡혀 message에 에러메세지가 이미 담겨있을 경우 그대로 반환
         if 'message' in response.json:
-           return Response(
-               json.dumps({"message": response.json['message']}),
-                   status=response.json['status'],
-                   mimetype="application/json"
-               )
+            return Response(
+                    json.dumps({"message": response.json['message']}),
+                    status=response.json['status'],
+                    mimetype="application/json"
+                )
+
         response = app.response_class(
             response=json.dumps({
                 'result': response.json.get('result', response.json),
@@ -68,6 +65,5 @@ def create_app(test_config=None):
             mimetype='application/json'
         )
         return response
-
     return app
 

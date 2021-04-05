@@ -3,7 +3,21 @@
   <component name="ChangeListManager">
     <list default="true" id="e74ba85b-01bf-4310-9915-0b827278c2e0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/backend/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/utils.py" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/backend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/model/order_dao.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/model/order_dao.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/model/seller_dao.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/model/seller_dao.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/responses.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/responses.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/service/order_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/service/order_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/service/seller_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/service/seller_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/view/order_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/view/order_view.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/view/product_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/view/product_view.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/view/seller_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/view/seller_view.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/view/user_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/view/user_view.py" afterDir="false" />
+>>>>>>> 3268fa9... added seller product post feature
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,6 +114,7 @@
       <list>
         <item itemvalue="Python.seller_view" />
         <item itemvalue="Python.run" />
+        <item itemvalue="Python.seller_view" />
       </list>
     </recent_temporary>
   </component>
@@ -136,5 +151,13 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
+<<<<<<< HEAD
+=======
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="g.user_id" />
+      </configuration>
+    </watches-manager>
+>>>>>>> 3268fa9... added seller product post feature
   </component>
 </project>

@@ -11,7 +11,7 @@ from responses import *
 def login_decorator(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        access_token = request.headers.get('Authorization')
+        access_token = request.headers.get('AUTHORIZATION')
         try:
             if access_token:
                 payload = jwt.decode(access_token, SECRET_KEY, ALGORITHM)
@@ -55,8 +55,7 @@ def user_decorator(func):
             user_dao = UserDao()
             user = user_dao.user_identifier(user_info, connection)
             g.token_info = {
-                'user_id': user_id,
-                'user_type_id': user['user_type_id'],
+                'user_id': user_id
             }
         else:
             g.token_info = {

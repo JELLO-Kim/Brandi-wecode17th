@@ -1,6 +1,5 @@
 import pymysql
 
-
 class UserDao:
     def find_user_info(self, user_info, connection):
         """ 유저 조회
@@ -111,9 +110,12 @@ class UserDao:
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
-                SELECT email
-                FROM users
-                WHERE email = %(email)s
+                SELECT
+                    email
+                FROM
+                    users
+                WHERE
+                    email = %(email)s
             """
 
             cursor.execute(query, user_info)
@@ -197,9 +199,16 @@ class UserDao:
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
-                SELECT id, username, password, is_delete
-                FROM user_info
-                WHERE username= %(username)s 
+                SELECT
+                    id,
+                    user_type_id,
+                    username,
+                    password,
+                    is_delete
+                FROM
+                    user_info
+                WHERE
+                    username= %(username)s 
             """
             cursor.execute(query, login_info)
             user_login_info = cursor.fetchone()
