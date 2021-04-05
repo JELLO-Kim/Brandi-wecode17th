@@ -4,7 +4,7 @@
       <tr>
         <td>질문유형</td>
         <td>
-          <DropDown :items="deliveryMock" v-model="deliveryType"></DropDown>
+          <DropDown :items="typeList" v-model="deliveryType"></DropDown>
         </td>
       </tr>
       <tr>
@@ -34,20 +34,28 @@ import SERVER from '@/config'
 import API from '@/service/util/service-api'
 
 export default {
+  created () {
+    API.methods
+      .get(`${SERVER.IP}/products/qna/type`)
+      .then(res => {
+        this.typeList = res.data
+      })
+  },
   data () {
     return {
       deliveryType: '',
       contents: '',
       // 삭제하기 이거!!
       isPrivate: false,
-      deliveryMock: [{
-        label: '집 앞에 놓고 가주세요.',
-        key: '11'
-      },
-      {
-        label: '등등등..',
-        key: '12'
-      }
+      typeList: [
+        {
+          label: '집 앞에 놓고 가주세요.',
+          key: '11'
+        },
+        {
+          label: '등등등..',
+          key: '12'
+        }
       ]
     }
   },

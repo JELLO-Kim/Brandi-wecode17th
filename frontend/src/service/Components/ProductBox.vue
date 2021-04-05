@@ -6,16 +6,16 @@
     <div class="brandName">{{ product.sellerName }}</div>
     <div class="productName">{{ product.name }}</div>
     <div class="productPrice">
-      <span class="discountRate" v-if="product.discountRate"
+      <span class="discountRate" v-if="product.discountRate != 0"
         >{{ product.discountRate }}%</span
       >
-      <span class="discountPrice" v-if="product.discountRate">
+      <span class="discountPrice" v-if="product.discountRate != 0">
         {{ product.discountPrice | makeComma }}
       </span>
       <span
         :class="{
-          noneDisCountPrice: !product.discountRate,
-          price: product.discountRate,
+          noneDisCountPrice: product.discountRate == 0,
+          price: product.discountRate != 0,
         }"
         >{{
             product.price | makeComma
@@ -37,9 +37,9 @@ export default {
         return {
           thumbnailImage: '',
           name: '',
-          // sales_price: this.methods.getDiscountPrice(this.original_price, this.discount_rate),
           price: 0,
           discountRate: 0,
+          discountPrice: 0,
           totalSales: 0,
           sellerName: ''
         }

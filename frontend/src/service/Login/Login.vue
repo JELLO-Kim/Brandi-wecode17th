@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { ClientId, SERVER_IP } from '@/config.js'
+import { ClientId, SERVER } from '@/config'
 import { GoogleLogin } from 'vue-google-login'
 import API from '@/service/util/service-api'
 import { mapMutations } from 'vuex'
@@ -71,10 +71,11 @@ export default {
         headers: { Authorization: googleUser.wc.id_token }
       }
       API.methods
-        .post(`${SERVER_IP}/user/signin`, data, headers)
+        .post(`${SERVER.IP}/user/signin`, data, headers)
         .then((res) => {
           if (res.data.access_token) {
             localStorage.setItem('access_token', res.data.access_token)
+            localStorage.setItem('user_id', res.data.userId)
             this.getStorageToken()
             this.$router.push('/main')
           } else {
@@ -96,7 +97,8 @@ export default {
         username: this.username,
         password: this.password
       }
-      API.methods.post(`${SERVER_IP}/user/signin`, data)
+      console.log(SERVER)
+      API.methods.post(`${SERVER}/user/signin`, data)
         .then((res) => {
           localStorage.setItem('access_token', res.data.ACCESS_TOKEN)
           this.$router.push('/main')

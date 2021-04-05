@@ -40,9 +40,13 @@
 <script>
 import CheckBox from '@/service/Components/CheckBox'
 import CartOption from '@/service/Cart/CartOption'
+<<<<<<< HEAD
+import SERVER from '@/config'
+=======
 // eslint-disable-next-line no-unused-vars
 import SERVER from '@/config'
 // eslint-disable-next-line no-unused-vars
+>>>>>>> 90ca5ac47eb6555b836e4fdaecf400ec5add259b
 import API from '@/service/util/service-api'
 // import mock from '@/Data/Cart'
 import { EventBus } from '@/service/util/event-bus'
@@ -52,6 +56,32 @@ import { EventBus } from '@/service/util/event-bus'
 export default {
   created () {
     API.methods
+<<<<<<< HEAD
+      .get(`${SERVER.SERVER}/cart`, {
+        headers: {
+          Authorization: `${localStorage.getItem('access_token')}`
+        }
+      })
+      .then((res) => {
+        // 한번 수정하기
+        console.log(res)
+        this.cartList = res.data.result.cartList
+        this.totalCount = res.data.result.totalCount
+
+        // 확인해보기!
+        for (let i = 0, len = this.cartList.length; i < len; i++) {
+          for (let z = 0, len2 = this.cartList[i].detail.length; z < len2; z++) {
+            this.cartList[i].detail[z].checked = false
+          }
+        }
+      })
+      .catch(error => {
+        alert(error)
+      })
+    // const copyMock = JSON.parse(JSON.stringify(mock))
+    // this.cartList = copyMock.cartList
+    // this.totalCount = mock.totalCount
+=======
       .get(`${SERVER.IP}/cart`)
       .then((res) => {
         // 한번 수정하기
@@ -64,6 +94,7 @@ export default {
         this.cartList = result
         this.totalCount = res.data.result.totalCount
       })
+>>>>>>> 90ca5ac47eb6555b836e4fdaecf400ec5add259b
 
     EventBus.$on('check-item', item => {
       this.selectItems.push(item)
@@ -82,10 +113,6 @@ export default {
           break
         }
       }
-    })
-
-    EventBus.$on('cal-price', () => {
-      // this.totalPrice = this.calTotalPrice()
     })
   },
   updated () {
@@ -168,10 +195,33 @@ export default {
             // alert(res)
           })
       }
+<<<<<<< HEAD
+
+      const deleteItems = []
+      for (const item in this.selectItems) {
+        deleteItems.push(item.id)
+      }
+
+      // then, catch
+      API.methods
+        .delete(`${SERVER.SERVER}/cart`, deleteItems, {
+          headers: {
+            Authorization: `${localStorage.getItem('access_token')}`
+          }
+        })
+      this.selectItems = []
+=======
+>>>>>>> 90ca5ac47eb6555b836e4fdaecf400ec5add259b
     },
     buyBtn () {
       if (this.selectItems.length > 0) {
+        // const cartArray = []
+        // for (let i = 0; i < this.selectItems.length; i++) {
+        //   this.selectItems[i]
+        // }
+
         const data = {
+          userId: localStorage.getItem('userId'),
           items: this.selectItems,
           totalPrice: this.totalPrice
         }
@@ -179,7 +229,12 @@ export default {
         localStorage.setItem('cart', JSON.stringify(data))
         this.$router.push('/order')
       } else {
-        // 여기에 Toast 넣기! data에 errorMessage도 넣기!
+        this.$toast.open({
+          message: '옵션을 한개 이상 선택해주세요.',
+          position: 'bottom',
+          duration: 3000,
+          type: 'default'
+        })
       }
     }
   }
@@ -252,81 +307,6 @@ export default {
       padding: 30px 0;
       text-align: left;
     }
-    // .cart-list-brand {
-    //   font-size: 15px;
-
-    //   td {
-    //     border-bottom: solid 1px rgb(228, 228, 228);
-    //     padding: 20px 0;
-    //   }
-    //   td:first-child {
-    //     font-size: 18px;
-    //     font-weight: 600;
-    //     text-align: left;
-    //   }
-    // }
-    // .cart-list-product {
-    //   padding: 15px 0;
-
-    //   td {
-    //     padding: 15px 15px 15px 0;
-    //   }
-    //   td:nth-child(2) {
-    //     width: 80px;
-    //     height: 80px;
-    //     overflow: hidden;
-
-    //     img {
-    //       width: 80px;
-    //       height: auto;
-    //     }
-    //   }
-    //   td:nth-child(3) {
-    //     width: 60%;
-    //     text-align: left;
-
-    //     div:first-child {
-    //       font-size: 17px;
-    //     }
-    //     div:last-child {
-    //       color: rgb(135, 135, 135);
-    //     }
-    //   }
-    //   td:nth-child(4) {
-    //     div {
-    //       text-align: center;
-
-    //       button {
-    //         background-color: white;
-    //         border: solid 1px rgb(228, 228, 228);
-    //         width: 25px;
-    //       }
-    //       span {
-    //         font-size: 10px;
-    //         padding: 4px 4px;
-    //       }
-    //     }
-    //   }
-    //   td:nth-child(5) {
-    //     display: flex;
-    //     flex-direction: column;
-    //     * {
-    //       display: inline-block;
-    //     }
-    //     span {
-    //       font-size: 23px;
-    //       font-weight: 600;
-    //     }
-    //     button {
-    //       font-size: 13px;
-    //       margin: 0 auto;
-    //       width: 120px;
-    //       background-color: black;
-    //       color: white;
-    //       padding: 10px 20px;
-    //     }
-    //   }
-    // }
   }
   .price-box {
     font-size: 25px;

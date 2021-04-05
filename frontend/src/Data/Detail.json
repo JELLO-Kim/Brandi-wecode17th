@@ -12,6 +12,7 @@
     "discountPrice": 13400,
     "price": 13400,
     "discountRate": 10,
+    "brand": "아몰랑",
     "colors": [
       {"key": "베이지", "label":"베이지"},
       {"key": "블랙", "label":"블랙"},

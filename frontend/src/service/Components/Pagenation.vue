@@ -2,7 +2,7 @@
   <div class="pagenation">
     <a>&lt;&lt;</a>
     <a>&lt;</a>
-    <a class="selected page">1</a>
+    <!-- <a class="page" v-for="(itme) ub">1</a> -->
     <a class="page">2</a>
     <a class="page">3</a>
     <a class="page">4</a>
@@ -14,7 +14,11 @@
 
 <script>
 export default {
-  name: 'Pagenation'
+  name: 'Pagenation',
+  props: {
+    page: Number,
+    totalPage: Number
+  }
 }
 </script>
 

@@ -67,11 +67,18 @@
           <div class="detailHtml" v-html="detailData.productContentImage" />
         </div>
         <div>
-          <QnA v-bind:isMypage="isMypage" v-bind:title="title"></QnA>
+          <QnA v-bind="{
+            isMypage: isMypage,
+            title: title,
+            id: detailData.id,
+            totalCount: QnATotalCount,
+            qnaList: qnaList,
+            page: page
+            }" ></QnA>
         </div>
       </div>
     </article>
-    <!-- <Toast :message="errorMessage" v-on:remove-message="removeMessage"/> -->
+    <OtherProduct :products="this.others"/>
   </main>
 </template>
 
@@ -84,18 +91,17 @@ import DropDown from '@/service/Components/DropDown'
 import OptionQuantity from './OptionQuantity'
 // import mockup from '@/Data/Detail.json'
 import { mapMutations, mapGetters } from 'vuex'
-// import Toast from '@/service/Components/Toast'
+import OtherProduct from '@/service/Detail/BrandOtherProduct'
 
 const serviceStore = 'serviceStore'
 
 export default {
   components: {
-    // 이미지 Caroucel
     agile: VueAgile,
     QnA,
     DropDown,
-    OptionQuantity
-    // Toast
+    OptionQuantity,
+    OtherProduct
   },
   mounted () {
     // this.detailData = mockup.data
@@ -118,13 +124,13 @@ export default {
   },
   data () {
     return {
+      brandId: 0,
       color: null,
       size: null,
       optionQuantity: [],
-      sellerProducts: [],
-      qnaList: [],
       detailData: {
         id: 0,
+        brand: '',
         colors: [],
         sizes: [],
         name: '',
@@ -138,7 +144,11 @@ export default {
       },
       isMypage: false,
       title: 'Q&A',
-      errorMessage: ''
+      errorMessage: '',
+      qnaList: [],
+      QnATotalCount: 0,
+      others: [],
+      page: 1
     }
   },
   computed: {
@@ -166,6 +176,9 @@ export default {
       return total
     }
   },
+  // props: {
+  //   productId: Number
+  // }
   methods: {
     ...mapMutations(serviceStore, ['getStorageToken']),
 
@@ -202,31 +215,38 @@ export default {
     // 상품의 갯수가 0이라면 return
     buyNowHandler () {
       if (this.optionQuantity.length > 0) {
-        if (this.getToken) {
-          const orderData = {
-            productId: this.id,
-            products: this.optionQuantity
-          }
-
-          localStorage.setItem('items', orderData)
-          this.$router.push('/order')
-        } else {
-          alert('로그인이 필요한 서비스입니다.')
-          this.$router.push('/login')
+        // if (this.getToken) {
+        const orderData = {
+          productId: this.id,
+          products: []
         }
+        for (let i = 0; i < this.optionQuantity.length; i++) {
+          const nowOption = this.optionQuantity[i]
+          orderData.products.push({
+            brandName: nowOption.brandName,
+            options: {
+              name: 'ㅁㄴㅇ'
+            }
+          })
+        }
+
+        localStorage.setItem('cart', JSON.stringify(orderData))
+        this.$router.push('/order')
       } else {
-        this.$toast.open({
-          message: '옵션을 한개 이상 선택해주세요.',
-          position: 'bottom',
-          duration: 3000,
-          type: 'default'
-        })
+        alert('로그인이 필요한 서비스입니다.')
+        this.$router.push('/login')
       }
+      // } else {
+      //   this.$toast.open({
+      //     message: '옵션을 한개 이상 선택해주세요.',
+      //     position: 'bottom',
+      //     duration: 3000,
+      //     type: 'default'
+      //   })
+      // }
     },
 
-    // 내가 짠 코드!
     addCart () {
-      console.log('이거 눌림???')
       if (this.optionQuantity.length > 0) {
         if (this.getToken) {
           API.methods.post(`${SERVER.IP}/cart`, this.optionQuantity)
@@ -241,12 +261,13 @@ export default {
           this.$router.push('/login')
         }
       } else {
-        this.errorMessage = '옵션을 한개 이상 선택해주세요.'
+        this.$toast.open({
+          message: '옵션을 한개 이상 선택해주세요.',
+          position: 'bottom',
+          duration: 3000,
+          type: 'default'
+        })
       }
-    },
-
-    removeMessage () {
-      this.errorMessage = ''
     }
   }
 }

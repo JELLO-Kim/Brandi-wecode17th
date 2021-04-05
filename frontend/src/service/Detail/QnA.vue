@@ -9,7 +9,7 @@
         <label><input type="radio" v-model="answerType" value="0">&nbsp;미답변</label>
       </div>
     </div>
-    <QnARegister v-if="showQnA"></QnARegister>
+    <QnARegister v-bind:id="this.id" v-if="showQnA"></QnARegister>
     <table>
       <colgroup>
         <col v-if="!isMypage" width="15%">
@@ -37,7 +37,7 @@
             <td><p v-if="!isMypage">{{answer.writer}}</p></td>
             <td>{{answer.createdAt}}</td>
           </tr>
-          <tr class="answer" v-show="answer.answerShow" :key="answer">
+          <tr class="answer" :class="QnA.answer.isShow" v-if="QnA.answer" :key="answer.answer">
             <td v-if="!isMypage"></td>
             <td></td>
             <td><p class="scret" v-if="answer.answer">{{answer.answer.contents}}.</p></td>
@@ -45,14 +45,6 @@
             <td><p v-if="answer.answer">{{answer.answer.createdAt}}</p></td>
           </tr>
         </template>
-        <!--
-        <tr>
-          <td>배송 문의</td>
-          <td><span>답변대기</span></td>
-          <td><p>비밀글입니다.</p></td>
-          <td>dsd***</td>
-          <td>2021.03.11</td>
-        </tr> -->
       </tbody>
     </table>
     <div class="pagination">
@@ -67,7 +59,6 @@
 </template>
 
 <script>
-// import { SERVER_IP } from '@/config.js'
 // import axios from 'axios'
 // import { VueAgile } from 'vue-agile'
 // import mockup from '@/Data/DetailOption.json'
@@ -215,6 +206,10 @@ export default {
         }
       }
     }
+  }
+
+  .pagination {
+    margin-top: 30px;
   }
 }
 </style>

@@ -13,12 +13,12 @@
         <tr class="order-list-title">
             <td colspan="3">일반 배송</td>
         </tr>
-        <tr class="order-list-brand">
-            <td colspan="2">가게명</td>
-            <td>주문금액</td>
-        </tr>
       </thead>
       <tbody>
+        <tr class="order-list-brand" v-for="cart in this.cartList" :key="cart">
+            <td colspan="2">{{ cart.name }}</td>
+            <td>주문금액</td>
+        </tr>
         <tr class="order-list-product">
             <td>
                 <img src="https://image.brandi.me/cproduct/2021/02/26/SB000000000020525602_1614328241_image1_S.jpeg" alt="">
@@ -127,17 +127,24 @@ import DropDown from '@/service/Components/DropDown'
 import Modal from '@/service/Components/Modal'
 
 export default {
+  created () {
+    const cartItem = JSON.parse(localStorage.getItem('cart'))
+    this.totalPrice = cartItem.totalPrice
+    this.cartList = cartItem.items
+  },
   data () {
     return {
-      arr: [{
-        key: '1',
-        label: '집앞에 놔주세요'
-      },
-      {
-        key: '1',
-        label: '빨리 배달해주세요'
-      }],
-      modal: true
+      // arr: [{
+      //   key: '1',
+      //   label: '집앞에 놔주세요'
+      // },
+      // {
+      //   key: '1',
+      //   label: '빨리 배달해주세요'
+      // }],
+      modal: false,
+      cartList: [],
+      totalPrice: 0
     }
   },
   components: {
@@ -194,6 +201,7 @@ export default {
       font-weight: 600;
       padding: 20px 0;
       text-align: left;
+      border-bottom: solid 1px rgb(228, 228, 228);
     }
     .order-list-brand {
       font-size: 15px;

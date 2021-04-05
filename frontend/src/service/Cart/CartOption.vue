@@ -5,7 +5,7 @@
       <td>수량</td>
       <td>주문금액</td>
     </tr>
-    <CartDetailOption v-for="list in brand.detail" :list="list" :key="list"/>
+    <CartDetailOption v-for="list in brand.detail" :brandName="brand.brandName" :list="list" :key="list"/>
   </div>
 </template>
 
