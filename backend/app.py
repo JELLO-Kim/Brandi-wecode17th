@@ -59,16 +59,15 @@ def create_app(test_config=None):
 
         # error에 잡혀 message에 에러메세지가 이미 담겨있을 경우 그대로 반환
         if 'message' in response.json:
-            return Response(
-                    json.dumps({"message": response.json['message']}),
-                    status=response.json['status'], 
-                    mimetype="application/json"
-                )
-
+           return Response(
+               json.dumps({"message": response.json['message']}),
+                   status=response.json['status'],
+                   mimetype="application/json"
+               )
         response = app.response_class(
             response=json.dumps({
-                'result': response.json['result'], 
-                'message': response.json['custom_message']
+                'result': response.json.get('result', response.json),
+                'message': response.json.get('custom_message', OK)
             }),
             mimetype='application/json'
         )

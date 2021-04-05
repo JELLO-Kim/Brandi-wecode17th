@@ -1,6 +1,6 @@
 class ApiException(Exception):
-    def __init__(self, code, message, extra=None):
-        self.extra = extra
+    def __init__(self, code, message, result=None):
+        self.result = result
         self.code = code
         self.message = message
 
@@ -82,3 +82,6 @@ EXSISTING_MANAGER_NAME = "이미 존재하는 담당자 이름입니다"
 EXSISTING_MANAGER_EMAIL = "이미 존재하는 담당자 이메일입니다"
 # 마스터 API에 user나 seller가 들어왔을 때
 USER_NOT_MASTER = 'msater 계정이 아닙니다.' #400 Bad request
+NOT_SELLER = "샐러를 선택해주세요."
+NOT_ACTION = "액션 버튼을 선택해주세요."
+NOT_SEARCH_ITEM = "필요한 검색창의 조건들이 없습니다."
