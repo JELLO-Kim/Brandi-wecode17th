@@ -42,10 +42,11 @@ div {
   vertical-align: middle;
   top: 3px;
   margin-right: 10px;
+  line-height: 17px;
 }
 input {
   position: relative;
-  top: -4px;
+  // top: -4px;
   left: 2px;
 }
 span {

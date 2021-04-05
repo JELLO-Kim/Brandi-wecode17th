@@ -11,6 +11,7 @@ export default {
   },
   data () {
     return {
+      qnaList: [],
       isMypage: true,
       title: '상품 Q&A'
     }

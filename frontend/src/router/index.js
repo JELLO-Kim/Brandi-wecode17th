@@ -146,6 +146,11 @@ export default new Router({
           path: '/order/detail',
           component: OrderDetail
         },
+        // 주문 상세 보기
+        {
+          path: '/mypage/orderDetail/:no',
+          component: OrderDetail
+        },
         {
           // 초기 url을 main으로 적용
           path: '/',

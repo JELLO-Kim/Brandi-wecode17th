@@ -10,7 +10,7 @@
       <tr>
         <td>내용</td>
         <td>
-          <textarea v-model="content" rows="5" cols="3" placeholder="내용을 입력해주세요." nonesizing/>
+          <textarea rows="5" cols="3" v-model="contents" placeholder="내용을 입력해주세요." nonesizing/>
         </td>
       </tr>
       <tr>
@@ -20,7 +20,7 @@
     </table>
     <div>
       <button class="cancle">취소하기</button>
-      <button class="ok" @click="submit">등록하기</button>
+      <button class="ok" @click="sendData">등록하기</button>
     </div>
   </div>
 </template>
@@ -28,8 +28,10 @@
 <script>
 import CheckBox from '@/service/Components/CheckBox'
 import DropDown from '@/service/Components/DropDown'
-import API from '@/service/util/service-api'
+// eslint-disable-next-line no-unused-vars
 import SERVER from '@/config'
+// eslint-disable-next-line no-unused-vars
+import API from '@/service/util/service-api'
 
 export default {
   created () {
@@ -42,7 +44,8 @@ export default {
   data () {
     return {
       deliveryType: '',
-      content: '',
+      contents: '',
+      // 삭제하기 이거!!
       isPrivate: false,
       typeList: [
         {
@@ -56,26 +59,23 @@ export default {
       ]
     }
   },
-  props: {
-    id: Number
-  },
   components: { CheckBox, DropDown },
   methods: {
-    submit () {
-      const data = {
-        productId: this.id,
-        questionType: this.deliveryType,
-        content: this.content,
-        isPrivate: this.isPrivate
-      }
-
+    sendData () {
       API.methods
-        .post(`${SERVER.IP}/products/question`, data)
-        .then(res => {
-          alert('성공적으로 등록하였습니다.')
+        .post(`${SERVER.IP}/products/question`, {
+          question_type_id: this.deliveryType,
+          contents: this.contents,
+          is_private: this.isPrivate,
+          product_id: this.$route.params.id
         })
-        .catch(error => {
-          alert(error.message)
+        .then((res) => {
+          console.log(res)
+        })
+        .catch(() => {
+          // console.log(error)
+          this.$router.push('/main')
+          alert('존재하지 않는 서비스 상품입니다.')
         })
     }
   }
@@ -92,6 +92,7 @@ export default {
   margin-bottom: 40px;
   font-size: 18px;
   width: 100%;
+  text-align: left;
 
   table {
     color: black;

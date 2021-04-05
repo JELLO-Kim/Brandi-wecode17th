@@ -13,6 +13,7 @@
 </template>
 
 <script>
+// eslint-disable-next-line no-unused-vars
 import mockup from '@/Data/ProductList.json'
 import ProductBox from '@/service/Components/ProductBox'
 import DropDown from '@/service/Components/DropDown'
@@ -40,6 +41,19 @@ export default {
     EventBus.$on('select-sub', item => {
       this.subId = item
     })
+    API.methods
+      .get(`${SERVER.IP}/products/list`)
+      .then((res) => {
+        console.log(res.data.result.data)
+        // console.log(res.result.data)
+        this.productList = res.data.result.data
+        // this.productList = res.data.result.product
+      })
+      .catch(() => {
+        // console.log(error)
+        this.$router.push('/main')
+        alert('존재하지 않는 서비스 상품입니다.')
+      })
   },
   components: {
     ProductBox,
@@ -47,7 +61,7 @@ export default {
   },
   data () {
     return {
-      productList: mockup.data,
+      productList: [],
       // productList: [],
       orderList: [
         { key: 'daily', label: '일간' },
@@ -61,7 +75,7 @@ export default {
   },
   methods: {
     linkToDetail (product) {
-      this.$router.push(`/detail/${product.id}`)
+      this.$router.push(`/detail/${product.productId}`)
     },
     moreItemBtn () {
       this.offset++
