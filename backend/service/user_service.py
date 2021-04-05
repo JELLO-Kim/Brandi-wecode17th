@@ -21,7 +21,7 @@ class UserService:
         user_dao = UserDao()
         username_exists = user_dao.find_user_info(user_info, connection)
         if username_exists:
-            raise ApiException(400, DUPLICATED_INPUT)
+            raise ApiException(400, DUPLICATED_USERNAME)
 
         hashed_password = bcrypt.hashpw(
             user_info['password'].encode('utf-8'), bcrypt.gensalt())
@@ -33,7 +33,7 @@ class UserService:
         email_exists = user_dao.find_user_email(user_info, connection)
 
         if email_exists:
-            raise ApiException(400, DUPLICATED_INPUT)
+            raise ApiException(400, DUPLICATED_EMAIL)
 
         user_info['user_id'] = user_info_id
         user_info['full_name'] = '' #TODO: user_signup does not require full_name
@@ -53,6 +53,9 @@ class UserService:
         """
         user_dao = UserDao()
         user = user_dao.find_user_login_info(login_info, connection)
+
+        if user['user_type_id'] != 1:
+            raise ApiException(403, IS_NOT_SERVICE_USER)
 
         if user:
             if bcrypt.checkpw(login_info['password'].encode('utf-8'), user['password'].encode('utf-8')):
