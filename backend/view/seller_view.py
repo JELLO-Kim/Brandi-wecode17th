@@ -346,7 +346,7 @@ class SellerView:
     @seller_app.route('/product/management/init', methods=['POST'])
     @login_decorator
     def post_seller_product():
-        """ 세러 상품 등록
+        """ 셀러 상품 등록
         Author: Mark Hasung Kim
         Returns: {
                     "custom_message": "PRODUCT_CREATED",
@@ -428,134 +428,6 @@ class SellerView:
             if connection:
                 connection.rollback()
             raise e
-        finally:
-            if connection:
-                connection.close()
-
-class MasterEditView:
-    master_edit_app = Blueprint('master_edit_app', __name__, url_prefix='/master')
-
-    # 채현 : get
-    @master_edit_app.route('/edit/<int:sellerId>', methods=['GET'])
-    @login_decorator
-    def seller_edit():
-        """ [어드민] master의 seller 정보 수정페이지 확인
-        Author:
-            : Chae hyun Kim
-        Args:
-            token(str) : 로그인 user의 token이 header에 담겨 들어와 로그인 유효성 검사를 거침
-        Returns:
-            - 200 :  
-                { "message"   : "SUCCESS",
-                    "result"    : {
-                        "data" : 입력된 상세 정보
-                    }
-                }
-            - 400 : 필수 parameter 미입력시 "** 정보를 입력해 주세요"
-            - 403 : user_type_id가 1이나 2일 경우 "일반 유저는 접근 권한이 없습니다"
-        Note
-            : 회원가입 후 첫 수정페이지 입장 시 null 값이 존재함.
-        """
-        connection = None
-        try:
-            user_type_id = g.token_info['user_type_id']
-            if user_type_id == 1:
-                raise ApiException(403, SERVICE_USER_NO_ACCESS)
-            if user_type_id ==2:
-                raise ApiException(403, SERVICE_USER_NO_ACCESS)
-            user = {
-                'user_id' : sellerId,
-                'changer_id' : g.token_info['user_id']
-            }
-            connection = connect_db()
-
-            seller_service = SellerService()
-            result = seller_service.seller_edit_get(user, connection)
-
-            return {"data" : result}
-
-        except ApiException as e:
-            if connection:
-                connection.rollback()
-            raise e
-
-        finally:
-            if connection:
-                connection.close()
-
-    # 채현 : patch
-    @master_edit_app.route('/edit/<int:sellerId>', methods=['PATCH'])
-    @login_decorator
-    def seller_account():
-        """ [어드민] master의 seller 정보 수정페이지 - 수정
-        Author:
-            Chae hyun Kim
-        Args:
-            - token(str) : 로그인 user의 token이 header에 담겨 들어와 로그인 유효성 검사를 거침
-        Returns
-            - 200 : { "message"   : "SUCCESS",
-                        "result"    : {
-                            "data" : 수정한 내역 갯수
-                            }
-                        }
-            - 403 : user_type_id가 1이나 2일 경우 "일반 유저는 접근 권한이 없습니다"
-        Note
-            : 추가 입력 정보에 대한 값은 들어오면 들어온 값으로, 들어오지 않는다면 해당 key에는 None을 담는다
-        """
-        connection = None
-        try:
-            user_type_id = g.token_info['user_type_id']
-            if user_type_id == 1:
-                raise ApiException(403, SERVICE_USER_NO_ACCESS)
-            if user_type_id ==2:
-                raise ApiException(403, SERVICE_USER_NO_ACCESS)
-
-            user = {
-                'user_id' : request.json()['sellerId'],
-                'changer_id' : g.token_info['user_id']
-            }
-            connection = connect_db()
-            data = request.get_json()
-
-            seller_edit_info = {
-                'profile'           : data.get('profile', None),
-                'background_image'  : data.get('backgroundImage', None),
-                'introduce'         : data.get('introduce', None),
-                'description'       : data.get('description', None),
-                'call_number'       : data.get('callNumber', None),
-                'callName'          : data.get('callName', None),
-                'callStart'         : data.get('callStart', None),
-                'callEnd'           : data.get('callEnd', None),
-                'postalCode'        : data.get('postalCode', None),
-                'address'           : data.get('address', None),
-                'detailAddress'     : data.get('detailAddress', None),
-                'delivery_info'     : data.get('deliveryInfo', None),
-                'refund_info'       : data.get('refundInfo', None),
-                'is_weekend'        : data.get('isWeekend', 0),
-                'brandKorean'       : data.get('brandKorean', None),
-                'brandEnglish'      : data.get('brandEnglish', None),
-                'managers'          : data.get('managers', None)
-            }
-
-            seller_edit_info['user_id'] = str(user['user_id'])
-            seller_service = SellerService()
-            result = seller_service.seller_edit_service(user, seller_edit_info, connection)
-
-            connection.commit()
-
-            return {"custom_message" : UPDATED, "result" : "PATCH"}
-
-
-        except KeyError:
-            if connection:
-                connection.rollback()
-                traceback.print_exception()
-            raise ApiException(400, PAGE_NOT_FOUND)
-        except ApiException as e:
-            if connection:
-                connection.rollback()
-            raise e
-
         finally:
             if connection:
                 connection.close()

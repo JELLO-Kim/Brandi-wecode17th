@@ -1,12 +1,123 @@
 from flask        import request, Blueprint, jsonify, g
 from db_connector import connect_db
-from service      import MasterService
+from service      import MasterService, SellerService
 from responses    import *
 from utils        import login_decorator
 
 class MasterView:
 
     master_app = Blueprint('master_app', __name__, url_prefix='/master')
+
+    @master_app.route('/seller-information/<int:sellerId>', methods=['GET'])
+    @login_decorator
+    def master_seller_edit_get(sellerId):
+
+        """ [어드민] master의 seller 정보 수정페이지 확인
+        Author:
+            : Chae hyun Kim
+        Args:
+            token(str) : 로그인 user의 token이 header에 담겨 들어와 로그인 유효성 검사를 거침
+        Returns:
+            - 200 :  
+                { "message"   : "SUCCESS",
+                    "result"    : {
+                        "data" : 입력된 상세 정보
+                    }
+                }
+            - 400 : 필수 parameter 미입력시 "** 정보를 입력해 주세요"
+            - 403 : user_type_id가 1이나 2일 경우 "일반 유저는 접근 권한이 없습니다"
+        Note
+            : 회원가입 후 첫 수정페이지 입장 시 null 값이 존재함.
+        """
+        connection = None
+        try:
+            user_type_id = g.token_info['user_type_id']
+            if user_type_id == 1:
+                raise ApiException(403, SERVICE_USER_NO_ACCESS)
+            if user_type_id ==2:
+                raise ApiException(403, SERVICE_USER_NO_ACCESS)
+
+            user = {
+                'user_id' : sellerId,
+                'changer_id' : g.token_info['user_id']
+            }
+            connection = connect_db()
+            seller_service = SellerService()
+            result = seller_service.seller_edit_get(user, connection)
+
+            return {"data" : result}
+
+        except ApiException as e:
+            if connection:
+                connection.rollback()
+            raise e
+
+        finally:
+            if connection:
+                connection.close()
+
+    @master_app.route('/seller-information/<int:sellerId>', methods=['PATCH'])
+    @login_decorator
+    def master_seller_edit(sellerId):
+        """ [어드민] master의 seller 정보 수정페이지 - 수정
+        Author:
+            Chae hyun Kim
+        Args:
+            - token(str) : 로그인 user의 token이 header에 담겨 들어와 로그인 유효성 검사를 거침
+        Returns
+            - 200 : { "message"   : "SUCCESS",
+                        "result"    : {
+                            "data" : 수정한 내역 갯수
+                            }
+                        }
+            - 403 : user_type_id가 1이나 2일 경우 "일반 유저는 접근 권한이 없습니다"
+        Note
+            : 추가 입력 정보에 대한 값은 들어오면 들어온 값으로, 들어오지 않는다면 해당 key에는 None을 담는다
+        """
+        connection = None
+        try:
+            user_type_id = g.token_info['user_type_id']
+            if user_type_id == 1:
+                raise ApiException(403, SERVICE_USER_NO_ACCESS)
+            if user_type_id ==2:
+                raise ApiException(403, SERVICE_USER_NO_ACCESS)
+
+            user = {
+                'user_id' : sellerId,
+                'changer_id' : g.token_info['user_id'],
+                'user_type_id' : g.token_info['user_type_id']
+            }
+            connection = connect_db()
+            data = request.get_json()
+
+            seller_edit_info = {
+                'profile'           : data.get('profile', None),
+                'brandKorean'       : data.get('brandKorean', None),
+                'brandEnglish'      : data.get('brandEnglish', None)
+            }
+
+            seller_edit_info['user_id'] = str(user['user_id'])
+            master_service = MasterService()
+            result = master_service.master_update_seller_information(user, seller_edit_info, connection)
+
+            connection.commit()
+
+            return {"custom_message" : UPDATED, "result" : "PATCH"}
+
+
+        except KeyError:
+            if connection:
+                connection.rollback()
+            raise ApiException(400, PAGE_NOT_FOUND)
+        except ApiException as e:
+            if connection:
+                connection.rollback()
+            raise e
+
+        finally:
+            if connection:
+                connection.close()
+
 
     @master_app.route('/account', methods=['GET'])
     @login_decorator

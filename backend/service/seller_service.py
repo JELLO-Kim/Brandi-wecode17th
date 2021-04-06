@@ -2,6 +2,7 @@ import bcrypt
 import jwt
 from flask import jsonify
 from model.seller_dao import SellerDao
+from model.master_dao import MasterDao
 from config import SECRET_KEY, ALGORITHM
 from responses import *
 
@@ -84,9 +85,13 @@ class SellerService:
             3. manager는 한번에 여러개의 정보를 입력할 수 있도록 "배열"로 받은 뒤 for loop 진행
         """
         seller_dao = SellerDao()
+        master_dao = MasterDao()
 
         # 로그인한 seller의 추가정보 내용 확인 (첫번째 수정이라면 회원가입시 입력했던 정보 외에 null과 빈 string으로 처리되어 있음)
-        find_information = seller_dao.find_seller_info(user, connection)
+        if user['user_type_id'] == 2:
+            find_information = seller_dao.find_seller_info(user, connection)
+        elif user['user_type_id'] == 3:
+            find_information = master_dao.master_find_seller_info(user, connection)
         # 필수입력 정보중 None이 있다면 첫 수정으로 간주. 필수 parameter들이 요구된다.
         managers = None
         if 'managers' in seller_edit_info:
@@ -127,8 +132,6 @@ class SellerService:
             raise ApiException(400, NOT_ADDRESS)
         if not seller_edit_info['detailAddress']:
             raise ApiException(400, NOT_DETAIL_ADDRESS)
-        # if not seller_edit_info['managers']:
-        #     raise ApiException(400, NOT_MANAGER)
         if not seller_edit_info['delivery_info']:
             raise ApiException(400, NOT_SHIPPING_DESCRIPTION)
         if not seller_edit_info['refund_info']:
