@@ -166,7 +166,18 @@ class OrderService:
 
 
 
-    @login_decorator
+    def get_shipping_memo(self, connection):
+
+        """
+        배송메모 목록
+        """
+
+        order_dao   = OrderDao()
+        shipping_memo = order_dao.get_shipping_memo(connection)
+
+        return {'data': shipping_memo}
+
+
     def get_address(self, user_id, connection):
 
         """
@@ -178,6 +189,47 @@ class OrderService:
 
         return {'data': get_address}
 
+    
+    def delete_address(self, address_info, connection):
+
+        order_dao   = OrderDao()
+        address_id = order_dao.delete_address(address_info, connection)
+
+        return {'data': address_id}
+
+
+    def direct_purchase(self, order_info, products, connection):
+        order_dao = OrderDao()
+        order_id = order_dao.create_order(order_info, connection)
+        order_info["order_id"] = order_id 
+        order_log = order_dao.post_order_log(order_info, connection)
+        # connection.commit()
+
+        order_info["order_status_type_id"] = 3
+        cart= []
+
+        for product in products:
+
+            if "color" not in product:
+                raise ApiException(400, COLOR_NOT_IN_INPUT)
+
+            order_info["color"]    = product["color"]
+
+            if "size" not in product:
+                raise ApiException(400, SIZE_NOT_IN_INPUT)
+
+            order_info["size"]                = product["size"]
+            order_info["quantity"]            = product["quantity"]
+            order_info["price"]               = product["price"] 
+            product_option_id                 = order_dao.find_product_option_id(order_info, connection)
+            order_info["product_option_id"]   = product_option_id["id"]
+            order_info["cart_status_type_id"] = 3
+            cart_id                           = order_dao.create_cart(order_info, connection)
+            cart.append(cart_id)
+
+
+        return {'orderId': order_id, 'items': cart}
+
 
     def post_address(self, address_info, connection):
         
@@ -185,30 +237,41 @@ class OrderService:
         배송지 신규 등록
         """
         
-        order_dao   = OrderDao()
-        post_address = order_dao.post_address(user_id, connection)
+        order_dao    = OrderDao()
+        user_id = address_info["user_id"]
+        address_all = order_dao.get_address(user_id, connection)
 
-        return {'data': post_address}
+        for address in address_all:
+            if address["address"] == address_info["recipient_address"] and address["addressDetail"] == address_info["recipient_address_detail"]:
+                raise ApiException(400, "이미 존재하는 주소입니다")
+        
+        if address_info["is_default"] in ["1", 1]:
+            reset                    = order_dao.reset_address_default(address_info, connection)
+            address_info["shipping_info_id"] = reset
+            reset_log                = order_dao.post_address_log(address_info, connection)
+        
+        address_id                 = order_dao.post_address(address_info, connection)
+        address_info["shipping_info_id"] = address_id
+        address_log                = order_dao.post_address_log(address_info, connection)
+
+        return {'data': address_id}
 
 
-    def post_order_confirm(self, order_info, connection):
+    def order_confirm(self, order_info, connection):
         
         """
         order table에서 status=1로 장바구니 상태인 상품들 중 결제 된 상품들은 status 2로 변경되면서 새로운  order number 부여.
         """
 
-        order_info["order_number"] = str(datetime.now()).replace(" ", "")
+        order_dao  = OrderDao()
+        order_id = order_dao.create_order_fullinfo(order_info, connection)
         
-        order_dao = OrderDao()
-        order_id  = order_dao.post_order(order_info, connection)
+        order_info["order_id"] = order_id
+        order_log  = order_dao.post_order_log(order_info, connection)
     
-        cart_info = {
-            "order_id": order_id
-        }
-        
-        updated_cart = []
-        for cart_id in order_info["items"]:
-            cart_info["cart_id"] = cart_id
-            updated_cart.append(order_dao.patch_cart(cart_info, connection))
+        for item in order_info["items"]:
+            order_info["cart_id"] = item
+            cart_id  = order_dao.patch_cart(order_info, connection)
+            cart_log = order_dao.create_cart_log(order_info, connection)
 
-        return {'data': updated_cart}
+        return {"data" : order_info["order_id"]}

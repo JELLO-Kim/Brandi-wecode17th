@@ -1,7 +1,7 @@
 import json
 
 from flask import Flask, jsonify, Response
-from view import ProductView, MyPageView, UserView, OrderView, SellerView
+from view import ProductView, MyPageView, UserView, OrderView, SellerView, ServiceView
 from flask_cors import CORS
 from flask.json import JSONEncoder
 from decimal import Decimal
@@ -37,6 +37,7 @@ def create_app(test_config=None):
     app.register_blueprint(SellerView.seller_app)
     app.register_blueprint(ProductView.product_app)
     app.register_blueprint(MyPageView.mypage_app)
+    app.register_blueprint(ServiceView.service_app)
     # 모든 곳에서 호출하는 것을 허용
     CORS(app, resources={'*': {'origins': '*'}}, expose_header='Authorization')
     # error 메세지 반환 from errors.py
@@ -48,7 +49,7 @@ def create_app(test_config=None):
         return jsonify(return_message), e.code
 
     @app.after_request
-    def apply_caching(response):
+    def final_return(response):
         # 올바르지 않는 주소입력으로 인해 response.json에 아무것도 담겨있지 않을 경우
         if not response.json:
             return response
@@ -59,30 +60,21 @@ def create_app(test_config=None):
             #     )
 
         # error에 잡혀 message에 에러메세지가 이미 담겨있을 경우 그대로 반환
-      #  if 'message' in response.json:
-#            return Response(
-#                    json.dumps({"message": response.json['message']}),
-#                    status=response.json['status'],
-#                    mimetype="application/json"
-#                )
+        if 'message' in response.json:
+           return Response(
+                   json.dumps({"message": response.json['message']}),
+                   status=response.json['status'],
+                   mimetype="application/json"
+               )
 
         response = app.response_class(
             response=json.dumps({
-                'result': response.json,
-                'message': OK
+                'result': response.json.get('result', response.json),
+                'message': response.json.get('custom_message', OK)
             }),
             mimetype='application/json'
         )
         return response
 
-    # error 메세지 반환 from errors.py
-    @app.errorhandler(ApiException)
-    def handle_bad_request(e):
-        return_message = {}
-        return_message['message'] = e.message
-        return_message['status'] = e.code
-        # if e.result:
-        #     return_message['result'] = e.result
-        return jsonify(return_message), e.code
     return app
 

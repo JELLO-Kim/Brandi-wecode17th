@@ -116,3 +116,7 @@ NOT_MANAGER_NUMBER = "담당자 연락처를 입력해 주세요"
 NOT_MANAGER_EMAIL = "담당자 이메일을 입력해 주세요"
 
 EXSISTING_MANAGER = "이미 존재하는 담당자 정보입니다"
+
+REQUEST_FAILED = "요청에 실패하였습니다"
+
+SELECT_ADDRESS_TO_DELETE = "삭제할 주소를 선택해주세요" 

@@ -92,9 +92,15 @@ class ProductService:
 
     def post_product_qna(self, question_info, connection):
         product_dao = ProductDao()
-        post_qna    = product_dao.post_product_qna(question_info, connection)
+        post_qna_id = product_dao.post_product_qna(question_info, connection)
 
-        return post_qna
+        log_info = {
+            "user_id" : question_info["user_id"],
+            "qna_id" : post_qna_id
+        }
+        post_qna_log_id = product_dao.post_product_qna_log(log_info, connection)
+        
+        return {"qna_id": post_qna_id, "qna_log_id": post_qna_log_id}
 
 
     def get_other_products(self, info, connection):
