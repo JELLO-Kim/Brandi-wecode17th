@@ -64,7 +64,7 @@ class SellerView:
             seller_service.signup_seller(seller_info, connection)
             connection.commit()
 
-            return {"custom_message" : CREATED, "result" : "CREATE"}
+            return {"custom_message": "CREATED SELLER", "result": "POST"}
 
         except ApiException as e:
             connection.rollback()
@@ -328,9 +328,31 @@ class SellerView:
             if connection:
                 connection.close()
 
-    @seller_app.route('/product/management/edit', methods=['POST'])
+    @seller_app.route('/product/management/init', methods=['GET'])
+    @login_decorator
+    def get_seller_product_page_info():
+        """ 세러 상품 등록하기전에 선택할수있는 정보 (product_categories, product_sizes, product_colors) 뿌려주기
+        Author: Mark Hasung Kim
+        Returns: product_get_info (all product_categories, product_sizes, product_colors)
+        """
+        connection = connect_db()
+        seller_service = SellerService()
+        product_get_info = seller_service.get_product_post_info(connection)
+        if connection:
+            connection.close()
+
+        return product_get_info
+
+    @seller_app.route('/product/management/init', methods=['POST'])
     @login_decorator
     def post_seller_product():
+        """ 세러 상품 등록
+        Author: Mark Hasung Kim
+        Returns: {
+                    "custom_message": "PRODUCT_CREATED",
+                    "result": "POST"
+                    }
+        """
         connection = None
         try:
             data = request.json
@@ -344,8 +366,6 @@ class SellerView:
                 raise ApiException(400, IS_SELLING_NOT_IN_KEYS)
             if 'isDisplay' not in data:
                 raise ApiException(400, IS_DISPLAY_NOT_IN_KEYS)
-            if 'isDiscount' not in data:
-                raise ApiException(400, IS_DISCOUNT_NOT_IN_KEYS)
             if 'productCategoryId' not in data:
                 raise ApiException(400, PRODUCT_CATEGORY_NOT_IN_KEYS)
             if 'productName' not in data:
@@ -354,12 +374,16 @@ class SellerView:
                 raise ApiException(400, PRODUCT_THUMBNAIL_IMAGE_NOT_IN_KEYS)
             if 'productDetailImage' not in data:
                 raise ApiException(400, PRODUCT_DETAIL_IMAGE_NOT_IN_KEYS)
-            if 'productOptions' not in data:
-                raise ApiException(400, PRODUCT_OPTION_NOT_IN_KEYS)
             if 'price' not in data:
                 raise ApiException(400, PRICE_NOT_IN_KEYS)
             if 'minimum' not in data:
                 raise ApiException(400, PRODUCT_MINIMUM_NOT_IN_KEYS)
+            if 'discountRate' not in data:
+                raise ApiException(400, DISCOUNT_RATE_NOT_IN_KEYS)
+            if 'productOptions' not in data:
+                raise ApiException(400, PRODUCT_OPTION_NOT_IN_KEYS)
+            if not data['productOptions']:
+                raise ApiException(400, PRODUCT_OPTION_NOT_IN_INPUT)
             for product_option in data['productOptions']:
                 if 'colorId' not in product_option:
                     raise ApiException(400, COLOR_NOT_IN_INPUT)
@@ -375,26 +399,30 @@ class SellerView:
                 'user_type_id': user_type_id,
                 'is_selling': data['isSelling'],
                 'is_display': data['isDisplay'],
-                'is_discount': data['isDiscount'],
                 'product_category_id': data['productCategoryId'],
                 'product_name': data['productName'],
                 'product_thumbnail_image': data['productThumbnailImage'],
                 'product_detail_image': data['productDetailImage'],
                 'price': data['price'],
+                'discount_rate': data['discountRate'],
                 'minimum': data['minimum'],
                 'maximum': data.get('maximum', ''),
                 'discount_start': data.get('discountStart', ''),
                 'discount_end': data.get('discountEnd', ''),
-                'discount_price': data.get('discountPrice', ''),
-                'discount_rate': data.get('discountRate', 0)
+                'discount_price': data.get('discountPrice', '')
             }
+
+            if product_info['discount_rate'] == 0:
+                product_info['is_discount'] = 0
+            else:
+                product_info['is_discount'] = 1
 
             connection = connect_db()
             seller_service = SellerService()
             seller_service.post_product(product_info, product_options, connection)
             connection.commit()
 
-            return {"custom_message" : CREATED, "result" : "POST"}
+            return {"custom_message": "PRODUCT_CREATED", "result": "POST"}
 
         except ApiException as e:
             if connection:
@@ -403,7 +431,6 @@ class SellerView:
         finally:
             if connection:
                 connection.close()
-
 
 class MasterEditView:
     master_edit_app = Blueprint('master_edit_app', __name__, url_prefix='/master')

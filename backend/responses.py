@@ -27,7 +27,7 @@ PAGE_NOT_FOUND = "존재하지 않는 페이지입니다"  # 잘못된 path para
 INTERNAL_SERVER_ERROR = "서버 요청 실패"  # backend 로직 에러 : 500 Internal Server Error
 WRONG_URI_PATH = "잘못된 경로 입니다" # 존재하지 않는 uri 입력 : 잘못된 url 입력시 message=SUCCESS & result=None 으로 반한되는 것을 방지하기 위한 수단
 NO_CURRENT_ORDER_EXISTS = '유저가 결제전인 오더가 없습니다' #유저가 결제전인 오더가 없을때: 400 Bad request
-NO_CART_EXISTS = '카트가 없습니다' #주어진 product_id, color, size에 맞는 카트 가 없을때: 400 Bad request
+NO_CART_EXISTS = '삭제하고싶은 카트가 없습니다' #주어진 product_id, color, size에 맞는 카트 가 없을때: 400 Bad request
 COLOR_NOT_IN_INPUT = '컬러 key가 없습니다' #400 Bad request
 SIZE_NOT_IN_INPUT = '시이즈 key가 없습니다' #400 Bad request
 QUANTITY_NOT_IN_INPUT = 'quantity key가 없습니다' #400 Bad request
@@ -41,7 +41,7 @@ IS_SELLING_NOT_IN_KEYS = 'is_selling key가 없습니다' #400 Bad request
 
 IS_DISPLAY_NOT_IN_KEYS = 'is_display key가 없습니다' #400 Bad request
 
-IS_DISCOUNT_NOT_IN_KEYS = 'is_discount key가 없습니다' #400 Bad request
+DISCOUNT_RATE_NOT_IN_KEYS = 'discountRate key가 없습니다' #400 Bad request
 
 PRODUCT_CATEGORY_NOT_IN_KEYS = 'product_category key가 없습니다' #400 Bad request
 
@@ -52,6 +52,8 @@ PRODUCT_THUMBNAIL_IMAGE_NOT_IN_KEYS = 'product_thumbnail_image key가 없습니�
 PRODUCT_DETAIL_IMAGE_NOT_IN_KEYS = 'product_detail_image key가 없습니다' #400 Bad request
 
 PRODUCT_OPTION_NOT_IN_KEYS = 'product_options key가 없습니다' #400 Bad request
+
+INVALID_PRODUCT_OPTION = 'product_id에 해당하는 product_option_id이 아닙니다' #400 Bad request
 
 PRICE_NOT_IN_KEYS = 'price key가 없습니다' #400 Bad request
 

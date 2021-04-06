@@ -33,7 +33,6 @@ class SellerService:
         return seller_id
 
     def signin_seller(self, seller_login_info, connection):
-
         seller_dao = SellerDao()
 
         seller = seller_dao.login_seller(seller_login_info, connection)
@@ -254,8 +253,33 @@ class SellerService:
         except ApiException as e:
             raise e
 
-    # 하성님 코드
+    def get_product_post_info(self, connection):
+        """ 셀러 상품 등록하기전에 선택할 정보 (product_category, product_sizes, product_colors) 뿌려주기)
+        Author: Mark Hasung Kim
+        Args:
+            connection: 커넥션
+        Returns: product_get_info (product_categories, product_colors, product_sizes 정보)
+        """
+        seller_dao = SellerDao()
+        product_categories = seller_dao.get_all_product_categories(connection)
+        product_colors = seller_dao.get_all_product_colors(connection)
+        product_sizes = seller_dao.get_all_product_sizes(connection)
+        product_get_info = {
+            'product_categories': product_categories,
+            'product_colors': product_colors,
+            'product_sizes': product_sizes
+        }
+        return product_get_info
+
     def post_product(self, product_info, product_options, connection):
+        """ 셀러 상품 등록
+        Author: Mark Hasung Kim
+        Args:
+            product_info (dict): 등록할 상품에대한 정보
+            product_options (dict): 등록할 상품의 옵션 정보 (product_colors, product_sizes, product_stock)
+            connection: 커넥션
+        Returns: product_id (새로 등록한 product id 반환해준다)
+        """
         try:
             seller_dao = SellerDao()
             product_name_exists = seller_dao.check_existing_product_name(product_info, connection)
@@ -265,6 +289,7 @@ class SellerService:
 
             product_id = seller_dao.create_product(product_info, connection)
             product_info['product_id'] = product_id
+            seller_dao.create_product_log(product_info, connection)
 
             for product_option in product_options:
                 product_info['product_color_id'] = product_option['colorId']
@@ -282,3 +307,4 @@ class SellerService:
 
         except ApiException as e:
             raise e
+
