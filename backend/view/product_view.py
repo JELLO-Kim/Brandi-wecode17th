@@ -217,15 +217,10 @@ class ProductView:
     def get_other_products():
         connection = None
         try: 
-            # info = {
-            #     "seller_id"  : int(request.args['sellerId']),
-            #     "product_id" : int(request.args['productId'])
-            # } 
             info = {
-                "seller_id"  : 6,
-                "product_id" : 1
-            } 
-
+                "seller_id"  : int(request.args['sellerId']),
+                "product_id" : int(request.args['productId'])
+            }
 
             connection = connect_db()
             if connection:

@@ -389,43 +389,19 @@ class SellerDao:
                 seller_category_id,
                 korean_brand_name,
                 english_brand_name,
-                customer_service_name,
-                customer_service_opening,
-                customer_service_closing,
                 customer_service_number,
                 created_at,
                 updated_at,
-                image_url,
-                background_image_url,
-                introduce,
-                description,
-                postal_code,
-                address,
-                address_detail,
-                delivery_information,
-                refund_information,
                 is_delete
             )
             VALUES(
                 %(user_info_id)s,
                 %(seller_category_id)s,
                 %(korean_brand_name)s,
-                %(english_brand_name)s,
-                %(customer_service_name)s,
-                %(customer_service_opening)s,
-                %(customer_service_closing)s,      
+                %(english_brand_name)s,     
                 %(customer_service_number)s,
                 NOW(),
                 NOW(),
-                %(image_url)s,
-                %(background_image_url)s,
-                %(introduce)s,
-                %(description)s,
-                %(postal_code)s,
-                %(address)s,
-                %(address_detail)s,
-                %(delivery_information)s,
-                %(refund_information)s,
                 0
             )  
             """
@@ -570,6 +546,7 @@ class SellerDao:
                     s.image_url AS profile,
                     sl.name AS sellerStatus,
                     sc.name AS sellerCategory,
+                    sc.id AS sellerCategoryId,
                     s.background_image_url AS backgroundImage,
                     s.introduce,
                     s.description,
@@ -584,18 +561,12 @@ class SellerDao:
                     s.refund_information AS refundInfo
                 FROM
                     sellers AS s
-                INNER JOIN
-                    user_info AS u
-                    ON
-                        s.user_info_id = u.id
-                JOIN
-                    seller_level_types AS sl
-                    ON
-                    s.seller_level_type_id  = sl.id
-                JOIN
-                    seller_categories AS sc
-                    ON
-                    s.seller_category_id = sc.id
+                INNER JOIN user_info AS u
+                    ON s.user_info_id = u.id
+                INNER JOIN seller_level_types AS sl
+                    ON s.seller_level_type_id  = sl.id
+                INNER JOIN seller_categories AS sc
+                    ON s.seller_category_id = sc.id
                 WHERE
                     s.user_info_id = %(user_id)s
             """
@@ -617,6 +588,8 @@ class SellerDao:
                     m.seller_id = %(user_id)s
                     AND
                     is_delete = 0
+                ORDER BY
+                    m.ordering ASC
             """
             cursor.execute(manager_info, {"user_id": user['user_id']})
 
@@ -717,42 +690,23 @@ class SellerDao:
 
             cursor.execute(query, seller_edit_info)
             return cursor.lastrowid
+
     # 수정되는 유저에 배당된 is_delete=0 인 매니저의 수 파악
-    
     def check_seller_manager_number(self, user, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             check_manager_number = """
                 SELECT
-                    COUNT(*)
+                    COUNT(*) AS totalCount
                 FROM
                     managers AS m
                 WHERE
                     m.seller_id = %(user_id)s
                     AND
-                    m.is_delete=0
+                    m.is_delete = 0
             """
             cursor.execute(check_manager_number, {"user_id": user['user_id']})
 
             return cursor.fetchone()
-
-    # 들어온 값 중이 이미 존재하는 값이 있을 경우 에러 반환
-    def check_seller_manager(self, user, connection):
-        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            manager_query = """
-                    SELECT
-                        m.id,
-                        m.name,
-                        m.email,
-                        m.phone_number AS phoneNumber
-                    FROM
-                        managers AS m
-                    WHERE
-                        m.seller_id = %(user_id)s
-                        AND
-                        is_delete = 0
-                """
-            cursor.execute(manager_query, {"user_id": user['user_id']})
-            return cursor.fetchall()
 
     # 이미 작성된 manager의 정보 수정
     def update_manager(self, one, connection):
@@ -775,25 +729,35 @@ class SellerDao:
     def insert_information_manager(self, one, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             manager_query = """
-                    INSERT INTO
+                INSERT INTO
                         managers
                         (
                             seller_id,
                             name,
                             email,
-                            phone_number
+                            phone_number,
+                            ordering
                         )
                         VALUES
                         (
                             %(user_id)s,
                             %(name)s,
                             %(email)s,
-                            %(phoneNumber)s
+                            %(phoneNumber)s,
+                            (
+                                SELECT
+                                    IFNULL(MAX(om.ordering), 0)+1
+                                FROM
+                                    managers AS om
+                                WHERE
+                                    om.seller_id = %(user_id)s
+                            )
                         )
             """
             cursor.execute(manager_query, one)
             return cursor.lastrowid
 
+    # soft_delete 결과 is_delete의 값을 1로 바꾸어 주는 로직
     def delete_manager_dao(self, extra, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             delete_query = """
@@ -802,12 +766,13 @@ class SellerDao:
                 SET
                     is_delete = 1
                 WHERE
-                    id IN %(man_id)s
+                    id = %(change_id)s
             """
-            cursor.execute(delete_query, {"man_id" : extra['manager_id']})
+            cursor.execute(delete_query, {"change_id" : extra['manager_id']})
             return True
 
-    def create_manager_log(self, extra, connection):
+    # manager 이력 생성
+    def create_manager_log(self, one, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             log_query = """
                 INSERT INTO
@@ -831,18 +796,18 @@ class SellerDao:
                     m.created_at,
                     m.updated_at,
                     m.seller_id,
-                    %(user_id)s,
+                    %(changer_id)s,
                     now(),
-                    is_delete
+                    m.is_delete
                 FROM
                     managers AS m
                 WHERE
-                    m.id = %(changeId)s
+                    m.id = %(change_id)s
             """
-            cursor.execute(log_query, {"changeId" :extra['changeId'], "user_id" : extra['user_id']})
+            cursor.execute(log_query, {"change_id" : one['id'], 'changer_id' : one['changer_id']})
             return True
 
-    # seller_logs 생성
+    # seller 이력 생성
     def create_seller_update_log(self, user, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             log_query = """

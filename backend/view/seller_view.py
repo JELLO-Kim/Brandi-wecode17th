@@ -44,19 +44,7 @@ class SellerView:
                 'seller_category_id': data['sellerCategoryId'],
                 'customer_service_number': data['customerServiceNumber'],
                 'password': data['password'],
-                'phone_number': data['phoneNumber'],
-                'customer_service_name': '',
-                'customer_service_opening': '',
-                'customer_service_closing': '',
-                'image_url': '',
-                'background_image_url': '',
-                'introduce': '',
-                'description': '',
-                'postal_code': '',
-                'address': '',
-                'address_detail': '',
-                'delivery_information': '',
-                'refund_information': ''
+                'phone_number': data['phoneNumber']
             }
 
             connection = connect_db()
@@ -103,26 +91,26 @@ class SellerView:
             if connection:
                 connection.close()
 
-# 채현 : get
+# 채현: get
     @seller_app.route('/edit', methods=['GET'])
     @login_decorator
     def seller_edit():
         """ [어드민] seller의 본인 정보 수정페이지 확인
         Author:
-            : Chae hyun Kim
+: Chae hyun Kim
         Args:
-            'Authorization:token(str)' : 로그인 user의 token이 header에 담겨 들어와 로그인 유효성 검사를 거침
+            - token(str): 로그인 user의 token이 header에 담겨 들어와 로그인 유효성 검사를 거침
         Returns:
-            200 :  
-                { "message"   : "SUCCESS"
-                    "result"    : {
-                        "data" : 입력된 상세 정보
+            - 200:  
+                { "message": "SUCCESS"
+                    "result": {
+                        "data": 입력된 상세 정보
                     }
                 }
-            400 : 필수 parameter 미입력시 "** 정보를 입력해 주세요"
-            403 : 일반 user 접근 시 "일반 유저는 접근 권한이 없습니다"
-        Note
-            : 회원가입 후 첫 수정페이지 입장 시 null 값이 존재함.
+            - 400: 필수 parameter 미입력시 "** 정보를 입력해 주세요"
+            - 403: 일반 user 접근 시 "일반 유저는 접근 권한이 없습니다"
+        Note:
+            - 회원가입 후 첫 수정페이지 입장 시 필수입력항목들에 null 값이 존재함.
         """
         connection = None
         try:
@@ -131,22 +119,18 @@ class SellerView:
                 raise ApiException(403, SERVICE_USER_NO_ACCESS)
             if user_type_id ==2:
                 user = {
-                    'user_id' : g.token_info['user_id'],
-                    'changer_id' : g.token_info['user_id']
+                    'user_id': g.token_info['user_id'],
+                    'changer_id': g.token_info['user_id']
                 }
             if user_type_id == 3:
-                user = {
-                    'user_id' : request.get_json()['sellerId'],
-                    'changer_id' : g.token_info['user_id']
-                }
-                if not request.get_json():
-                    raise ApiException(400, PAGE_NOT_FOUND)
+                raise ApiException(403, ACCESS_DENIED)
+
             connection = connect_db()
 
             seller_service = SellerService()
             result = seller_service.seller_edit_get(user, connection)
 
-            return {"data" : result}
+            return {"data": result}
 
         except ApiException as e:
             if connection:
@@ -157,23 +141,23 @@ class SellerView:
             if connection:
                 connection.close()
 
-# 채현 : patch
+    # 채현: patch
     @seller_app.route('/edit', methods=['PATCH'])
     @login_decorator
     def seller_account():
         """ [어드민] seller의 본인 정보 수정페이지 - 수정
-        Author
-            : Chae hyun Kim
-        Args
-            : token
-        Returns
-            : { "message"   : "SUCCESS"
-                "result"    : {
-                    "data" : 수정한 내역 갯수
-                    }
-                }
-        Note
-            : 추가 입력 정보에 대한 값은 들어오면 들어온 값으로, 들어오지 않는다면 해당 key에는 None을 담는다
+        Author:
+            Chae hyun Kim
+        Args:
+            - token(str): 로그인 user의 token이 header에 담겨 들어와 로그인 유효성 검사를 거침
+        Returns:
+            - 200: { "message": "SUCCESS",
+                            "result": {
+                                "data": 수정한 내역 갯수
+                                }
+                            }
+        Note:
+            - 추가 입력 정보에 대한 값은 들어오면 들어온 값으로, 들어오지 않는다면 해당 key에는 None을 담는다
         """
         connection = None
         try:
@@ -182,36 +166,34 @@ class SellerView:
                 raise ApiException(403, SERVICE_USER_NO_ACCESS)
             if user_type_id ==2:
                 user = {
-                    'user_id' : g.token_info['user_id'],
-                    'changer_id' : g.token_info['user_id']
+                    'user_id': g.token_info['user_id'],
+                    'changer_id': g.token_info['user_id'],
+                    'user_type_id': g.token_info['user_type_id']
                 }
             if user_type_id == 3:
-                user = {
-                    'user_id' : request.json()['sellerId'],
-                    'changer_id' : g.token_info['user_id']
-                }
+                raise ApiException(403, ACCESS_DENIED)
                 
             connection = connect_db()
             data = request.get_json()
 
             seller_edit_info = {
-                'profile'           : data.get('profile', None),
-                'background_image'  : data.get('backgroundImage', None),
-                'introduce'         : data.get('introduce', None),
-                'description'       : data.get('description', None),
-                'call_number'       : data.get('callNumber', None),
-                'callName'          : data.get('callName', None),
-                'callStart'         : data.get('callStart', None),
-                'callEnd'           : data.get('callEnd', None),
-                'postalCode'        : data.get('postalCode', None),
-                'address'           : data.get('address', None),
-                'detailAddress'     : data.get('detailAddress', None),
-                'delivery_info'     : data.get('deliveryInfo', None),
-                'refund_info'       : data.get('refundInfo', None),
-                'is_weekend'        : data.get('isWeekend', 0),
-                'brandKorean'       : data.get('brandKorean', None),
-                'brandEnglish'      : data.get('brandEnglish', None),
-                'managers'          : data.get('managers', None)
+                'profile': data.get('profile', None),
+                'background_image': data.get('backgroundImage', None),
+                'introduce': data.get('introduce', None),
+                'description': data.get('description', None),
+                'call_number': data.get('customerServicePhone', None),
+                'callName': data.get('customerServiceName', None),
+                'callStart': data.get('customerServiceOpen', None),
+                'callEnd': data.get('customerServiceClose', None),
+                'postalCode': data.get('postal', None),
+                'address': data.get('address', None),
+                'detailAddress': data.get('addressDetail', None),
+                'delivery_info': data.get('deliveryInfo', None),
+                'refund_info': data.get('refundInfo', None),
+                'is_weekend': data.get('isWeekend', 0),
+                'brandKorean': data.get('brandKorean', None),
+                'brandEnglish': data.get('brandEnglish', None),
+                'managers': data.get('managers', None)
             }
 
             seller_edit_info['user_id'] = str(user['user_id'])
@@ -220,14 +202,8 @@ class SellerView:
 
             connection.commit()
 
-            return {"custom_message" : UPDATED, "result" : "PATCH"}
+            return {"custom_message": UPDATED, "result": "PATCH"}
 
-
-        except KeyError:
-            if connection:
-                connection.rollback()
-                traceback.print_exception()
-            raise ApiException(400, PAGE_NOT_FOUND)
         except ApiException as e:
             if connection:
                 connection.rollback()
@@ -236,68 +212,21 @@ class SellerView:
         finally:
             if connection:
                 connection.close()
-# 채현 : patch manager 얘 필요 없어짐1!!!!!!
-    @seller_app.route('/edit/manager', methods=['PATCH'])
-    @login_decorator
-    def manager_make():
-        """ [어드민] seller의 본인 정보 수정페이지 - 수정
-        Author
-            : Chae hyun Kim
-        Args
-            : token
-        Returns
-            : { "message"   : "SUCCESS"
-                "result"    : {
-                    "data" : 수정한 내역 갯수
-                    }
-                }
-        Note
-            : 추가 입력 정보에 대한 값은 들어오면 들어온 값으로, 들어오지 않는다면 해당 key에는 None을 담는다
-        """
-        connection = None
-        user_type_id = g.token_info['user_type_id']
-        if user_type_id == 1:
-            raise ApiException(403, SERVICE_USER_NO_ACCESS)
-        if user_type_id ==2:
-            user = {
-                'user_id' : g.token_info['user_id'],
-                'changer_id' : g.token_info['user_id']
-            }
-        if user_type_id == 3:
-            user = {
-                'user_id' : request.get_json()['sellerId'],
-                'changer_id' : g.token_info['user_id']
-            }
-            
-        connection = connect_db()
-        data = request.get_json()
 
-        seller_edit_info = {
-            'managers'      : data.get('managers', None)
-        }
-
-        seller_service = SellerService()
-        result = seller_service.manager_service(user, seller_edit_info, connection)
-
-        connection.commit()
-
-        return {"custom_message" : UPDATED, "result" : "PATCH manager"}
-
-# 채현 : delete
+# 채현: delete
     @seller_app.route('/edit', methods=['DELETE'])
     @login_decorator
     def seller_delete():
         """ [어드민] seller의 본인 정보 수정페이지 - 작성된 manager 정보 삭제
-        Author
-            : Chae hyun Kim
-        Args
-            : token
-            : manager의 id
-        Returns
-            : { "message"   : "SUCCESS"
-                "result"    : {
-                    "data" : 삭제된 manager 정보}
-                }
+        Author:
+            Chae hyun Kim
+        Args:
+            - token(str): 로그인 user의 token이 header에 담겨 들어와 로그인 유효성 검사를 거침
+        Returns:
+            - 200: { "message": "SUCCESS",
+                     "result": {
+                         "data": 삭제된 manager 정보}
+                    }
         """
         connection = None
         try:
@@ -309,15 +238,15 @@ class SellerView:
             data = request.get_json()
             manager_id = data['managerId']
             extra = {
-                'user_id' : user_id,
-                'user_type_id' : user_type_id,
-                'manager_id' : manager_id
+                'user_id': user_id,
+                'user_type_id': user_type_id,
+                'manager_id': manager_id
             }
 
             seller_service = SellerService()
             seller_service.seller_edit_delete(extra, connection)
             connection.commit()
-            return {"custom_message" : DELETED, "result" : "DELETE"}
+            return {"custom_message": DELETED, "result": "DELETE"}
         
         except ApiException as e:
             if connection:
@@ -331,7 +260,7 @@ class SellerView:
     @seller_app.route('/product/management/init', methods=['GET'])
     @login_decorator
     def get_seller_product_page_info():
-        """ 세러 상품 등록하기전에 선택할수있는 정보 (product_categories, product_sizes, product_colors) 뿌려주기
+        """ 셀러 상품 등록하기전에 선택할수있는 정보 (product_categories, product_sizes, product_colors) 뿌려주기
         Author: Mark Hasung Kim
         Returns: product_get_info (all product_categories, product_sizes, product_colors)
         """
