@@ -3,6 +3,13 @@ import pymysql
 
 class OrderDao:
     def find_current_order(self, order_info, connection):
+        """ 유저가 결제전인 order이 있는지 검색
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: order (유저가 결제전인 order이 있으면 그 order겍체를 반환해준다)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """ 
                 SELECT
@@ -18,8 +25,7 @@ class OrderDao:
                 FROM
                     orders
                 WHERE
-                    order_status_type_id = (
-                        SELECT id FROM order_status_types WHERE name = '결제전')
+                    order_status_type_id = %(order_status_type_id)s
                 AND
                     user_id = %(user_id)s
             """
@@ -28,6 +34,13 @@ class OrderDao:
         return order
 
     def find_existing_product_option_cart(self, order_info, connection):
+        """ 유저가 카트에 이미 담겨있는 상품을 또 추가할떄
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: existing_product_option_cart (카트 객체)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 SELECT
@@ -45,7 +58,7 @@ class OrderDao:
                             (SELECT id FROM product_size_types WHERE name = %(size)s)
                         AND product_id = %(product_id)s
                     )
-                AND 
+                    AND 
                     order_id = %(order_id)s
             """
             cursor.execute(query, order_info)
@@ -53,9 +66,17 @@ class OrderDao:
         return existing_product_option_cart
 
     def find_product_option(self, order_info, connection):
+        """ 유저가 담고싶은 product_option 찾기
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: product_option_id (product_option 객체)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
-                SELECT * 
+                SELECT
+                    id
                 FROM 
                     product_options
                 WHERE 
@@ -68,10 +89,17 @@ class OrderDao:
                         product_id = %(product_id)s
             """
             cursor.execute(query, order_info)
-            product_option_id = cursor.fetchone()
-        return product_option_id
+            product_option = cursor.fetchone()
+        return product_option
 
     def update_cart(self, order_info, connection):
+        """ 카트 업데이
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: updated_cart_id (업데이트 된 카트 id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 UPDATE
@@ -86,6 +114,13 @@ class OrderDao:
         return updated_cart
 
     def update_order(self, order_info, connection):
+        """ order 업데이
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: updated_order (업데이트 왼 order id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 UPDATE
@@ -100,6 +135,13 @@ class OrderDao:
         return updated_order
 
     def create_order(self, order_info, connection):
+        """ 결제전인 order 생성
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: new_order (새로 생성된 order 객체)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 INSERT INTO orders(
@@ -107,16 +149,16 @@ class OrderDao:
                     user_id,
                     created_at,
                     updated_at,
-                    order_number,
-                    payment
-                ) VALUES(
+                    order_number
+                )
+                SELECT
                     %(order_status_type_id)s,
                     %(user_id)s,
                     NOW(),
                     NOW(),
-                    FLOOR(RAND() * 901) + 100,
-                    NOW()
-                )
+                    MAX(order_number) + 1
+                FROM
+                    orders
             """
             # 1=결제전 2=결제후 3 = 바로결제시도
             cursor.execute(query, order_info)
@@ -124,6 +166,13 @@ class OrderDao:
         return new_order
 
     def create_order_log(self, order_info, connection):
+        """ order_log 생성
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: new_order_log_id (새러 생성된 order_log id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 INSERT INTO order_logs(
@@ -136,17 +185,21 @@ class OrderDao:
                     order_number,
                     changer_id,
                     change_date
-                ) VALUES(
-                    %(order_id)s,
-                    1,
-                    %(user_id)s,
-                    (SELECT created_at from orders WHERE id = %(order_id)s),
-                    (SELECT updated_at from orders WHERE id = %(order_id)s),
-                    (SELECT total_price from orders WHERE id = %(order_id)s),
-                    (SELECT order_number from orders WHERE id = %(order_id)s),
-                    %(user_id)s,
-                    (SELECT updated_at from orders WHERE id = %(order_id)s)
-                )
+                ) 
+                SELECT
+                    o.id,
+                    o.order_status_type_id,
+                    o.user_id,
+                    o.created_at,
+                    o.updated_at,
+                    o.total_price,
+                    o.order_number,
+                    o.user_id,
+                    o.updated_at
+                FROM
+                    orders AS o
+                WHERE
+                    o.id = %(order_id)s 
             """
             ##post_order_log로 합치기?
             #include shipping_info_id (make sure to account for order_view if user has shipping_info_id)
@@ -155,6 +208,13 @@ class OrderDao:
         return new_order_log_id
 
     def create_cart(self, order_info, connection):
+        """ 카트 생성
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: new_cart (새로 생성된 카트 id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 INSERT INTO carts(
@@ -163,17 +223,17 @@ class OrderDao:
                     cart_status_type_id,
                     quantity,
                     calculated_price,
-                    cart_number,
-                    is_paid
-                ) VALUES(
+                    cart_number
+                )
+                SELECT
                     %(product_option_id)s,
                     %(order_id)s,
                     %(cart_status_type_id)s,
                     %(quantity)s,
                     %(price)s,
-                    FLOOR(RAND() * 401) + 100,
-                    0
-                )
+                    MAX(cart_number) + 1
+                FROM
+                    carts
             """
             ## cart_status_type_id 값 받아서 넣기 ( 하드코딩 x)
             # 1 = 장바구니, 2 = 결제완료, 3 = 바로결제 시도
@@ -182,16 +242,34 @@ class OrderDao:
         return new_cart
 
     def get_cart(self, order_info, connection):
+        """ 카트 검색
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: cart (카트 객체)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
-                SELECT * FROM carts
-                WHERE id = %(cart_id)s
+                SELECT
+                    calculated_price 
+                FROM
+                    carts
+                WHERE
+                    id = %(cart_id)s
             """
             cursor.execute(query, order_info)
             cart = cursor.fetchone()
         return cart
 
     def create_cart_log(self, order_info, connection):
+        """ cart_log 생성
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: new_cart_log_id (새로 생성된 카트 id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 INSERT INTO cart_logs(
@@ -206,27 +284,36 @@ class OrderDao:
                     is_delete,
                     changer_id,
                     change_date
-                ) SELECT
-                    %(cart_id)s,
-                    product_option_id,
-                    order_id,
-                    cart_status_type_id,
-                    quantity,
-                    calculated_price,
-                    cart_number,
-                    is_paid,
-                    is_delete,
+                ) 
+                SELECT
+                    c.id,
+                    c.product_option_id,
+                    c.order_id,
+                    c.cart_status_type_id,
+                    c.quantity,
+                    c.calculated_price,
+                    c.cart_number,
+                    c.is_paid,
+                    c.is_delete,
                     %(user_id)s,
                     NOW()
                 FROM
-                    carts
-                WHERE carts.id = %(cart_id)s
+                    carts AS c
+                WHERE
+                    c.id = %(cart_id)s
             """
             cursor.execute(query, order_info)
             new_cart_log_id = cursor.lastrowid
         return new_cart_log_id
 
     def get_brand_name(self, order_info, connection):
+        """ 결제전인 order의 모든 상품 브랜드 이름 갖고오기
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: brand_name (한국 브랜드 이름)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 SELECT
@@ -241,6 +328,13 @@ class OrderDao:
         return brand_name
 
     def get_all_seller_ids(self, order_info, connection):
+        """  결제전인 order의 모든 셀러 id 갖고오기
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: seller_ids (distinct한 셀러 id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 SELECT
@@ -257,9 +351,9 @@ class OrderDao:
                     ON o.order_status_type_id = os.id
                 WHERE
                     o.id = %(order_id)s
-                AND
-                    order_status_type_id = 1
-                AND
+                    AND
+                    order_status_type_id = %(order_status_type_id)s
+                    AND
                     c.is_delete = 0
             """
             cursor.execute(query, order_info)
@@ -267,16 +361,24 @@ class OrderDao:
         return seller_ids
 
     def get_product_details(self, order_info, connection):
+        """ 유저 카트에 있는 모든 product_option 디테일 정보
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: product_details (모든 product_option 디테일 정보)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 SELECT
-                    po.id,
+                    po.id AS product_option_id,
+                    c.id AS cart_id,
                     p.name,
                     p.price,
                     c.quantity,
                     pt.image_url AS image,
-                    pc.name as color,
-                    ps.name as size
+                    pc.name AS color,
+                    ps.name AS size
                 FROM 
                     product_options AS po
                 INNER JOIN product_color_types AS pc
@@ -293,11 +395,11 @@ class OrderDao:
                     ON c.order_id = o.id
                 WHERE 
                     p.seller_id = %(seller_id)s 
-                AND 
+                    AND 
                     order_id = %(order_id)s 
-                AND 
+                    AND 
                     pt.ordering = 1
-                AND
+                    AND
                     c.is_delete = 0
             """
             cursor.execute(query, order_info)
@@ -305,6 +407,13 @@ class OrderDao:
         return product_details
 
     def count_carts(self, order_info, connection):
+        """ 결제전인 카트 개수
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: total_carts (결제전인 카트 개수)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 SELECT
@@ -313,7 +422,7 @@ class OrderDao:
                     carts
                 WHERE
                     order_id = %(order_id)s
-                AND
+                    AND
                     carts.is_delete = 0
             """
             cursor.execute(query, order_info)
@@ -321,6 +430,13 @@ class OrderDao:
         return total_carts
 
     def get_cart_delete(self, order_info, connection):
+        """ 유저가 삭제하고싶은 카트 갖고오기
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: cart_to_delete (삭제할 카트 객체)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 SELECT
@@ -333,14 +449,23 @@ class OrderDao:
                     ON c.order_id = o.id
                 WHERE
                     order_id = %(order_id)s
-                AND 
+                    AND 
                     po.id = %(product_option_id)s
+                    AND
+                    c.is_delete = 0
             """
             cursor.execute(query, order_info)
             cart_to_delete = cursor.fetchone()
         return cart_to_delete
 
     def soft_delete_cart(self, order_info, connection):
+        """ 카트 soft delete 하기 (is_delete = 1)
+        Author: Mark Hasung Kim
+        Args:
+            order_info: 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: deleted_cart (삭제된 카트 id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
             UPDATE

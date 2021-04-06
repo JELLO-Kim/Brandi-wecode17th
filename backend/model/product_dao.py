@@ -7,6 +7,14 @@ class ProductDao:
 
     # category 정보
     def products_category(self, connection):
+        """ [서비스] products의 category list
+        Author:
+            Chae hyun Kim
+        Args:
+            - connection : 커넥션
+        Returns: 
+            - categories : category list
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
 
             category_info = """
@@ -24,8 +32,18 @@ class ProductDao:
         return categories
 
     #products 정보
-    def products_list(self, filter_data, connection, page_condition):
-        self.page_condition = page_condition
+    def products_list(self, connection, page_condition):
+        """ [서비스] products list
+        Author:
+            Chae hyun Kim
+        Args:
+            - connection : 커넥션
+            - page_condition : limit, offset, filtering 조건이 될 category 정보 
+        Returns: 
+            - product list
+        Note:
+            - filtering 될시 해당 조건에 부합하는 products만 반환
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             products_info = """
                 SELECT
@@ -35,41 +53,41 @@ class ProductDao:
                     p.discount_rate AS discountRate,
                     p.price AS price,
                     p.discountPrice AS discountPrice,
-                    min(i.image_url) AS thumbnailImage,
+                    pt.image_url AS thumbnailImage,
                     p.total_sales AS totalSales
                 FROM
                     products AS p
+                INNER JOIN sellers AS s
+                    ON p.seller_id=s.user_info_id
+                INNER JOIN user_info AS u
+                    ON s.user_info_id=u.id
                 INNER JOIN
-                    sellers AS s
-                ON
-                    p.seller_id=s.user_info_id
-                INNER JOIN
-                    user_info AS u
-                ON
-                    s.user_info_id=u.id
-                LEFT JOIN
-                    product_thumbnails AS i
-                ON
-                    p.id=i.product_id
+                    (
+                        SELECT
+                            i.id,
+                            i.image_url
+                        FROM
+                            product_thumbnails AS i
+                        WHERE
+                            i.ordering = 1
+                    ) AS pt
+                    ON
+                    p.id=pt.id
                 WHERE
                     p.is_selling=1
                 """
 
-            if 'category' in filter_data:
+            if 'category' in page_condition:
                 products_info += """
                     AND p.product_category_id = %(category)s
                 """
 
-            # 그룹바이 위치
-            products_info += """
-                GROUP BY p.id
-            """
             # 정렬 코드 위치
             products_info += """
                 ORDER BY p.id ASC
             """
 
-            cursor.execute(products_info, filter_data)
+            cursor.execute(products_info, page_condition)
             product_list = cursor.fetchall()
             total_count = len(product_list)
 
@@ -82,11 +100,22 @@ class ProductDao:
                     OFFSET {offset}
                 """
 
-            cursor.execute(products_info, filter_data)
+            cursor.execute(products_info, page_condition)
 
             return cursor.fetchall()
 
-    def product_list_total_count(self, filter_data, connection):
+    def product_list_total_count(self, connection, page_condition):
+        """ [서비스] product 총 갯수
+        Author:
+            Chae hyun Kim
+        Args:
+            - connection : 커넥션
+            - page_condition : filtering 조건이 될 category 정보 
+        Returns: 
+            - product list 총 갯수
+        Note
+            - filtering 될시 해당 조건에 부합하는 products의 총 갯수로 반환
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             count_query = """
                 SELECT
@@ -101,7 +130,7 @@ class ProductDao:
                     user_info AS u
                 ON
                     s.user_info_id=u.id
-                LEFT JOIN
+                INNER JOIN
                     product_thumbnails AS i
                 ON
                     p.id=i.product_id
@@ -109,16 +138,12 @@ class ProductDao:
                     p.is_selling=1
                 """
 
-            if 'category' in filter_data:
+            if 'category' in page_condition:
                 count_query += """
                     AND p.product_category_id = %(category)s
                 """
 
-            # 그룹바이 위치
-            count_query += """
-                GROUP BY p.id
-            """
-            cursor.execute(count_query, filter_data)
+            cursor.execute(count_query, page_condition)
             return cursor.fetchone()
 
 

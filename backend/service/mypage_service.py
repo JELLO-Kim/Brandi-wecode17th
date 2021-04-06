@@ -1,14 +1,27 @@
 from model.mypage_dao   import MyPageDao
 from flask              import jsonify, json
-from responses             import *
+from responses          import *
 
 class MyPageService:
 
-    def mypage_qna(self, connection, user_id, page_condition, answer):
+    def mypage_qna(self, connection, user, page_condition):
+        """ [서비스] 로그인 유저의 mypage - qna list
+        Author:
+            Chae hyun Kim
+        Args:
+            - connection           : 커넥션
+            - user(dict)           : 로그인 유저의 user_id, user_type_id에 대한 정보가 들어있는 dict
+            - page_condition(dict) : limit, offset, filtering 조건에 필요한 answer에 대한 정보가 들어있는 dict
+        Returns:
+            - { 
+                "data" : 로그인 유저의 질문 list,
+                "totalCount" : 질문 총 갯수
+              }
+        """
         mypage_dao = MyPageDao()
-        mypage_qna = mypage_dao.mypyage_qna_dao(connection, user_id, page_condition, answer)
+        mypage_qna = mypage_dao.mypyage_qna_dao(connection, user, page_condition)
         #totalCount 수 반환
-        mypage_count = mypage_dao.mypage_qna_count(connection, user_id, answer)[0]
+        mypage_count = mypage_dao.mypage_qna_count(connection, user, page_condition)[0]
         total_count = mypage_count['COUNT(*)']
 
         result = []
@@ -18,7 +31,7 @@ class MyPageService:
                 'username'      : row['username'],
                 'contents'      : row['contents'],
                 'category'      : row['category'],
-                'createdAt'    : row['created_at'],
+                'createdAt'     : row['created_at'],
                 'isFinished'    : row['isFinished']
             }
             # 답변이 있는경우 answer에 담아줌
@@ -33,18 +46,31 @@ class MyPageService:
             result.append(question)
         return {"data" : result, "totalCount" : total_count}
 
-    def mypage_order(self, connection, user_id, page_condition):
+    def mypage_order(self, connection, user, page_condition):
+        """ [서비스] 로그인 유저의 mypage - order list
+        Author:
+            Chae hyun Kim
+        Args :
+            - connection : 커넥션
+            - user(dict) : 로그인 유저의 user_id와 user_type_id에 대한 정보가 들어있는 dictionary
+            - page_condition(dict) : limit, offset에 대한 값이 들어있는 dictionary
+        Returns 
+            : {
+                "data" : 로그인 유저의 주문내역 list,
+                "totalCount" : 주문내역 총 갯수 (하나의 주문번호당 한 개 취급)
+                }
+        """
         mypage_dao = MyPageDao()
         #totalCount수 반환
-        order_count = mypage_dao.mypage_order_count(connection, user_id)[0]
+        order_count = mypage_dao.mypage_order_count(connection, user)[0]
         total_count = order_count['COUNT(*)']
 
         # 로그인 유저의 주문 목록 반환
-        order_header = mypage_dao.mypage_order_header_dao(connection, user_id, page_condition)
+        order_header = mypage_dao.mypage_order_header_dao(connection, user, page_condition)
         order_id = [o['id'] for o in order_header]
         
         # 해당되는 주문목록에 속하는 구매 목록 반환
-        order_cart = mypage_dao.mypage_order_cart_dao(connection, user_id, page_condition, order_id)
+        order_cart = mypage_dao.mypage_order_cart_dao(connection, user, page_condition, order_id)
         order_list = [{
             "orderId" : order_head['id'],
             "orderNumber" : order_head['orderNumber'],
@@ -67,9 +93,23 @@ class MyPageService:
         return {"data" : order_list, "totalCount" : total_count}
 
     # 상세 주문내역 (로그인 유저의 주문번호 1건에 대한 내용)
-    def mypage_order_detail(self, connection, user_id, order_id):
+    def mypage_order_detail(self, connection, user, order_id):
+        """ [서비스] 로그인 유저의 mypage - order list
+        Author:
+            Chae hyun Kim
+        Args :
+            - connection    : 커넥션
+            - user(dict)    : 로그인 유저의 user_id와 user_type_id 정보가 담긴 dict
+            - order_id(int) : 상세로 확인할 주문내역의 pk값 (id)
+        Returns 
+            : {
+                "data" : 상세로 확인할 주문내역에 대한 정보,
+                "shipping" : 상세주문건에 해당되는 배송지에 대한 정보,
+                "totalCount" : 상세 주문내역에 해당하는 각 상품 옵션의 갯수
+                }
+        """
         mypage_dao = MyPageDao()
-        mypage_order_detail= mypage_dao.mypage_order_detail_header_dao(connection, user_id, order_id)
+        mypage_order_detail= mypage_dao.mypage_order_detail_header_dao(connection, user, order_id)
         products_list = mypage_order_detail['detailProducts']
         order = mypage_order_detail['detailHeader']
         brand_name = []
@@ -83,7 +123,7 @@ class MyPageService:
             "orderId"       : order['id'],
             "orderNum"      : order['order_number'],
             "orderTime"     : order['created_at'],
-            "orderName"     : order['order_name'], #username말고 order_name으로 바뀔것
+            "orderName"     : order['order_name'],
             "discountPrice" : order['total_price'],
             "product"       : 
                 [{

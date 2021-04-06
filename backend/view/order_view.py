@@ -11,6 +11,13 @@ class OrderView:
     @order_app.route('/cart', methods=['POST'])
     @login_decorator
     def post_cart():
+        """ 카트에 상품 담기
+        Author: Mark Hasung Kim
+        Returns: {
+                    "custom_message": "SUCCESS",
+                    "result": "POST
+                    }
+        """
         connection = None
         try:
             data     = request.json
@@ -20,6 +27,8 @@ class OrderView:
             if 'products' not in data:
                 raise ApiException(400, INVALID_INPUT)
             if 'productId' not in data:
+                raise ApiException(400, INVALID_INPUT)
+            if not products:
                 raise ApiException(400, INVALID_INPUT)
             for product in products:
                 if 'color' not in product:
@@ -41,7 +50,7 @@ class OrderView:
             order_service.post_cart(order_info, products, connection)
             connection.commit()
 
-            return jsonify({'message': CREATED}), 201
+            return {"custom_message": "SUCCESS", "result": "POST"}
 
         except ApiException as e:
             if connection:
@@ -54,6 +63,10 @@ class OrderView:
     @order_app.route('/cart', methods=['GET'])
     @login_decorator
     def get_cart():
+        """ 유저의 모든 카트들 가져오기
+        Author: Mark Hasung Kim
+        Returns: cart_details (유저의 모든 카트 정보)
+        """
         user_id = g.token_info['user_id']
         order_info = {'user_id': user_id}
         connection = connect_db()
@@ -62,11 +75,18 @@ class OrderView:
         if connection:
             connection.close()
 
-        return jsonify({'data': cart_details}), 200
+        return cart_details
 
     @order_app.route('/cart', methods=['DELETE'])
     @login_decorator
     def delete_cart():
+        """ 카트 삭제 하기 (is_delete = 1)
+        Author: Mark Hasung Kim
+        Returns: {
+                    "custom_message": "SUCCESS",
+                    "result": "DELETE"
+                    }
+        """
         user_id = g.token_info['user_id']
         connection = None
         try:
@@ -84,7 +104,7 @@ class OrderView:
             order_service.delete_cart(order_info, connection)
             connection.commit()
 
-            return jsonify({'message': OK}), 200
+            return {'custom_message': 'SUCCESS', 'result': 'DELETE'}
 
         except ApiException as e:
             if connection:

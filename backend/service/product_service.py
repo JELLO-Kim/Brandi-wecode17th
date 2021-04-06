@@ -5,6 +5,16 @@ from responses         import *
 class ProductService:
     
     def products_category(self, connection):
+        """ [서비스] products의 category list
+        Author:
+            Chae hyun Kim
+        Args:
+            - connection : 커넥션
+        Returns: 
+            - 200: { "data" : category list,
+                     "totalCount" : 2차 카테고리 총 갯수
+                    }
+        """
         products_category_dao = ProductDao()
         products_category = products_category_dao.products_category(connection)
 
@@ -17,17 +27,26 @@ class ProductService:
                     if p['id'] == c['parent_id']:
                         p['subCategory'].append(c)
                 result.append(p)
-
-        # null값인 1차 카테고리의 parent_id라는 key 제거
-        # for r in result:
-        #     r.pop('parent_id')
             
         return {"data" : result}
 
-    def products_list(self, filter_data, connection, page_condition):
-        products_dao = ProductDao()
-        products_list = products_dao.products_list(filter_data, connection, page_condition)
-        product_total_count = products_dao.product_list_total_count(filter_data, connection)
+    def products_list(self, connection, page_condition):
+        """ [서비스] products list
+        Author:
+            Chae hyun Kim
+        Args:
+            - connection : 커넥션
+            - page_condition : limt, offset, filtering용 category 조건
+        Returns: 
+            - 200 : {
+                    "data" : product list,
+                    "totalCount" : 상품의 총 갯수
+                    }
+        """
+        products_dao        = ProductDao()
+        products_list       = products_dao.products_list(connection, page_condition)
+        product_total_count = products_dao.product_list_total_count(connection, page_condition)
+        print('????????????/', product_total_count)
 
         return {"data" : products_list, "totalCount" : product_total_count['COUNT(*)']}
 

@@ -11,8 +11,12 @@ class UserView:
     @user_app.route('signup', methods=['POST'])
     def sign_up_user():
         """ 유저 회원가입
+        Author: Mark Hasung Kim
         Returns:
-            jsonify({'MESSAGE': CREATED}), 201: 유저 회원가입 성공 메세지
+            {
+                "custom_message": "SERVICE_USER_CREATED,
+                "result": "POST
+                }
         """
         connection = None
         try:
@@ -28,6 +32,8 @@ class UserView:
 
             if not validate_password(data['password']):
                 raise ApiException(400, INVALID_PASSWORD)
+            if not validate_email(data['email']):
+                raise ApiException(400, INVALID_EMAIL)
 
             user_info = {
                 'username': data['username'],
@@ -42,7 +48,7 @@ class UserView:
             user_service.create_user(user_info, connection)
             connection.commit()
 
-            return jsonify({'message': CREATED}), 201
+            return {"custom_message": "SERVICE_USER_CREATED", "result": "POST"}
 
         except ApiException as e:
             if connection:
@@ -55,16 +61,19 @@ class UserView:
     @user_app.route('signin', methods=['POST'])
     def signin_user():
         """ 유저 로그인
+        Author: Mark Hasung Kim
         Returns:
-             token: 유저 로그인 토큰
+             user_info: 유저 로그인 토큰
         """
         connection = None
         try:
             data = request.json
+
             if 'username' not in data:
                 raise ApiException(400, INVALID_INPUT)
             if 'password' not in data:
                 raise ApiException(400, INVALID_INPUT)
+
             login_info = {
                 'username': data['username'],
                 'password': data['password']

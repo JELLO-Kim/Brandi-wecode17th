@@ -1,7 +1,11 @@
 from model.order_dao import OrderDao
-from responses import ApiException, NO_CURRENT_ORDER_EXISTS, NO_CART_EXISTS
+from responses import *
 from flask           import jsonify, json
 from datetime        import date, datetime
+from utils import login_decorator
+
+CURRENT_ORDER_STATUS_TYPE = 1
+
 
 class OrderService:
     def __init__(self):
@@ -9,25 +13,16 @@ class OrderService:
 
     def post_cart(self, order_info, products, connection):
         """
-        logic flow:
-        1. 유저가 결제전인 order를 갖고 있는지를 확인한다
-            1. 결제전인 order를 갖고 있으면 카트에 이미 담긴 product를 추가하고 있는지를 확인한
-            2. 카트에 이미 담긴 product를 추가하고 있으면 카트의 수량을 업데이트 한다
-            3. Order의 total_price랑 updated_at을 업데이트 한다
-            4. Order 이력을 생성한다
-        2. 유저가 새 product를 카트에 담고싶을때 새 카트를 생성한다
-            1. Order의 total_price랑 updated_at을 업데이트 한다
-            2. Cart이력을 생성한다
-            3. Order이력을 생성한다
-        3. 유저가 결제전인 order가 없으면
-            1. 결제전인 Order를 생성한다
-            2. Cart를 생성한다
-            3. Order의 total_price를 업데이트한다
-            4. Order이력을 생성한다
-            5. Cart이력을 생성한다
+        Author: Mark Hasung Kim
+        Args:
+            order_info (dict): 유저 주문 관련 정보
+            products (dict): 카트에 담길 products에대한 정보 (color, size, quantity, price)
+            connection: 커넥션
+        Returns: True (카트에 상품이 성공적으로 담기면 True를 반환해준다)
         """
         order_dao = OrderDao()
         #유저가 결제전인 order (order_status_type)를 갖고 있는지 확인
+        order_info['order_status_type_id'] = CURRENT_ORDER_STATUS_TYPE
         current_order = order_dao.find_current_order(order_info, connection)
         #유저가 결제전인 order를 갖고 있으면:
         if current_order:
@@ -46,13 +41,17 @@ class OrderService:
                     order_info['cart_id'] = existing_product_option_cart['id']
                     order_info['added_price'] = order_info['quantity'] * existing_product_option_cart['calculated_price']
                     order_dao.update_cart(order_info, connection) #카트 수량을 업데이트한다
-
+                    order_dao.create_cart_log(order_info, connection)
                     order_dao.update_order(order_info, connection) #Order total_price랑 updated_at을 업데이트한다
                     order_dao.create_order_log(order_info, connection) #create order_log
 
                 #유저가 새 상품을 카트에 담을때
                 else:
                     product_option = order_dao.find_product_option(order_info, connection)
+
+                    if not product_option:
+                        raise ApiException(400, INVALID_PRODUCT_OPTION)
+
                     order_info['product_option_id'] = product_option['id']
 
                     new_cart = order_dao.create_cart(order_info, connection) #create new cart
@@ -65,7 +64,7 @@ class OrderService:
                     order_dao.create_order_log(order_info, connection) #create order_log
             return True
 
-        #유저가 결제전인 order가 없을때:
+        #유저가 결제전인 order이 없을때:
         else:
             for product in products:
                 order_info['color'] = product['color']
@@ -76,6 +75,10 @@ class OrderService:
                 new_order = order_dao.create_order(order_info, connection)
                 order_info['order_id'] = new_order
                 product_option = order_dao.find_product_option(order_info, connection)
+
+                if not product_option:
+                    raise ApiException(400, INVALID_PRODUCT_OPTION)
+
                 order_info['product_option_id'] = product_option['id']
 
                 new_cart = order_dao.create_cart(order_info, connection)
@@ -90,18 +93,16 @@ class OrderService:
 
     def get_cart(self, order_info, connection):
         """
-        logic flow:
-        1. find if user has existing order
-            - if no, raise ERROR
-        2. fetch order_id
-        2. get total_count of product_options in cart
-        3. fetch all DISTINCT seller_ids associated with order_id
-        4. for each seller_id (associated with order_id), fetch all associated product_details
-        5. for each product_detail, fetch all info about product displayed in cart
-        6. return dict of products in cart, grouped by brand_name
+        Author: Mark Hasung Kim
+        Args:
+            order_info (dict): 유저 주문 관련 정보
+            connection: 커넥션
+        Returns:
+            cart_details (유저 카트에 담긴 모든 상품 정보)
         """
         try:
             order_dao = OrderDao()
+            order_info['order_status_type_id'] = CURRENT_ORDER_STATUS_TYPE
             current_order = order_dao.find_current_order(order_info, connection)
 
             if not current_order:
@@ -120,7 +121,8 @@ class OrderService:
                 product_details = order_dao.get_product_details(order_info, connection)
                 brand_dict['detail'] = [
                     {
-                        'id': product_detail['id'],
+                        'product_option_id': product_detail['product_option_id'],
+                        'cart_id': product_detail['cart_id'],
                         'name': product_detail['name'],
                         'price': product_detail['price'],
                         'quantity': product_detail['quantity'],
@@ -137,15 +139,16 @@ class OrderService:
 
     def delete_cart(self, order_info, connection):
         """
-        logic flow:
-        1. find if user has existing order
-            - if no, raise ERROR
-        2. find cart with product_id
-            - if no such cart, raise ERROR
-        3. change is_delete to 1 in corresponding cart
+        Author: Mark Hasung Kim
+        Args:
+            order_info (dict): 유저 주문 관련 정보
+            connection: 커넥션
+        Returns: True (카트가 삭제돼면 True를 반환해준다)
+
         """
         try:
             order_dao = OrderDao()
+            order_info['order_status_type_id'] = CURRENT_ORDER_STATUS_TYPE
             current_order = order_dao.find_current_order(order_info, connection)
             if not current_order:
                 raise ApiException(400, NO_CURRENT_ORDER_EXISTS)
@@ -163,8 +166,6 @@ class OrderService:
             return True
         except ApiException as e:
             raise e
-
-
 
     def get_shipping_memo(self, connection):
 
@@ -265,7 +266,7 @@ class OrderService:
 
         order_dao  = OrderDao()
         order_id = order_dao.create_order_fullinfo(order_info, connection)
-        
+
         order_info["order_id"] = order_id
         order_log  = order_dao.post_order_log(order_info, connection)
     

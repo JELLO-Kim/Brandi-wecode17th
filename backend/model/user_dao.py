@@ -3,10 +3,10 @@ import pymysql
 class UserDao:
     def find_user_info(self, user_info, connection):
         """ 유저 조회
+        Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
             connection: 커넥션
-
         Returns:
             found_user_info: 유저 username
         """
@@ -19,7 +19,6 @@ class UserDao:
             WHERE
                 username = %(username)s
             """
-
             cursor.execute(query, user_info)
             found_user_info = cursor.fetchone()
         return found_user_info
@@ -40,6 +39,7 @@ class UserDao:
 
     def create_user_info(self, user_info, connection):
         """ 유저 생성
+        Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
             connection: 커넥션
@@ -67,6 +67,7 @@ class UserDao:
 
     def create_user_info_log(self, user_info, connection):
         """ 유저 이력 생성
+        Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
             connection: 커넥션
@@ -84,15 +85,18 @@ class UserDao:
                 changer_id,
                 change_date
             )
-            VALUES(
-                %(user_info_id)s,
-                %(user_type_id)s,
-                %(username)s,
-                %(password)s,
-                %(phone_number)s,
-                %(changer_id)s,
+            SELECT
+                ui.id,
+                ui.user_type_id,
+                ui.username,
+                ui.password,
+                ui.phone_number,
+                ui.id,
                 NOW()
-            )
+            FROM
+                user_info AS ui
+            WHERE
+                ui.id = %(user_info_id)s
             """
             cursor.execute(query, user_info)
             new_user_info_log = cursor.lastrowid
@@ -100,6 +104,7 @@ class UserDao:
 
     def find_user_email(self, user_info, connection):
         """ 서비스 유저 이메일 조회
+        Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
             connection: 커넥션
@@ -110,18 +115,20 @@ class UserDao:
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
-                SELECT email
-                FROM users
-                WHERE email = %(email)s
+                SELECT
+                    email
+                FROM
+                    users
+                WHERE
+                    email = %(email)s
             """
-
             cursor.execute(query, user_info)
             found_user = cursor.fetchone()
-
             return found_user
 
     def create_user(self, user_info, connection):
         """ 서비스 유저 생성
+        Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
             connection: 커넥션
@@ -146,13 +153,13 @@ class UserDao:
                 NOW()
             )
             """
-
             cursor.execute(query, user_info)
             new_user = cursor.lastrowid
             return new_user
 
     def create_user_log(self, user_info, connection):
         """ 서비스 유저 이력 생성
+        Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
             connection: 커넥션
@@ -171,23 +178,26 @@ class UserDao:
                 changer_id,
                 change_date
             )
-            VALUES(
-                %(user_id)s,
-                %(email)s,
-                %(full_name)s,
-                NOW(),
-                NOW(),
-                %(changer_id)s,
-                NOW()
-            )
+            SELECT
+                u.user_info_id,
+                u.email,
+                u.full_name,
+                u.created_at,
+                u.updated_at,
+                u.user_info_id,
+                u.updated_at
+            FROM
+                users AS u
+            WHERE
+                u.user_info_id = %(user_info_id)s
             """
-
             cursor.execute(query, user_info)
             new_user_log = cursor.lastrowid
             return new_user_log
 
     def find_user_login_info(self, login_info, connection):
         """ 유저 로그인 정보 조회
+        Author: Mark Hasung Kim
         Args:
             login_info: 유저 로그인 정보 dict
             connection: 커넥션
@@ -196,9 +206,16 @@ class UserDao:
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
-                SELECT id, username, password, is_delete
-                FROM user_info
-                WHERE username= %(username)s 
+                SELECT
+                    id,
+                    user_type_id,
+                    username,
+                    password,
+                    is_delete
+                FROM
+                    user_info
+                WHERE
+                    username= %(username)s 
             """
             cursor.execute(query, login_info)
             user_login_info = cursor.fetchone()
