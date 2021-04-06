@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { ClientId, SERVER } from '@/config'
+import SERVER from '@/config'
 import { GoogleLogin } from 'vue-google-login'
 import API from '@/service/util/service-api'
 import { mapMutations } from 'vuex'
@@ -44,7 +44,7 @@ export default {
     return {
       // 구글 로그인 하기
       params: {
-        client_id: ClientId
+        client_id: '11111' // TODO 실제 키로 변경
       },
       renderParams: {
         width: 250,
@@ -97,10 +97,9 @@ export default {
         username: this.username,
         password: this.password
       }
-      console.log(SERVER)
-      API.methods.post(`${SERVER}/user/signin`, data)
+      API.methods.post(`${SERVER.IP}/user/signin`, data)
         .then((res) => {
-          localStorage.setItem('access_token', res.data.ACCESS_TOKEN)
+          localStorage.setItem('service_token', res.data.result.accessToken)
           this.$router.push('/main')
         })
         .catch(() => {

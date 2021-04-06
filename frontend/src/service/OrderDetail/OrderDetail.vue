@@ -90,31 +90,39 @@
             </div>
         </div>
 
+<!--
+    address: "1212"
+contents: "경비(관리)실에 맡겨주세요"
+detailAddress: "1212"
+name: "21212"
+phone: "212-2121-2121"
+postal: "1212"
+    -->
         <span class="info-title">배송지 정보</span>
         <table class="info-box">
             <tr>
                 <td>수령인</td>
-                <td>장성준</td>
+                <td>{{ shipping.name }}</td>
             </tr>
             <tr>
                 <td>휴대폰</td>
-                <td>01012341234</td>
+                <td>{{ shipping.phone }}</td>
             </tr>
             <tr>
                 <td>우편번호</td>
-                <td>12345</td>
+                <td>{{ shipping.postal }}</td>
             </tr>
             <tr>
                 <td>주소</td>
-                <td>서울시 강남구 테헤란로</td>
+                <td>{{ shipping.address }}</td>
             </tr>
             <tr>
                 <td>나머지 주소</td>
-                <td>브랜디 4층</td>
+                <td>{{ shipping.detailAddress }}</td>
             </tr>
             <tr>
                 <td>배송 요청사항</td>
-                <td>일반배송: 문 앞에 놓아주세요.</td>
+                <td>{{ shipping.contents }}</td>
             </tr>
         </table>
 
@@ -129,7 +137,8 @@ import SERVER from '@/config.js'
 export default {
   data () {
     return {
-      detailData: {}
+      detailData: {},
+      shipping: {}
     }
   },
   mounted () {
@@ -137,10 +146,11 @@ export default {
     // this.sizeData = mockup.sizeData
     // mockup.options
     API.methods
-      .get(`${SERVER.IP}/mypage/order/1`)
+      .get(`${SERVER.IP}/mypage/order/${this.$route.params.no}`)
       .then((res) => {
         // console.log(res.data.result)
         this.detailData = res.data.result.data
+        this.shipping = res.data.result.shipping
       })
       .catch(() => {
         // console.log(error)

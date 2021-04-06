@@ -49,7 +49,7 @@
             </strong>
           </p>
         </div>
-        <button @click="buyNowHandler" class="purchaseBtn">
+        <button @click="directPurchase" class="purchaseBtn">
           바로 구매하기
         </button>
         <button type="button" class="cartBtn" @click="addCart">장바구니 담기</button>
@@ -195,6 +195,7 @@ export default {
           this.optionQuantity.push({
             size: this.size,
             color: this.color,
+            name: this.detailData.name,
             sizeName: sizeItem.label,
             colorName: colorItem.label,
             price: this.detailData.discountPrice,
@@ -246,15 +247,97 @@ export default {
       // }
     },
 
+    /*
+    {
+        "productId": 2,
+        "products": [
+            {
+                "quantity": 1,
+                "color": "레드",
+                "size": "Medium",
+                "price": 40000
+            },
+            {
+                "quantity": 1,
+                "color": "핑크",
+                "size": "Extra Large",
+                "price": 40000
+            }
+        ]
+    }
+    */
+    makePayload () {
+      const payload = {
+        productId: this.$route.params.id,
+        products: []
+      }
+      for (let i = 0, len = this.optionQuantity.length; i < len; i++) {
+        payload.products.push({
+          quantity: this.optionQuantity[i].quantity,
+          color: this.optionQuantity[i].colorName,
+          size: this.optionQuantity[i].sizeName,
+          price: this.optionQuantity[i].price
+        })
+      }
+      return payload
+    },
     addCart () {
       if (this.optionQuantity.length > 0) {
         if (this.getToken) {
-          API.methods.post(`${SERVER.IP}/cart`, this.optionQuantity)
+          API.methods.post(`${SERVER.IP}/cart`, this.makePayload())
             .then((res) => {
-              if (res.message === 'SUCCESS') this.errorMessage = '선택한 상품이 장바구니에 담겼습니다.'
+              if (res.data.message === 'SUCCESS') {
+                this.$toast.open({
+                  message: '선택한 상품이 장바구니에 담겼습니다.',
+                  position: 'bottom',
+                  duration: 3000,
+                  type: 'default'
+                })
+                this.optionQuantity = []
+              } else {
+                //
+              }
             })
             .catch((error) => {
-              alert(error.message)
+              this.$toast.open({
+                message: error.response.data.message,
+                position: 'bottom',
+                duration: 3000,
+                type: 'error'
+              })
+            })
+        } else {
+          alert('로그인이 필요한 서비스입니다.')
+          this.$router.push('/login')
+        }
+      } else {
+        this.$toast.open({
+          message: '옵션을 한개 이상 선택해주세요.',
+          position: 'bottom',
+          duration: 3000,
+          type: 'default'
+        })
+      }
+    },
+    directPurchase () {
+      if (this.optionQuantity.length > 0) {
+        if (this.getToken) {
+          API.methods.post(`${SERVER.IP}/direct-purchase`, this.makePayload())
+            .then((res) => {
+              // 주문 주문 정보를 로컬스토리지에 담음
+              const purchaseItems = JSON.parse(JSON.stringify(res.data.result))
+              purchaseItems.optionQuantity = this.optionQuantity
+              purchaseItems.image = this.detailData.imageList[0]
+              localStorage.setItem('purchaseItems', JSON.stringify(purchaseItems))
+              this.$router.push('/order')
+            })
+            .catch((error) => {
+              this.$toast.open({
+                message: error.response.data.message,
+                position: 'bottom',
+                duration: 3000,
+                type: 'error'
+              })
             })
         } else {
           alert('로그인이 필요한 서비스입니다.')

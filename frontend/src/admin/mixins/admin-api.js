@@ -25,11 +25,16 @@ export default {
       config = this.cloneAndAuthHeader(config)
       return axios.put(url, data, config)
     },
+    patch (url, data, config) {
+      config = this.cloneAndAuthHeader(config)
+      return axios.patch(url, data, config)
+    },
     cloneAndAuthHeader (config) {
       if (config === undefined) config = {}
       else config = JSON.parse(JSON.stringify(config))
       if (config.headers === undefined) config.headers = {}
-      config.headers.Authorization = this.constants.testToken
+      const token = localStorage.getItem('access_token')
+      config.headers.Authorization = token
       config.timeout = 10000
       return config
     }

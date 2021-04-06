@@ -21,12 +21,17 @@
 </template>
 
 <script>
+import AdminApiMixin from '@/admin/mixins/admin-api'
+import store from '@/store/index'
+
 function getBase64 (img, callback) {
   const reader = new FileReader()
   reader.addEventListener('load', () => callback(reader.result))
   reader.readAsDataURL(img)
 }
 export default {
+  mixins: [AdminApiMixin],
+  store: store,
   data () {
     return {
       loading: false,
@@ -42,6 +47,11 @@ export default {
   },
   mounted () {
     this.imageUrl = this.value
+  },
+  computed: {
+    constants () {
+      return this.$store.state.const
+    }
   },
   methods: {
     handleChange (info) {
@@ -69,10 +79,19 @@ export default {
         return false
       }
 
+      if (file) {
+        const formData = new FormData()
+        formData.append('filename', file)
+        this.post(this.constants.apiDomain + '/services/fileupload', formData).then(res => {
+          this.imageUrl = res.data.result
+          this.$emit('input', this.imageUrl)
+        })
+      }
+
       // 일단 모두 취소 시킴 (preview가 목적)
       getBase64(file, imageUrl => {
         this.imageUrl = imageUrl
-        this.$emit('input', file)
+        // this.$emit('input', file)
       })
       return false
     },

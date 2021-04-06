@@ -25,7 +25,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import Message from '@/admin/utils/message'
 import CommonMixin from '@/admin/mixins/common-mixin'
 import AdminApiMixin from '@/admin/mixins/admin-api'
@@ -52,15 +51,15 @@ export default {
 
     // token 물어보기
     sendSumbit () {
-      axios
-        .post(this.constants.apiDomain + '/login', {
-          account: this.account,
-          password: this.password
-        })
+      this.post(this.constants.apiDomain + '/seller/signin', {
+        username: this.account,
+        password: this.password
+      })
         .then(response => {
           console.log('response', response)
-          if (response.data.access_token) {
-            localStorage.setItem('access_token', response.data.access_token)
+          if (response.data.result.accessToken) {
+            localStorage.setItem('access_token', response.data.result.accessToken)
+            localStorage.setItem('user_type_id', response.data.result.userTypeId)
           }
         })
         .then(() => {

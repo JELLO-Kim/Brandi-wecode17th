@@ -1,0 +1,38 @@
+{
+  "result": {
+    "data": {
+      "address": "경기도",
+      "addressDetail": "군포시 산본동",
+      "backgroundImage": "https://media.vlpt.us/images/c_hyun403/post/7e52f43b-6f8e-4b07-a30f-d655dda28646/%E1%84%91%E1%85%B3%E1%84%85%E1%85%A9%E1%84%91%E1%85%B5%E1%86%AF4.jpeg",
+      "brandEnglish": "All",
+      "brandKorean": "다있슈",
+      "customerServiceClose": "19:00:00",
+      "customerServiceName": "여부세유",
+      "customerServiceOpen": "11:00:00",
+      "customerServicePhone": "010-1234-1234",
+      "deliveryInfo": "총알배송",
+      "description": "일주일만 바짝 법시다",
+      "introduce": "어라랏",
+      "managers": [
+        {
+          "email": "m1@naver.com",
+          "id": 180,
+          "name": "매1",
+          "phone_number": "010-01"
+        },
+        {
+          "email": "m2@naver.com",
+          "id": 181,
+          "name": "매2",
+          "phone_number": "010-02"
+        }
+      ],
+      "postal": "15888",
+      "profile": "https://media.vlpt.us/images/c_hyun403/post/b29b83f1-a8af-47aa-93cc-84b437c1bf0a/%E1%84%91%E1%85%B3%E1%84%85%E1%85%A9%E1%84%91%E1%85%B5%E1%86%AF2.jpeg",
+      "refundInfo": "총알환불",
+      "sellerStatus": "입점 대기",
+      "username": "chyun"
+    }
+  },
+  "message": "SUCCESS"
+}

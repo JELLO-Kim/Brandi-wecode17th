@@ -1,0 +1,35 @@
+{
+  "result": {
+    "data": {
+      "orderDetails": {
+        "brandName": "마크옷",
+        "cartDate": "2021-04-05 11:04:35",
+        "cartNumber": "176",
+        "colorName": "그린",
+        "discountPrice": 18000,
+        "discountRate": 10,
+        "orderDate": "2021-04-05 11:04:35",
+        "orderMessage": null,
+        "orderName": null,
+        "orderNumber": "692",
+        "orderPhone": null,
+        "orderStatus": "결제완료",
+        "originalPrice": 400,
+        "productId": 28,
+        "productName": "anotha tshirt",
+        "quantity": 1,
+        "recipientAddress": null,
+        "recipientAddressDetail": null,
+        "recipientName": null,
+        "recipientPhone": null,
+        "recipientPostalCode": null,
+        "sizeName": "Extra Large",
+        "totalPrice": 18000,
+        "unitOriginalPrice": 400,
+        "userNo": 97
+      },
+      "orderLogs": []
+    }
+  },
+  "message": "SUCCESS"
+}

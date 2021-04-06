@@ -23,13 +23,13 @@
       <a-row :gutter="8" class="filter-row">
         <a-col :span="2" class="filter-label">셀러속성</a-col>
         <a-col :span="22">
-          <multi-select-buttons :multiple-select="false" :items="constants.sellerSections" v-model="filter.property_id"/>
+          <multi-select-buttons :multiple-select="false" :items="sellerAttribute" v-model="filter.property_id"/>
         </a-col>
       </a-row>
       <a-row :gutter="8" class="filter-row">
         <a-col :span="2" class="filter-label">셀러상태</a-col>
         <a-col :span="22">
-          <multi-select-buttons :multiple-select="false" :items="constants.sellerStatus" v-model="filter.status_id"/>
+          <multi-select-buttons :multiple-select="false" :items="sellerStatus" v-model="filter.status_id"/>
         </a-col>
       </a-row>
     </a-input-group>
@@ -45,6 +45,13 @@ import MultiSelectButtons from '@/admin/Components/Common/multi-select-buttons'
 
 export default {
   name: 'seller-filter-box',
+  props: {
+    dataStore: {
+      default () {
+        return {}
+      }
+    }
+  },
   components: { MultiSelectButtons },
   data () {
     /*
@@ -82,6 +89,15 @@ export default {
   computed: {
     constants () {
       return this.$store.state.const
+    },
+    sellerAttribute () {
+      return this.dataStore.sellerAttribute.map(d => { return { value: d.id, label: d.name } })
+    },
+    sellerStatus () {
+      return this.dataStore.sellerStatus.map(d => { return { value: d.id, label: d.name } })
+    },
+    sellerType () {
+      return this.dataStore.sellerType.map(d => { return { value: d.id, label: d.name } })
     }
   },
   created () {

@@ -30,6 +30,13 @@
 <script>
 export default {
   name: 'product-history-modal',
+  props: {
+    dataStore: {
+      default () {
+        return {}
+      }
+    }
+  },
   data () {
     return {
       visible: false,

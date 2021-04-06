@@ -5,29 +5,32 @@
         <template slot="label">
           셀러 프로필 <span class="required">*</span>
         </template>
-        <image-upload v-model="dataStore.detailData.image" />
+        <image-upload v-model="dataStore.detailData.profile" />
       </a-descriptions-item>
       <a-descriptions-item label="셀러 상태" :span="3">
-        {{ getSellerStatusName(dataStore.detailData.seller_status_id) }}
+        {{ dataStore.detailData.sellerStatus }}
+        <!-- {{ getSellerStatusName(dataStore.detailData.seller_status_id) }} -->
       </a-descriptions-item>
-      <a-descriptions-item label="셀러 속성" :span="3">
-        <a-radio-group v-model="dataStore.detailData.seller_property_id">
+      <a-descriptions-item label="셀러 속성" :span="3" v-if="isMaster()">
+        <a-radio-group v-model="dataStore.detailData.sellerCategoryId">
           <a-radio v-for="item in constants.sellerSections" :value="item.value" :key="item.value">{{ item.label }}</a-radio>
         </a-radio-group>
       </a-descriptions-item>
       <a-descriptions-item label="셀러 한글명" :span="3">
-        <a-input placeholder="셀러 한글명" class="normal-size" v-model="dataStore.detailData.brand_name_korean" />
+        <a-input placeholder="셀러 한글명" class="normal-size" v-model="dataStore.detailData.brandKorean" />
       </a-descriptions-item>
       <a-descriptions-item label="셀러 영문명" :span="3">
-        <a-input placeholder="셀러 영문명" class="normal-size" v-model="dataStore.detailData.brand_name_english" />
+        <a-input placeholder="셀러 영문명" class="normal-size" v-model="dataStore.detailData.brandEnglish" />
       </a-descriptions-item>
     </a-descriptions>
   </div>
 </template>
 
 <script>
+import CommonMixin from '@/admin/mixins/common-mixin'
 import ImageUpload from '@/admin/Components/Common/image-upload'
 export default {
+  mixins: [CommonMixin],
   components: {
     ImageUpload
   },

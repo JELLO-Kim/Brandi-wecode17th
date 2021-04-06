@@ -1,11 +1,12 @@
 import AdminApiMixin from '@/admin/mixins/admin-api'
+import CommonMixin from '@/admin/mixins/common-mixin'
 import store from '@/store/index'
 import Message from '@/admin/utils/message'
-import mockup from '@/admin/mockup/orderList.json'
+// import mockup from '@/admin/mockup/orderList.json'
 
 export default {
   store: store,
-  mixins: [AdminApiMixin],
+  mixins: [AdminApiMixin, CommonMixin],
   data () {
     return {
       list: [],
@@ -14,13 +15,21 @@ export default {
       pageLen: 50,
       loading: false,
       filter: {},
-      detailData: {}
+      detailData: {},
+      sellerAttribute: []
     }
   },
   created () {
-    // this.load();
+    this.getMeta()
   },
   computed: {
+    prefixUrl () {
+      if (this.isMaster()) {
+        return this.constants.apiDomain + '/master'
+      } else {
+        return this.constants.apiDomain + '/seller'
+      }
+    },
     maxPage () {
       return Math.ceil(this.total / this.pageLen)
     },
@@ -29,14 +38,27 @@ export default {
     },
     // 주문 리스트
     listUrl () {
-      return this.constants.apiDomain + '/order/status'
+      return this.prefixUrl + '/order/ready'
     },
     // 주문 상세 / 수정
     detailUrl () {
-      return this.constants.apiDomain + '/order'
+      return this.prefixUrl + '/order'
+    },
+    // 셀러 리스트 / 수정
+    metaUrl () {
+      return this.prefixUrl + '/order/ready/init'
+    },
+    // 배송처리
+    deliveryUrl () {
+      return this.prefixUrl + '/order/ready/'
     },
     offset () {
       return (this.page - 1) * this.pageLen
+    },
+    checkedList () {
+      const newList = []
+      this.list.forEach(d => { if (d.checked) newList.push(d) })
+      return newList
     }
   },
   methods: {
@@ -46,25 +68,22 @@ export default {
       params.limit = this.pageLen
       params.offset = this.offset
 
-      new Promise((resolve, reject) => {
-        setTimeout(() => {
-          this.$emit('test', { a: 1 })
-          resolve(listMockup())
-        }, 300)
-      })
-      // this.get(this.listUrl + '/' + this.filter.status_id, {
-      //   params: params
+      // new Promise((resolve, reject) => {
+      //   setTimeout(() => {
+      //     this.$emit('test', { a: 1 })
+      //     resolve(listMockup())
+      //   }, 300)
       // })
+      this.get(this.listUrl, {
+        params: params
+      })
         .then((res) => {
-          if (res.data && res.data.total_count !== undefined) {
-            res.data.order_list.forEach((d) => {
-              d.checked = false
-            })
-            this.total = res.data.total_count
-            this.list = res.data.order_list
-          } else {
-            Message.error('통신 실패')
-          }
+          const orderList = res.data.result.data
+          orderList.forEach((d) => {
+            d.checked = false
+          })
+          this.total = res.data.result.totalCount
+          this.list = orderList
         }).catch((e) => {
           if (e.code === 'ECONNABORTED') {
             Message.error('요청 시간을 초과 하였습니다. 다시 시도해주시기 바랍니다.')
@@ -81,7 +100,7 @@ export default {
       this.get(this.detailUrl + '/' + orderNo)
         .then((res) => {
           if (res.data) {
-            this.detailData = res.data
+            this.detailData = res.data.result.data.orderDetails
           } else {
             Message.error('통신 실패')
           }
@@ -101,6 +120,43 @@ export default {
     },
     setFilter (filter) {
       this.filter = filter
+    },
+    getMeta () {
+      this.get(this.metaUrl)
+        .then((res) => {
+          if (res.data) {
+            this.sellerAttribute = res.data.result.data.sellerAttribute
+          } else {
+            Message.error('통신 실패')
+          }
+        }).catch((e) => {
+          if (e.code === 'ECONNABORTED') {
+            Message.error('요청 시간을 초과 하였습니다. 다시 시도해주시기 바랍니다.')
+          } else {
+            Message.error('처리 중 오류 발생')
+          }
+        }).then((res) => {
+          // this.loading = false
+        })
+    },
+    async setDelivery (list) {
+      if (list.length > 0) {
+        try {
+          for (let i = 0, len = list.length; i < len; i++) {
+            await this.patch(this.deliveryUrl + list[i].orderDetailNumber)
+          }
+          Message.success('배송처리가 완료되었습니다.')
+          this.load()
+        } catch (e) {
+          Message.error(e.response.data.message)
+        }
+      }
+      // 배송처리
+      // /master/order/ready/<order_id>
+      // {
+      //    "message": "updated",
+      //    "result": "PATCH"
+      // }
     }
   },
   watch: {
@@ -108,8 +164,4 @@ export default {
       this.changePage(1)
     }
   }
-}
-
-function listMockup () {
-  return mockup
 }

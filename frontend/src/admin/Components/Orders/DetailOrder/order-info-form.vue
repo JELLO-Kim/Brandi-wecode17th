@@ -5,10 +5,10 @@
         네이버페이(신용카드)
       </a-descriptions-item>
       <a-descriptions-item label="주문 번호">
-        {{ dataStore.detailData.number }}
+        {{ dataStore.detailData.orderNumber }}
       </a-descriptions-item>
       <a-descriptions-item label="주문 일시">
-        {{ dataStore.detailData.order_date }}
+        {{ dataStore.detailData.orderDate }}
       </a-descriptions-item>
 
       <a-descriptions-item label="외부거래번호">
@@ -19,7 +19,7 @@
       </a-descriptions-item>
 
       <a-descriptions-item label="총 결제 금액">
-        {{ dataStore.detailData.total_price | makeComma }} 원
+        {{ dataStore.detailData.totalPrice | makeComma }} 원
       </a-descriptions-item>
       <a-descriptions-item label="배송비">
         0 원

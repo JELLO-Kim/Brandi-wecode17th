@@ -1,0 +1,213 @@
+{
+  "result": {
+    "data": [
+      {
+        "actions": [
+          {
+            "id": 1,
+            "name": "입점 승인",
+            "sl.id": 2
+          },
+          {
+            "id": 2,
+            "name": "입점 거절",
+            "sl.id": 2
+          }
+        ],
+        "attribute": "로드샵",
+        "createdAt": "Fri, 03 Apr 2020 00:00:00 GMT",
+        "english": "nanauhh",
+        "korean": "우나나나",
+        "managerEmail": "t2@gmail.com",
+        "managerName": "담2",
+        "managerPhone": "010-2",
+        "no": 6,
+        "sellerStatus": "입점 대기",
+        "sellerType": "일반",
+        "username": "nana"
+      },
+      {
+        "actions": [
+          {
+            "id": 8,
+            "name": "퇴점 확정처리",
+            "sl.id": 7
+          },
+          {
+            "id": 9,
+            "name": "퇴점 철회처리",
+            "sl.id": 7
+          },
+          {
+            "id": 11,
+            "name": "휴점 신청",
+            "sl.id": 7
+          }
+        ],
+        "attribute": "쇼핑몰",
+        "createdAt": "Sat, 03 Apr 2010 00:00:00 GMT",
+        "english": "mallang",
+        "korean": "말랑말랑",
+        "managerEmail": null,
+        "managerName": null,
+        "managerPhone": null,
+        "no": 1,
+        "sellerStatus": "퇴점 대기",
+        "sellerType": "헬피",
+        "username": "bong"
+      },
+      {
+        "actions": [
+          {
+            "id": 1,
+            "name": "입점 승인",
+            "sl.id": 2
+          },
+          {
+            "id": 2,
+            "name": "입점 거절",
+            "sl.id": 2
+          }
+        ],
+        "attribute": "마켓",
+        "createdAt": "Sun, 03 Apr 2011 00:00:00 GMT",
+        "english": "bubutrandi",
+        "korean": "부븟랜디",
+        "managerEmail": null,
+        "managerName": null,
+        "managerPhone": null,
+        "no": 2,
+        "sellerStatus": "입점 대기",
+        "sellerType": "헬피",
+        "username": "burandi"
+      },
+      {
+        "actions": [
+          {
+            "id": 1,
+            "name": "입점 승인",
+            "sl.id": 2
+          },
+          {
+            "id": 2,
+            "name": "입점 거절",
+            "sl.id": 2
+          }
+        ],
+        "attribute": "마켓",
+        "createdAt": "Fri, 03 Apr 2020 00:00:00 GMT",
+        "english": "jello",
+        "korean": "젤로",
+        "managerEmail": null,
+        "managerName": null,
+        "managerPhone": null,
+        "no": 33,
+        "sellerStatus": "입점 대기",
+        "sellerType": "일반",
+        "username": "dottory"
+      },
+      {
+        "actions": [
+          {
+            "id": 1,
+            "name": "입점 승인",
+            "sl.id": 2
+          },
+          {
+            "id": 2,
+            "name": "입점 거절",
+            "sl.id": 2
+          }
+        ],
+        "attribute": "쇼핑몰",
+        "createdAt": "Sat, 03 Apr 2021 00:00:00 GMT",
+        "english": "chaerockkk",
+        "korean": "채록",
+        "managerEmail": null,
+        "managerName": null,
+        "managerPhone": null,
+        "no": 96,
+        "sellerStatus": "입점 대기",
+        "sellerType": "일반",
+        "username": "mark"
+      },
+      {
+        "actions": [
+          {
+            "id": 1,
+            "name": "입점 승인",
+            "sl.id": 2
+          },
+          {
+            "id": 2,
+            "name": "입점 거절",
+            "sl.id": 2
+          }
+        ],
+        "attribute": "쇼핑몰",
+        "createdAt": "Sun, 04 Apr 2021 00:00:00 GMT",
+        "english": "mark",
+        "korean": "마크옷",
+        "managerEmail": null,
+        "managerName": null,
+        "managerPhone": null,
+        "no": 111,
+        "sellerStatus": "입점 대기",
+        "sellerType": "일반",
+        "username": "sellermark"
+      },
+      {
+        "actions": [
+          {
+            "id": 1,
+            "name": "입점 승인",
+            "sl.id": 2
+          },
+          {
+            "id": 2,
+            "name": "입점 거절",
+            "sl.id": 2
+          }
+        ],
+        "attribute": "제너럴브랜드",
+        "createdAt": "Sun, 04 Apr 2021 00:00:00 GMT",
+        "english": "Nothing",
+        "korean": "다없슈",
+        "managerEmail": null,
+        "managerName": null,
+        "managerPhone": null,
+        "no": 113,
+        "sellerStatus": "입점 대기",
+        "sellerType": "일반",
+        "username": "chyunKim"
+      },
+      {
+        "actions": [
+          {
+            "id": 1,
+            "name": "입점 승인",
+            "sl.id": 2
+          },
+          {
+            "id": 2,
+            "name": "입점 거절",
+            "sl.id": 2
+          }
+        ],
+        "attribute": "디자이너브랜드",
+        "createdAt": "Mon, 05 Apr 2021 00:00:00 GMT",
+        "english": "master",
+        "korean": "마스터",
+        "managerEmail": null,
+        "managerName": null,
+        "managerPhone": null,
+        "no": 115,
+        "sellerStatus": "입점 대기",
+        "sellerType": "일반",
+        "username": "master17"
+      }
+    ],
+    "totalCount": 8
+  },
+  "message": "SUCCESS"
+}

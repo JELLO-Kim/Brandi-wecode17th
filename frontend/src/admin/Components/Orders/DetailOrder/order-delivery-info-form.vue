@@ -5,19 +5,21 @@
         -
       </a-descriptions-item>
       <a-descriptions-item label="주문자명">
-        {{ dataStore.detailData.user_name }}
+        {{ dataStore.detailData.orderName }}
       </a-descriptions-item>
 
       <a-descriptions-item label="수령자명">
-        {{ dataStore.detailData.user_name }}
+        {{ dataStore.detailData.recipientName }}
       </a-descriptions-item>
       <a-descriptions-item label="연락처">
-        {{ dataStore.detailData.phone_number }}
+        {{ dataStore.detailData.recipientPhone }}
          <a-button type="danger" size="small">변경</a-button>
       </a-descriptions-item>
 
       <a-descriptions-item label="배송지">
-        {{ dataStore.detailData.address }} ({{ dataStore.detailData.zip_code }})
+        {{ dataStore.detailData.recipientAddress }}
+        {{ dataStore.detailData.recipientAddressDetail }}
+        ({{ dataStore.detailData.recipientPostalCode }})
       </a-descriptions-item>
       <a-descriptions-item label="배송시 요청사항">
         일반배송 : 직접 받겠습니다

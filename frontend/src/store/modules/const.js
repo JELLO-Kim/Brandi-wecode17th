@@ -70,7 +70,7 @@ export default {
         }
       }
     },
-    apiDomain: 'http://127.0.0.1:5000',
+    apiDomain: 'http://192.168.40.105:5000',
     testToken: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzZWxsZXJfaWQiOjQsImV4cCI6MTYwNDY1NzU1N30.i4HTrIJWfnQ_tjf4D2WyziEK5j6KOK_GGhenbMfdTH8'
   },
   getters: {

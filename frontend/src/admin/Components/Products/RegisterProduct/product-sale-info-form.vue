@@ -3,7 +3,7 @@
     <a-descriptions bordered size="small" class="seller-from" label-width="20%">
       <a-descriptions-item :span="3">
         <template slot="label">판매가 <span class="required">*</span></template>
-        <a-input placeholder="판매가" class="normal-size" suffix="원" v-model="data.salePrice" v-currency /><br/>
+        <a-input placeholder="판매가" class="normal-size" suffix="원" v-model="dataStore.detailData.price" v-currency /><br/>
         <info-text label=" 판매가는 원화기준 10원 이상이며 가격 입력 시 10원 단위로 입력해 주세요."/>
       </a-descriptions-item>
       <a-descriptions-item label="할인정보" :span="3">
@@ -16,7 +16,7 @@
           </thead>
           <tbody>
           <tr>
-            <td><a-input suffix="%" v-mask="'###'" :min="0" :max="99" v-model.number="num" class="small-size" @blur="() => { if (num > 99) num = 99 } " /></td>
+            <td><a-input suffix="%" v-mask="'###'" :min="0" :max="99" v-model.number="dataStore.detailData.discountRate" class="small-size" @blur="() => { if (num > 99) num = 99 } " /></td>
             <td>0 원 <a-button type="primary">할인판매가적용</a-button></td>
           </tr>
           <tr>
@@ -31,7 +31,7 @@
                 <a-radio :value="2">기간설정</a-radio>
               </a-radio-group>
               <div v-show="saleType == 2">
-                <a-range-picker class="range"/>
+                <a-range-picker @change="changeDate" class="range"/>
                 <info-text label="할인기간을 설정시 기간만료되면 자동으로 정상가로 변경 됩니다."/>
               </div>
             </td>
@@ -45,7 +45,7 @@
 
       </a-descriptions-item>
       <a-descriptions-item :span="3" label="최소/최대판매수량">
-        <a-slider id="test" range :default-value="[1, 20]" :disabled="disabled" :min="1" :max="20" style="width: 250px" />
+        <a-slider id="test" range :default-value="[1, 20]" :disabled="disabled" @change="minMaxChange" :min="1" :max="20" style="width: 250px" />
         <info-text label="최소/최대 판매수량은 1~20개 까지 지정 할 수 있습니다"/>
       </a-descriptions-item>
     </a-descriptions>
@@ -59,6 +59,13 @@ export default {
   components: {
     InfoText
     // ImageUpload
+  },
+  props: {
+    dataStore: {
+      default () {
+        return {}
+      }
+    }
   },
   data () {
     return {
@@ -74,10 +81,13 @@ export default {
         }
       ],
       data: {
-        minSaleType: 1,
-        maxSaleType: 1,
-        minSaleCount: 0,
-        salePrice: 0
+        price: 0, // 판매가
+        minimum: 1, // 최소 수량
+        maximum: 20, // 최대 수량
+        discountRate: 0, // 할인율
+        discountPrice: 0, // 할인가
+        discountStart: '', // 할인시작일
+        discountEnd: '' // 할인종료일
       }
     }
   },
@@ -93,6 +103,19 @@ export default {
     },
     popManager () {
       if (this.managers.length > 1) this.managers.pop()
+    },
+    minMaxChange (val) {
+      // 최대 최소 수량 변경
+      this.dataStore.detailData.minimum = val[0]
+      this.dataStore.detailData.maximum = val[1]
+    },
+    changeDate (val) {
+      console.log(val)
+      this.dataStore.detailData.discountStart = val[0].format('YYYY-MM-DD')
+      this.dataStore.detailData.discountEnd = val[1].format('YYYY-MM-DD')
+    },
+    getData () {
+      return JSON.parse(JSON.stringify(this.data))
     }
   }
 }

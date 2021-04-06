@@ -58,7 +58,7 @@
 
 <script>
 import Vue from 'vue'
-import store from './product-store'
+import store from '../product-store'
 import ProductFilterBox from './product-filter-box'
 import BoardList from '@/admin/Components/Common/BoardList'
 import CommonMixin from '@/admin/mixins/common-mixin'

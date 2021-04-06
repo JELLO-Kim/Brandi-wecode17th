@@ -66,214 +66,6 @@ export default new Router({
       component: AdminSignUp
     },
     {
-      path: '/',
-      component: Layout,
-      children: [
-        {
-          path: 'main',
-          component: Main
-        },
-        {
-          path: 'category',
-          component: CategoryMain,
-          children: [
-            {
-              path: '',
-              component: CategoryProductList
-            }
-          ]
-        },
-        {
-          path: '/detail/:id',
-          component: Detail
-        },
-        {
-          path: '/login',
-          component: Login
-        },
-        {
-          path: '/signup',
-          component: SignUp
-        },
-        {
-          path: '/order',
-          component: Order
-        },
-        {
-          path: '/event',
-          component: Event,
-          name: 'event'
-        },
-        {
-          path: '/event/:no',
-          component: EventDetail,
-          name: 'eventDetail'
-        },
-        {
-          path: '/cart',
-          component: Cart,
-          name: 'cart'
-        },
-        {
-          path: '/mypage',
-          redirect: '/mypage/orderList',
-          component: Mypage,
-          name: Mypage,
-          children: [
-            {
-              path: '',
-              redirect: '/mypage/orderList',
-              component: OrderList,
-              name: 'orderList'
-            },
-            {
-              path: 'orderList',
-              component: OrderList,
-              name: 'orderList'
-            },
-            {
-              path: 'point',
-              component: Point,
-              name: 'point'
-            },
-            {
-              path: 'coupon',
-              component: Coupon,
-              name: 'coupon'
-            },
-            {
-              path: 'qna',
-              component: QnAList,
-              name: 'qna'
-            },
-            {
-              path: 'faq',
-              component: Mypage,
-              name: 'faq'
-            }
-          ]
-        },
-        {
-          path: '/order/detail',
-          component: OrderDetail
-        },
-        // 주문 상세 보기
-        {
-          path: '/mypage/orderDetail/:no',
-          component: OrderDetail
-        },
-        {
-          // 초기 url을 main으로 적용
-          path: '/',
-          redirect: '/main'
-        },
-        {
-          path: '*',
-          redirect: '/error/404'
-        },
-        {
-          path: '/error/400',
-          component: NetworkError
-        },
-        {
-          path: '/error/404',
-          component: NotFound
-        }
-      ]
-    },
-    // {
-    //   path: '/main',
-    //   component: Main
-    // },
-    // {
-    //   path: '/detail/:id',
-    //   component: Detail
-    // },
-    // {
-    //   path: '/login',
-    //   component: Login
-    // },
-    // {
-    //   path: '/signup',
-    //   component: SignUp
-    // },
-    // {
-    //   path: '/order',
-    //   component: Order
-    // },
-    // {
-    //   path: '/event',
-    //   component: Event,
-    //   name: 'event'
-    // },
-    // {
-    //   path: '/event/:no',
-    //   component: EventDetail,
-    //   name: 'eventDetail'
-    // },
-    // {
-    //   path: '/mypage',
-    //   redirect: '/mypage/orderList',
-    //   component: Mypage,
-    //   name: Mypage,
-    //   children: [
-    //     {
-    //       path: '',
-    //       redirect: '/mypage/orderList',
-    //       component: OrderList,
-    //       name: 'orderList'
-    //     },
-    //     {
-    //       path: 'orderList',
-    //       component: OrderList,
-    //       name: 'orderList'
-    //     },
-    //     {
-    //       path: 'point',
-    //       component: Point,
-    //       name: 'point'
-    //     },
-    //     {
-    //       path: 'coupon',
-    //       component: Coupon,
-    //       name: 'coupon'
-    //     },
-    //     {
-    //       path: 'qna',
-    //       component: Mypage,
-    //       name: 'qna'
-    //     },
-    //     {
-    //       path: 'faq',
-    //       component: Mypage,
-    //       name: 'faq'
-    //     }
-    //   ]
-    // },
-    // {
-    //   path: '/order/detail',
-    //   component: OrderDetail
-    // },
-    // {
-    //   // 초기 url을 main으로 적용
-    //   path: '/',
-    //   redirect: '/main'
-    // },
-    // {
-    //   path: '*',
-    //   redirect: '/error/404'
-    // },
-    // {
-    //   path: '/error/400',
-    //   component: NetworkError
-    // },
-    // {
-    //   path: '/error/404',
-    //   component: NotFound
-    // },
-    // 회원가입
-    // 어드민 내부
-    {
       path: '/admin',
       name: 'Admin',
       component: Admin,
@@ -385,6 +177,218 @@ export default new Router({
           ]
         }
       ]
+    },
+    {
+      path: '/',
+      component: Layout,
+      children: [
+        {
+          path: 'main',
+          component: Main
+        },
+        {
+          path: 'category',
+          component: CategoryMain,
+          children: [
+            {
+              path: '',
+              component: CategoryProductList
+            }
+          ]
+        },
+        {
+          path: '/detail/:id',
+          component: Detail
+        },
+        {
+          path: '/login',
+          component: Login
+        },
+        {
+          path: '/signup',
+          component: SignUp
+        },
+        {
+          path: '/order',
+          component: Order
+        },
+        {
+          path: '/event',
+          component: Event,
+          name: 'event'
+        },
+        {
+          path: '/event/:no',
+          component: EventDetail,
+          name: 'eventDetail'
+        },
+        {
+          path: '/cart',
+          component: Cart,
+          name: 'cart'
+        },
+        {
+          path: '/mypage',
+          redirect: '/mypage/orderList',
+          component: Mypage,
+          name: Mypage,
+          children: [
+            {
+              path: '',
+              redirect: '/mypage/orderList',
+              component: OrderList,
+              name: 'orderList'
+            },
+            {
+              path: 'orderList',
+              component: OrderList,
+              name: 'orderList'
+            },
+            {
+              path: 'point',
+              component: Point,
+              name: 'point'
+            },
+            {
+              path: 'coupon',
+              component: Coupon,
+              name: 'coupon'
+            },
+            {
+              path: 'qna',
+              component: QnAList,
+              name: 'qna'
+            },
+            {
+              path: 'faq',
+              component: Mypage,
+              name: 'faq'
+            }
+          ]
+        },
+        {
+          path: '/order/detail',
+          component: OrderDetail
+        },
+        {
+          path: '/order/detail/:no',
+          component: OrderDetail
+        },
+        // 주문 상세 보기
+        {
+          path: '/mypage/orderDetail/:no',
+          component: OrderDetail
+        },
+        {
+          // 초기 url을 main으로 적용
+          path: '/',
+          redirect: '/main'
+        },
+        {
+          path: '*',
+          redirect: '/error/404'
+        },
+        {
+          path: '/error/400',
+          component: NetworkError
+        },
+        {
+          path: '/error/404',
+          component: NotFound
+        }
+      ]
     }
+    // {
+    //   path: '/main',
+    //   component: Main
+    // },
+    // {
+    //   path: '/detail/:id',
+    //   component: Detail
+    // },
+    // {
+    //   path: '/login',
+    //   component: Login
+    // },
+    // {
+    //   path: '/signup',
+    //   component: SignUp
+    // },
+    // {
+    //   path: '/order',
+    //   component: Order
+    // },
+    // {
+    //   path: '/event',
+    //   component: Event,
+    //   name: 'event'
+    // },
+    // {
+    //   path: '/event/:no',
+    //   component: EventDetail,
+    //   name: 'eventDetail'
+    // },
+    // {
+    //   path: '/mypage',
+    //   redirect: '/mypage/orderList',
+    //   component: Mypage,
+    //   name: Mypage,
+    //   children: [
+    //     {
+    //       path: '',
+    //       redirect: '/mypage/orderList',
+    //       component: OrderList,
+    //       name: 'orderList'
+    //     },
+    //     {
+    //       path: 'orderList',
+    //       component: OrderList,
+    //       name: 'orderList'
+    //     },
+    //     {
+    //       path: 'point',
+    //       component: Point,
+    //       name: 'point'
+    //     },
+    //     {
+    //       path: 'coupon',
+    //       component: Coupon,
+    //       name: 'coupon'
+    //     },
+    //     {
+    //       path: 'qna',
+    //       component: Mypage,
+    //       name: 'qna'
+    //     },
+    //     {
+    //       path: 'faq',
+    //       component: Mypage,
+    //       name: 'faq'
+    //     }
+    //   ]
+    // },
+    // {
+    //   path: '/order/detail',
+    //   component: OrderDetail
+    // },
+    // {
+    //   // 초기 url을 main으로 적용
+    //   path: '/',
+    //   redirect: '/main'
+    // },
+    // {
+    //   path: '*',
+    //   redirect: '/error/404'
+    // },
+    // {
+    //   path: '/error/400',
+    //   component: NetworkError
+    // },
+    // {
+    //   path: '/error/404',
+    //   component: NotFound
+    // },
+    // 회원가입
+    // 어드민 내부
   ]
 })

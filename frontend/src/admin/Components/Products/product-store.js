@@ -2,6 +2,7 @@ import AdminApiMixin from '@/admin/mixins/admin-api'
 import CommonMixin from '@/admin/mixins/common-mixin'
 import errors from '@/admin/errors/errors'
 import mockup from '@/admin/mockup/productList.json'
+import Message from '@/admin/utils/message'
 // import router from '@/router'
 const ExpireTokenException = errors.ExpireTokenException
 const TimeoutException = errors.TimeoutException
@@ -15,7 +16,31 @@ export default {
       total: 0,
       pageLen: 10,
       loading: false,
-      filter: {}
+      isNew: true, // 신규 등록 여부
+      filter: {},
+      colors: [],
+      sizes: [],
+      productCategory: [],
+      detailData: {
+        productThumbnailImages: ['', '', '', '', ''],
+        firstCategoryId: null, // 1차 카테고리
+        productCategoryId: null, // 2차 카테고리
+        seller_property_id: 1,
+        isSelling: 0, // 판먀여부
+        isDisplay: 0, // 진열 여부
+        productName: '', // 상품명
+        brand_name_korean: '',
+        gosiType: 1,
+        productDetailImage: '', // 상품 상세 정보
+        price: 0, // 판매가
+        minimum: 1, // 최소 수량
+        maximum: 20, // 최대 수량
+        discountRate: 0, // 할인율
+        discountPrice: 0, // 할인가
+        discountStart: '', // 할인시작일
+        discountEnd: '', // 할인종료일
+        productOptions: [] // 옵션 상품
+      }
     }
   },
   props: {
@@ -35,6 +60,14 @@ export default {
     // 셀러 리스트 / 수정
     listUrl () {
       return this.constants.apiDomain + '/product/management'
+    },
+    // 셀러 리스트 / 수정
+    postUrl () {
+      return this.constants.apiDomain + '/seller/product/management/init'
+    },
+    // 셀러 리스트 / 수정
+    metaUrl () {
+      return this.constants.apiDomain + '/seller/product/management/init'
     },
     offset () {
       return (this.page - 1) * this.pageLen
@@ -96,6 +129,36 @@ export default {
     },
     getDetail () {
 
+    },
+    getMeta () {
+      this.get(this.metaUrl)
+        .then(res => {
+          this.productCategory = res.data.result.product_categories
+          this.colors = res.data.result.product_colors
+          this.sizes = res.data.result.product_sizes
+        })
+    },
+    addProduct () {
+      const payload = JSON.parse(JSON.stringify(this.detailData))
+      payload.productThumbnailImages = payload.productThumbnailImages.filter(d => d)
+      this.post(this.postUrl, payload)
+        .then(response => {
+          if (response.data.result.accessToken) {
+            localStorage.setItem('access_token', response.data.result.accessToken)
+            localStorage.setItem('user_type_id', response.data.result.userTypeId)
+          }
+        })
+        .then(() => {
+          Message.success('상품이 등록되었습니다.', () => {
+          })
+        })
+        .catch(err => {
+          if (err.response) {
+            console.log(err.response)
+            console.log(err.response.message)
+          }
+          Message.error('상품 등록에 실패하였습니다.')
+        })
     },
     changePage (page) {
       this.page = page

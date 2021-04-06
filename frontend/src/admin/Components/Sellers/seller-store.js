@@ -1,11 +1,12 @@
 import store from '@/store/index'
 import AdminApiMixin from '@/admin/mixins/admin-api'
+import CommonMixin from '@/admin/mixins/common-mixin'
 import Message from '@/admin/utils/message'
-import mockup from '@/admin/mockup/sellerList.json'
+// import mockup from '@/admin/mockup/sellerList.json'
 
 export default {
   store: store,
-  mixins: [AdminApiMixin],
+  mixins: [AdminApiMixin, CommonMixin],
   data () {
     return {
       list: [],
@@ -14,13 +15,26 @@ export default {
       pageLen: 10,
       loading: false,
       filter: {},
-      detailData: {}
+      detailData: {},
+      backupDetailData: {},
+      sellerAttribute: [], // 셀러 속성 (쇼핑몰...)
+      sellerStatus: [], // 셀러 상태 (입점...)
+      sellerType: [] // 셀러 구분 (일반, 헬피)
     }
   },
   created () {
-    this.load()
+    if (this.isMaster()) {
+      this.getMeta()
+    }
   },
   computed: {
+    prefixUrl () {
+      if (this.isMaster()) {
+        return this.constants.apiDomain + '/master'
+      } else {
+        return this.constants.apiDomain + '/seller'
+      }
+    },
     maxPage () {
       return Math.ceil(this.total / this.pageLen)
     },
@@ -29,35 +43,61 @@ export default {
     },
     // 셀러 리스트 / 수정
     listUrl () {
-      return this.constants.apiDomain + '/master/management-seller'
+      return this.prefixUrl + '/account'
+    },
+    // 셀러 리스트 / 수정
+    getUrl () {
+      if (this.isMaster()) {
+        return this.prefixUrl + '/seller-information/'
+      } else {
+        return this.prefixUrl + '/edit'
+      }
+    },
+    // 셀러 리스트 / 수정
+    putUrl () {
+      return this.prefixUrl + '/edit'
+    },
+    metaUrl () {
+      return this.prefixUrl + '/account/init'
+    },
+    // 셀러 리스트 / 수정
+    statusUrl () {
+      return this.prefixUrl + '/account/level'
     },
     offset () {
       return (this.page - 1) * this.pageLen
     }
   },
   methods: {
+    loadData () {
+      this.get(this.prefixUrl + '/edit')
+        .then(response => {
+          console.log('response', response)
+        })
+        .then(() => {
+          // this.$router.push('/admin/sellerdashboard')
+        })
+        .catch(e => {
+          Message.error(e.response.data.message)
+        })
+    },
     load () {
       this.loading = true
       const params = JSON.parse(JSON.stringify(this.filter))
       params.limit = this.pageLen
       params.offset = this.offset
 
-      new Promise((resolve, reject) => {
-        setTimeout(() => {
-          this.$emit('test', { a: 1 })
-          resolve(listMockup())
-        }, 300)
+      // this.get(this.constants.apiDomain + '/seller/edit')
+      this.get(this.listUrl, {
+        params: params
       })
-      // this.get(this.listUrl, {
-      //   params: params
-      // })
         .then((res) => {
           if (res.data) {
-            res.data.seller_list.forEach((d) => {
+            const sellerList = res.data.result.data
+            const totalCount = res.data.result.totalCount
+            sellerList.forEach((d) => {
               d.checked = false
             })
-            const sellerList = res.data.seller_list
-            const totalCount = res.data.total_count
             this.total = totalCount
             this.list = sellerList
           } else {
@@ -67,7 +107,7 @@ export default {
           if (e.code === 'ECONNABORTED') {
             Message.error('요청 시간을 초과 하였습니다. 다시 시도해주시기 바랍니다.')
           } else {
-            Message.errors('처리 중 오류 발생')
+            Message.error(e.response.data.message)
           }
         }).then((res) => {
           this.loading = false
@@ -76,17 +116,13 @@ export default {
     changeStatus (sellerId, button) {
       this.loading = true
       const params = {
-        seller_id: sellerId,
-        button: button
+        sellerId: sellerId,
+        actionId: button
       }
-      this.put(this.listUrl, params)
+      this.patch(this.statusUrl, params)
         .then((res) => {
-          if (res.data && res.data.message === 'success') {
-            Message.success('셀러 상태 변경 성공')
-            this.load()
-          } else {
-            Message.success('통신 실패')
-          }
+          Message.success('셀러 상태 변경 성공')
+          this.load()
         })
         .catch((e) => {
           if (e.code === 'ECONNABORTED') {
@@ -95,7 +131,7 @@ export default {
             })
           } else {
             Message.error({
-              content: '처리 중 오류 발생'
+              content: e.response.data.message
             })
           }
         }).then((res) => {
@@ -104,10 +140,17 @@ export default {
     },
     getDetail (sellerId) {
       this.loading = true
-      this.get(this.listUrl + '/' + sellerId)
+      // /seller-information/<sellerId>
+      let url = this.getUrl
+      if (this.isMaster()) url += sellerId
+      this.get(url)
         .then((res) => {
           if (res.data) {
-            this.detailData = res.data
+            this.detailData = res.data.result.data
+            if (!this.detailData.managers || this.detailData.managers.length === 0) {
+              this.detailData.managers = [{}]
+            }
+            this.backupDetailData = JSON.parse(JSON.stringify(this.detailData))
           } else {
             Message.error('통신 실패')
           }
@@ -115,7 +158,7 @@ export default {
           if (e.code === 'ECONNABORTED') {
             Message.error('요청 시간을 초과 하였습니다. 다시 시도해주시기 바랍니다.')
           } else {
-            Message.error('처리 중 오류 발생')
+            Message.error(e.response.data.message)
           }
         }).then((res) => {
           this.loading = false
@@ -123,10 +166,28 @@ export default {
     },
     putDetail (sellerId, sellerData) {
       this.loading = true
-      this.put(this.listUrl + '/' + sellerId, sellerData)
+      // const diffData = this.difference(this.detailData, this.backupDetailData)
+      this.patch(this.putUrl, this.detailData)
         .then((res) => {
-          if (res.data && res.data.message === 'success') {
-            Message.success('셀러 수정 성공')
+          Message.success('셀러 수정 성공')
+          this.backupDetailData = JSON.parse(JSON.stringify(this.detailData))
+        }).catch((e) => {
+          if (e.code === 'ECONNABORTED') {
+            Message.error('요청 시간을 초과 하였습니다. 다시 시도해주시기 바랍니다.')
+          } else {
+            Message.error(e.response.data.message)
+          }
+        }).then((res) => {
+          this.loading = false
+        })
+    },
+    getMeta () {
+      this.get(this.metaUrl)
+        .then((res) => {
+          if (res.data) {
+            this.sellerAttribute = res.data.result.data.sellerAttribute
+            this.sellerStatus = res.data.result.data.sellerStatus
+            this.sellerType = res.data.result.data.sellerType
           } else {
             Message.error('통신 실패')
           }
@@ -134,10 +195,10 @@ export default {
           if (e.code === 'ECONNABORTED') {
             Message.error('요청 시간을 초과 하였습니다. 다시 시도해주시기 바랍니다.')
           } else {
-            Message.error('처리 중 오류 발생')
+            Message.error(e.response.data.message)
           }
         }).then((res) => {
-          this.loading = false
+          // this.loading = false
         })
     },
     changePage (page) {
@@ -153,8 +214,4 @@ export default {
       this.changePage(1)
     }
   }
-}
-
-function listMockup () {
-  return mockup
 }

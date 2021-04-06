@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>셀러 계정 관리 </h2>
-    <seller-filter-box @search="search"/>
+    <seller-filter-box @search="search" :data-store="dataStore"/>
     <div class="divide">
       <a-select style="width: 100px; float:right; " v-model="dataStore.pageLen">
         <a-select-option :value="item.value" v-for="item in rowCounts" :key="item.value">{{ item.label }}</a-select-option>
@@ -30,21 +30,21 @@
         <th>Actions</th>
       </template>
       <template slot="row" slot-scope="{item}">
-        <td>{{ item.id }}</td> <!-- 번호 -->
-        <td>{{ item.account }}</td> <!-- 셀러아이디 -->
-        <td>{{ item.brand_name_english }}</td> <!-- 영문이름 -->
-        <td><router-link :to="'sellers/'+item.id">{{ item.brand_name_korean }}</router-link></td> <!-- 한글이름 -->
-        <td>{{ item.name | emptyDash }}</td> <!-- 담당자이름 -->
-        <td>{{ getSellerStatusName(item.seller_status_id) }}</td> <!-- 셀러상태 -->
-        <td>{{ item.phone_number }} </td> <!-- 담당자연락처 -->
-        <td>{{ item.email | emptyDash }}</td> <!-- 담당자이메일 -->
-        <td>{{ getSellerPropertyName(item.seller_property_id) }}</td> <!-- 셀러속성 -->
+        <td>{{ item.no }}</td> <!-- 번호 -->
+        <td>{{ item.username }}</td> <!-- 셀러아이디 -->
+        <td>{{ item.english }}</td> <!-- 영문이름 -->
+        <td><router-link :to="'sellers/'+item.no">{{ item.korean }}</router-link></td> <!-- 한글이름 -->
+        <td>{{ item.managerName | emptyDash }}</td> <!-- 담당자이름 -->
+        <td>{{ item.sellerStatus }}</td> <!-- 셀러상태 --> <!-- getSellerStatusName(item.seller_status_id) -->
+        <td>{{ item.managerPhone }} </td> <!-- 담당자연락처 -->
+        <td>{{ item.managerEmail | emptyDash }}</td> <!-- 담당자이메일 -->
+        <td>{{ item.attribute}}</td> <!-- 셀러속성 --> <!-- getSellerPropertyName(item.seller_property_id)  -->
 <!--        <td>{{ 0 }}</td> &lt;!&ndash; 상품개수 &ndash;&gt;-->
 <!--        <td>{{ item.shopUrl }}</td> &lt;!&ndash; URL &ndash;&gt;-->
-        <td>{{ item.created_at }}</td> <!-- 등록일시 -->
+        <td>{{ item.createdAt }}</td> <!-- 등록일시 -->
         <td>
-          <template v-for="action in constants.sellerStatusActions[item.seller_status_id]">
-            <a-button :key="action" :type="action.type" size="small" @click="changeSellerStatus(item, action)">{{ action.label }}</a-button>
+          <template v-for="action in item.actions"> <!-- constants.sellerStatusActions[item.seller_status_id] -->
+            <a-button :key="action" :type="action.type" size="small" @click="changeSellerStatus(item, action)">{{ action.name }}</a-button>
           </template>
           <a-button type="normal" size="small" @click="moveToShop(item)">Web</a-button>
         </td>
@@ -79,9 +79,9 @@ export default {
   methods: {
     changeSellerStatus (row, action) {
       confirm({
-        content: row.brand_name_korean + ' 셀러 상태를 ' + action.label + '로 변경 하시겠습니까?',
+        content: row.korean + ' 셀러 상태를 ' + action.name + '로 변경 하시겠습니까?',
         onOk: () => {
-          this.dataStore.changeStatus(row.id, action.value)
+          this.dataStore.changeStatus(row.no, action.id)
         }
       })
     },

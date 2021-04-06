@@ -2,7 +2,7 @@
   <div>
     <a-descriptions bordered size="small" class="seller-from" label-width="20%" :column="2">
       <a-descriptions-item label="주문 상세 번호">
-        {{ dataStore.detailData.detail_number }}
+        {{ dataStore.detailData.cartNumber }}
       </a-descriptions-item>
       <a-descriptions-item label="주문 상태">
 
@@ -13,7 +13,7 @@
 
       </a-descriptions-item>
       <a-descriptions-item label="결제일시">
-        {{ dataStore.detailData.order_date }}
+        {{ dataStore.detailData.orderDate }}
       </a-descriptions-item>
 
       <a-descriptions-item label="정산예정일">
@@ -24,7 +24,7 @@
         0 원
       </a-descriptions-item>
       <a-descriptions-item label="연락처">
-        {{ dataStore.detailData.phone_number }}
+        {{ dataStore.detailData.orderPhone }}
         <a-button type="danger">변경</a-button>
       </a-descriptions-item>
     </a-descriptions>

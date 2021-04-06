@@ -15,8 +15,8 @@
           <tr v-for="(item, index) in data.colors" :key="item.value">
             <td :rowspan="data.colors.length" v-if="index == 0">색상</td>
             <td>
-              <a-select show-search :data-source="colorList" :filter-option="filterOption" v-model="item.colorId" style="width: 100%">
-                <a-select-option :value="item.value" v-for="item in colorList" :key="item.value">{{item.text}}</a-select-option>
+              <a-select show-search :data-source="colors" :filter-option="filterOption" v-model="item.colorId" style="width: 100%">
+                <a-select-option :value="item.value" v-for="item in colors" :key="item.value">{{item.text}}</a-select-option>
               </a-select>
             </td>
             <td>
@@ -27,8 +27,8 @@
           <tr v-for="(item, index) in data.sizes" :key="item.value">
             <td :rowspan="data.sizes.length" v-if="index == 0">사이즈</td>
             <td>
-              <a-select show-search :data-source="sizeList" :filter-option="filterOption" v-model="item.sizeId" style="width: 100%">
-                <a-select-option :value="item.value" v-for="item in sizeList" :key="item.value">{{item.text}}</a-select-option>
+              <a-select show-search :data-source="sizes" :filter-option="filterOption" v-model="item.sizeId" style="width: 100%">
+                <a-select-option :value="item.value" v-for="item in sizes" :key="item.value">{{item.text}}</a-select-option>
               </a-select>
             </td>
             <td>
@@ -67,21 +67,21 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="(item, index) in options" :key="item.value">
+          <tr v-for="(item, index) in dataStore.detailData.productOptions" :key="item.value">
             <td>
-              <a-select show-search :data-source="colorList" :filter-option="filterOption" v-model="item.colorId" style="width: 100%">
-                <a-select-option :value="item.value" v-for="item in colorList" :key="item.value">{{item.text}}</a-select-option>
+              <a-select show-search :data-source="colors" :filter-option="filterOption" v-model="item.colorId" style="width: 100%">
+                <a-select-option :value="item.value" v-for="item in colors" :key="item.value">{{item.text}}</a-select-option>
               </a-select>
             </td>
             <td>
-              <a-select show-search :data-source="sizeList" :filter-option="filterOption" v-model="item.sizeId" style="width: 100%">
-                <a-select-option :value="item.value" v-for="item in sizeList" :key="item.value">{{item.text}}</a-select-option>
+              <a-select show-search :data-source="sizes" :filter-option="filterOption" v-model="item.sizeId" style="width: 100%">
+                <a-select-option :value="item.value" v-for="item in sizes" :key="item.value">{{item.text}}</a-select-option>
               </a-select>
             </td>
             <td>
               <a-radio-group v-model="item.inventoryYn">
                 <a-radio :value="1">재고관리 안함</a-radio>
-                <a-radio :value="2"><a-input style="width: 150px" suffix="개" :disabled="item.inventoryYn == 1" /></a-radio>
+                <a-radio :value="2"><a-input style="width: 150px" suffix="개" v-model="item.stock" :disabled="item.inventoryYn == 1" /></a-radio>
               </a-radio-group>
             </td>
             <td><a-button type="danger" @click="popOption(index)">-</a-button></td>
@@ -103,16 +103,30 @@ export default {
   components: {
     // VueSelect
   },
+  props: {
+    dataStore: {
+      default () {
+        return {}
+      }
+    }
+  },
   data () {
     return {
       colorList: [],
       sizeList: [],
       options: [],
       data: {
+        // 샘플 데이터
+        productOptions: [
+          {
+            colorId: 6,
+            sizeId: 3,
+            stock: 100
+          }
+        ],
         colors: [{
           colorId: ''
-        }
-        ],
+        }],
         sizes: [{
           sizeId: ''
         }]
@@ -120,19 +134,13 @@ export default {
     }
   },
   created () {
-    for (let i = 0, len = this.colors.length; i < len; i++) {
-      this.colorList.push({ text: this.colors[i], value: i })
-    }
-    for (let i = 0, len = this.sizes.length; i < len; i++) {
-      this.sizeList.push({ text: this.sizes[i], value: i })
-    }
   },
   computed: {
     colors () {
-      return this.$store.state.const.colors
+      return this.dataStore.colors.map(d => { return { text: d.name, value: d.id } })
     },
     sizes () {
-      return this.$store.state.const.sizes
+      return this.dataStore.sizes.map(d => { return { text: d.name, value: d.id } })
     }
   },
   methods: {
@@ -161,14 +169,18 @@ export default {
           optionList.push({
             colorId: this.data.colors[i].colorId,
             sizeId: this.data.sizes[z].sizeId,
+            stock: 1,
             inventoryYn: 1
           })
         }
       }
-      this.options = optionList
+      this.dataStore.detailData.productOptions = optionList
     },
     popOption (index) {
       this.options.splice(index, 1)
+    },
+    getData () {
+      return JSON.parse(JSON.stringify(this.data))
     }
   }
 }

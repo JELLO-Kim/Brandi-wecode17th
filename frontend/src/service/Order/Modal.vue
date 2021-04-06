@@ -1,33 +1,33 @@
 <template>
   <transition name="modal" appear>
-    <div class="modal modal-overlay" @click.self="$emit('close')">
+    <div class="modal modal-overlay" :class="{'add-address': !isNext}" @click.self="$emit('close')">
       <div class="modal-window trans-address">
         <div class="title-box">
           <span v-if="isNext" class="title">배송지 변경</span>
           <span v-else class="title">배송지 추가</span>
-          <span @click.self="$emit('close')">X</span>
+          <span @click.self="$emit('close')" class="close">X</span>
         </div>
 
         <div class="address-box" v-bind:class="{step2: !isNext}">
           <div v-if="isNext">
-            <div class="address-detail-box">
+            <div class="address-detail-box" v-for="address in addresses" :key="address">
               <div class="address-detail-head">
-                <span>장성준</span>
-                <span class="default-address">
+                <span>{{address.name}}</span>
+                <span class="default-address" v-show="address.isDefault == 1">
                   기본배송지
                 </span>
               </div>
               <div class="address-detail-body">
-                <p>서울 강남구 테헤란로</p>
-                <p>위코드 1층</p>
-                <p>010-1234-1234</p>
+                <p>{{address.address}}</p>
+                <p>{{address.addressDetail}}</p>
+                <p>{{address.phone}}</p>
               </div>
               <div class="address-detail-footer">
                 <div>
-                  <button class="delete-btn">삭제</button>
-                  <button class="modify-btn">수정</button>
+                  <button class="delete-btn" @click="delAddress(address.id)">삭제</button>
+                  <!-- <button class="modify-btn">수정</button> -->
                 </div>
-                <div class="select-btn">선택</div>
+                <div class="select-btn" @click="chooseAddress(address)">선택</div>
               </div>
             </div>
 
@@ -38,34 +38,34 @@
             <table class="address-input">
               <tr class="name-box">
                 <th>수령인</th>
-                <td><input type="text" placeholder="이름"></td>
+                <td><input type="text" placeholder="이름" v-model="data.name" maxlength="20"></td>
               </tr>
               <tr class="phone-box">
                 <th>휴대폰</th>
                 <td>
-                  <input type="text" placeholder="010">
-                  <input type="text" placeholder="0000">
-                  <input type="text" placeholder="0000">
+                  <input type="text" placeholder="010" v-model="phone[0]" maxlength="3">
+                  <input type="text" placeholder="0000" v-model="phone[1]" maxlength="4">
+                  <input type="text" placeholder="0000" v-model="phone[2]" maxlength="4">
                 </td>
               </tr>
               <tr class="address-to-box">
                 <th>배송지</th>
                 <td>
                   <div>
-                    <input type="text"><button>우편번호 찾기</button>
+                    <input type="text" v-model="data.postal" maxlength="6"><button>우편번호 찾기</button>
                   </div>
                 </td>
               </tr>
               <tr class="address-to-box">
                 <th></th>
                 <td>
-                  <input type="text">
+                  <input type="text" v-model="data.address">
                 </td>
               </tr>
               <tr class="address-to-box">
                 <th></th>
                 <td>
-                  <input type="text" placeholder="상세주소를 입력하세요">
+                  <input type="text" placeholder="상세주소를 입력하세요" v-model="data.addressDetail">
                 </td>
               </tr>
             </table>
@@ -74,12 +74,11 @@
 
         <div class="step2-bottom" v-if="!isNext">
           <div class="bottom-isPrivate">
-            <label><CheckBox v-model="isPrivate"></CheckBox></label>
-            <span>기본 배송지로 저장</span>
+            <label><CheckBox v-model="data.isDefault"></CheckBox> 기본 배송지로 저장</label>
           </div>
           <div class="bottom-btns">
             <button @click="changeNext" class="cancle-btn">취소</button>
-            <button class="ok-btn">완료</button>
+            <button class="ok-btn" @click="save">완료</button>
           </div>
         </div>
       </div>
@@ -89,21 +88,88 @@
 
 <script lang="cscc" scoped>
 import CheckBox from '@/service/Components/CheckBox'
+import SERVER from '@/config.js'
+import API from '@/service/util/service-api'
 
 export default {
   data () {
     return {
       isNext: true,
-      isPrivate: false
-    }
-  },
-  methods: {
-    changeNext () {
-      this.isNext = !this.isNext
+      addresses: [],
+      phone: ['', '', ''],
+      data: {
+        name: '',
+        phone: '',
+        postal: '',
+        address: '',
+        addressDetail: '',
+        isDefault: 1
+      }
     }
   },
   components: {
     CheckBox
+  },
+  mounted () {
+    this.getAddress()
+  },
+  methods: {
+    makePayload () {
+      const payload = JSON.parse(JSON.stringify(this.data))
+      payload.isDefault = payload.isDefault ? 1 : 0
+      payload.phone = this.phone.join('-')
+      return payload
+    },
+    changeNext () {
+      this.isNext = !this.isNext
+    },
+    chooseAddress (address) {
+      this.$emit('choose', address)
+    },
+    getAddress () {
+      API.methods
+        .get(`${SERVER.IP}/address`)
+        .then((res) => {
+          // console.log(res.data.result)
+          this.addresses = res.data.result.data
+        })
+        .catch((e) => {
+          // console.log(error)
+          this.$router.push('/main')
+          alert(e.response.data.message)
+        })
+    },
+    delAddress (addressId) {
+      API.methods
+        .delete(`${SERVER.IP}/address/delete`, {
+          data: {
+            addressId: addressId
+          }
+        })
+        .then((res) => {
+          this.getAddress()
+        })
+        .catch((e) => {
+          // console.log(error)
+          this.$router.push('/main')
+          alert(e.response.data.message)
+        })
+    },
+    save () {
+      const payload = this.makePayload()
+      API.methods
+        .post(`${SERVER.IP}/address/add`, payload)
+        .then((res) => {
+          // console.log(res.data.result)
+          this.getAddress()
+          this.isNext = true
+        })
+        .catch((e) => {
+          // console.log(error)
+          this.$router.push('/main')
+          alert(e.response.data.message)
+        })
+    }
   }
 }
 </script>
@@ -140,6 +206,9 @@ export default {
     text-align: right;
   }
 }
+.close {
+  cursor: pointer;
+}
 
 .modal-enter-active, .modal-leave-active {
   transition: opacity 0.4s;
@@ -159,6 +228,18 @@ export default {
   .modal-window {
     opacity: 0;
     transform: translateY(-20px);
+  }
+}
+.modal-window {
+  height: calc(100% - 100px);
+}
+.add-address {
+  .modal-window {
+    height: 580px;
+    .address-box {
+      height: 330px;
+      overflow-y: hidden;
+    }
   }
 }
 
@@ -181,6 +262,8 @@ export default {
 
   .address-box {
     padding: 30px;
+    height: calc(100% - 180px);
+    overflow-y: scroll;
 
     .address-detail-box {
       margin-bottom: 30px;
@@ -235,8 +318,12 @@ export default {
     }
 
     .address-add {
-      width: 100%;
+      position: absolute;
+      width: calc(100% - 40px);
+      bottom: 20px;
+      left: 0;
       padding: 20px 0;
+      margin: 0 20px;
       border: 0;
       border-radius: 5px;
       background-color: black;

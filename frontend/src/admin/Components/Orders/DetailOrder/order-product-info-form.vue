@@ -25,32 +25,32 @@
     <a-descriptions bordered size="small" class="seller-from" label-width="20%" :column="2">
       <a-descriptions-item label="상품번호">
 
-        {{ dataStore.detailData.product_number }}
+        {{ dataStore.detailData.productId }}
       </a-descriptions-item>
       <a-descriptions-item label="상품명">
-        {{ dataStore.detailData.product_name }}
+        {{ dataStore.detailData.productName }}
       </a-descriptions-item>
 
       <a-descriptions-item label="상품 판매가">
-        {{ dataStore.detailData.price | makeComma }} 원
+        {{ dataStore.detailData.discountPrice | makeComma }} 원
       </a-descriptions-item>
       <a-descriptions-item label="상품 할인율">
-        {{ dataStore.detailData.discount_rate | makeComma }} %
+        {{ dataStore.detailData.discountRate | makeComma }} %
       </a-descriptions-item>
 
       <a-descriptions-item label="브랜드명">
-        {{ dataStore.detailData.brand_name }}
+        {{ dataStore.detailData.brandName }}
       </a-descriptions-item>
       <a-descriptions-item label="옵션정보">
-        {{ dataStore.detailData.color_name }}
-        / {{ dataStore.detailData.size_name }}
+        {{ dataStore.detailData.colorName }}
+        / {{ dataStore.detailData.sizeName }}
       </a-descriptions-item>
 
       <a-descriptions-item label="구매수량">
-        1 개
+        {{ dataStore.detailData.quantity }} 개
       </a-descriptions-item>
       <a-descriptions-item label="적립예정포인트">
-        122 포인트
+        0 포인트
       </a-descriptions-item>
     </a-descriptions>
     <product-history-modal ref="historyModal"/>

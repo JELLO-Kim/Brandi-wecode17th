@@ -19,48 +19,48 @@
             <td colspan="2">{{ cart.name }}</td>
             <td>주문금액</td>
         </tr>
-        <tr class="order-list-product">
+        <tr class="order-list-product" v-for="item in purchaseItems.optionQuantity" :key="item">
             <td>
-                <img src="https://image.brandi.me/cproduct/2021/02/26/SB000000000020525602_1614328241_image1_S.jpeg" alt="">
+                <img :src="purchaseItems.image" alt="">
             </td>
             <td>
-                <div>상품이름</div>
-                <div>color / size (일반배송)</div>
-                <div>1개</div>
+                <div>{{ item.name }}</div>
+                <div>{{ item.colorName }} / {{ item.sizeName }} (일반배송)</div>
+                <div>{{ item.quantity }}개</div>
             </td>
             <td>
-                <span>99,999 원</span>
+                <span>{{ totalPrice | makeComma }} 원</span>
             </td>
         </tr>
       </tbody>
     </table>
     <div class="resultPrice">
       <span>총 주문 금액</span>
-      <sapn>99,999 원</sapn>
+      <sapn>{{ totalPrice | makeComma }} 원</sapn>
     </div>
 
     <span class="info-title">주문자 정보</span>
     <table class="info-box">
       <tr>
         <td>이름</td>
-        <td><input type="text" placeholder="이름" class="from-name input-name"></td>
+        <td><input type="text" placeholder="이름" class="from-name input-name" v-model="data.orderName"></td>
       </tr>
       <tr>
         <td>휴대폰</td>
         <td>
-          <input type="text" class="from-phone-first input-phone">
+          <input type="text" class="from-phone-first input-phone" v-model="phone[0]" maxlength="3">
           &nbsp;-&nbsp;
-          <input type="text" class="from-phone-second input-phone">
+          <input type="text" class="from-phone-second input-phone" v-model="phone[1]" maxlength="4">
           &nbsp;-&nbsp;
-          <input type="text" class="from-phone-third input-phone">
+          <input type="text" class="from-phone-third input-phone" v-model="phone[2]" maxlength="4">
         </td>
       </tr>
       <tr>
         <td>이메일</td>
         <td>
-          <input type="text" class="email-address input-email">
+          <input type="text" class="email-address input-email" v-model="email[0]">
           &nbsp;@&nbsp;
-          <input type="text" class="email-domain input-email">
+          <input type="text" class="email-domain input-email" v-model="email[1]">
         </td>
       </tr>
     </table>
@@ -72,31 +72,31 @@
     <table class="info-box">
       <tr>
         <td>수령인</td>
-        <td><input type="text" placeholder="이름" class="to-name input-name"></td>
+        <td><input type="text" placeholder="이름" class="to-name input-name" v-model="shipingInfo.name" readonly></td>
       </tr>
       <tr>
         <td>휴대폰</td>
         <td>
-          <input type="text" class="to-phone-first input-phone">
+          <input type="text" class="to-phone-first input-phone" v-model="shipongPhone[0]" readonly>
           &nbsp;-&nbsp;
-          <input type="text" class="to-phone-second input-phone">
+          <input type="text" class="to-phone-second input-phone" v-model="shipongPhone[1]" readonly>
           &nbsp;-&nbsp;
-          <input type="text" class="to-phone-third input-phone">
+          <input type="text" class="to-phone-third input-phone" v-model="shipongPhone[2]" readonly>
         </td>
       </tr>
       <tr>
         <td>배송주소</td>
         <td class="address">
-          <input type="text" class="address-code input-address">
-          <input type="text" class="address-first input-address">
-          <input type="text" class="address-second input-address">
+          <input type="text" class="address-code input-address" v-model="shipingInfo.postal" readonly>
+          <input type="text" class="address-first input-address" v-model="shipingInfo.address" readonly>
+          <input type="text" class="address-second input-address" v-model="shipingInfo.addressDetail" readonly>
           <span>* 제주도, 도서 산간 지역 등은 배송이 하루 이상 추가 소요될 수 있습니다</span>
         </td>
       </tr>
       <tr>
         <td>배송메모</td>
         <td>
-          <DropDown :items="arr" placeholder="배송시 요청사항을 선택해주세요"></DropDown>
+          <DropDown :items="deliveryMessage" placeholder="배송시 요청사항을 선택해주세요" v-model="data.shippingMemoTypeId"></DropDown>
         </td>
       </tr>
     </table>
@@ -106,34 +106,38 @@
       <div class="buy-info-box">
         <div>
           <span>총 상품금액</span>
-          <span>99,999 원</span>
+          <span>{{ totalPrice | makeComma }} 원</span>
         </div>
       </div>
       <div class="buy-result-box">
         <span>총 주문 금액</span>
-        <span>99,999 원</span>
+        <span>{{ totalPrice | makeComma }} 원</span>
       </div>
     </div>
 
-    <button class="order-confirm">결재하기</button>
+    <button class="order-confirm" @click="payment">결재하기</button>
 
-    <Modal @close="closeModal" v-if="modal">
-    </Modal>
+    <Modal @close="closeModal" @choose="chooseAddress" v-if="modal"></Modal>
   </div>
 </template>
 
 <script>
+import SERVER from '@/config.js'
+import API from '@/service/util/service-api'
 import DropDown from '@/service/Components/DropDown'
-import Modal from '@/service/Components/Modal'
+import Modal from './Modal'
 
 export default {
   created () {
-    const cartItem = JSON.parse(localStorage.getItem('cart'))
-    this.totalPrice = cartItem.totalPrice
-    this.cartList = cartItem.items
+    // const cartItem = JSON.parse(localStorage.getItem('cart'))
+    // this.totalPrice = cartItem.totalPrice
+    // this.cartList = cartItem.items
+    this.getDeliveryMessage()
+    this.purchaseItems = JSON.parse(localStorage.getItem('purchaseItems'))
   },
   data () {
     return {
+      deliveryMessage: [],
       // arr: [{
       //   key: '1',
       //   label: '집앞에 놔주세요'
@@ -142,14 +146,45 @@ export default {
       //   key: '1',
       //   label: '빨리 배달해주세요'
       // }],
+      phone: ['', '', ''],
+      email: ['', ''],
+      data: {
+        orderId: '',
+        orderName: '',
+        orderPhone: '',
+        orderEmail: '',
+        shippingMemoTypeId: '',
+        shippingInfoId: '',
+        items: '',
+        totalPrice: ''
+      },
+      purchaseItems: {},
+      shipingInfo: {},
       modal: false,
-      cartList: [],
-      totalPrice: 0
+      cartList: []
     }
   },
   components: {
     DropDown,
     Modal
+  },
+  computed: {
+    shipongPhone () {
+      const phones = this.shipingInfo.phone ? this.shipingInfo.phone.split('-') : []
+      const arr = ['', '', '']
+      for (let i = 0, len = phones.length; i < len; i++) {
+        arr[i] = phones[i]
+      }
+      return arr
+    },
+    totalPrice () {
+      let total = 0
+      for (let i = 0, len = this.purchaseItems.optionQuantity.length; i < len; i++) {
+        const item = this.purchaseItems.optionQuantity[i]
+        total += item.quantity * item.price
+      }
+      return total
+    }
   },
   methods: {
     openModal () {
@@ -157,6 +192,47 @@ export default {
     },
     closeModal () {
       this.modal = false
+    },
+    chooseAddress (address) {
+      console.log(address)
+      this.shipingInfo = address
+      this.modal = false
+    },
+    getDeliveryMessage () {
+      API.methods
+        .get(`${SERVER.IP}/shipping-memo`)
+        .then((res) => {
+          this.deliveryMessage = res.data.result.data.map(d => { return { label: d.contents, key: d.id } })
+          console.log(res)
+        })
+        .catch((e) => {
+          // this.$router.push('/main')
+          alert(e.data.message)
+        })
+    },
+    makePayload () {
+      const payload = JSON.parse(JSON.stringify(this.data))
+      payload.orderId = this.purchaseItems.orderId
+      payload.items = this.purchaseItems.items
+      payload.orderPhone = this.phone.join('-')
+      payload.orderEmail = this.email.join('@')
+      payload.shippingInfoId = this.shipingInfo.id
+      payload.totalPrice = this.totalPrice
+      return payload
+    },
+    payment () {
+      const payload = this.makePayload()
+      API.methods
+        .patch(`${SERVER.IP}/confirmation`, payload)
+        .then((res) => {
+          alert('주문이 성공하였습니다.')
+          const detailId = res.data.result.data
+          this.$router.push('/order/detail/' + detailId)
+        })
+        .catch((e) => {
+          // this.$router.push('/main')
+          alert(e.data.message)
+        })
     }
   }
 }

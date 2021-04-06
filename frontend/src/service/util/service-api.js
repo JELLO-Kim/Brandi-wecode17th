@@ -22,6 +22,10 @@ export default {
       config = this.cloneAndAuthHeader(config)
       return axios.delete(url, config)
     },
+    patch (url, data, config) {
+      config = this.cloneAndAuthHeader(config)
+      return axios.patch(url, data, config)
+    },
     cloneAndAuthHeader (config) {
       if (config === undefined) {
         config = {}
@@ -32,7 +36,10 @@ export default {
       if (config.headers === undefined) {
         config.headers = {}
       }
-      config.headers.authorization = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo5Nn0.Pr0585D-dkyqc-bjQIHtQZAJlalJsv59QPeLoCYMWkw'
+      const token = localStorage.getItem('service_token')
+      if (token) {
+        config.headers.authorization = token
+      }
       config.timeout = 10000
       return config
     }

@@ -1,20 +1,20 @@
 <template>
   <div>
     <a-descriptions bordered size="small" class="seller-from" label-width="20%">
-      <a-descriptions-item label="상품코드" :span="3">
+      <a-descriptions-item label="상품코드" :span="3" v-if="!dataStore.isNew">
         SB000000000009045050
         <a-button type="success" size="small" @click="showHistoryModal">수정이력보기</a-button>
       </a-descriptions-item>
       <a-descriptions-item label="판매여부" :span="3">
-        <a-radio-group v-model="data.seller_property_id">
+        <a-radio-group v-model="dataStore.detailData.isSelling">
           <a-radio :value="1">판매</a-radio>
-          <a-radio :value="2">미판매</a-radio>
+          <a-radio :value="0">미판매</a-radio>
         </a-radio-group>
       </a-descriptions-item>
       <a-descriptions-item label="진열여부" :span="3">
-        <a-radio-group v-model="data.seller_property_id">
+        <a-radio-group v-model="dataStore.detailData.isDisplay">
           <a-radio :value="1">진열</a-radio>
-          <a-radio :value="2">미진열</a-radio>
+          <a-radio :value="0">미진열</a-radio>
         </a-radio-group>
       </a-descriptions-item>
       <a-descriptions-item label="카테고리" :span="3">
@@ -30,12 +30,12 @@
           <tbody>
           <tr>
             <td>
-              <a-select style="width: 100%">
+              <a-select style="width: 100%" v-model="dataStore.detailData.firstCategoryId">
                 <a-select-option :value="item.value" v-for="item in firstCategory" :key="item.value">{{ item.text }}</a-select-option>
               </a-select>
             </td>
             <td>
-              <a-select style="width: 100%">
+              <a-select style="width: 100%" v-model="dataStore.detailData.productCategoryId">
                 <a-select-option :value="item.value" v-for="item in secondCategory" :key="item.value">{{ item.text }}</a-select-option>
               </a-select>
             </td>
@@ -78,24 +78,26 @@
       </a-descriptions-item>
       <a-descriptions-item :span="3">
         <template slot="label">상품명 <span class="required">*</span></template>
-        <a-input placeholder="상품명" class="large-size" v-model="data.brand_name_english" /><br/>
+        <a-input placeholder="상품명" class="large-size" v-model="dataStore.detailData.productName" /><br/>
         <info-text label="상품명에는 쌍따옴표(&quot;) 또는 홑따옴표(')를 포함할 수 없습니다."></info-text><br/>
         <info-text label="상품명에는 4byte 이모지를 포함할 수 없습니다."></info-text>
       </a-descriptions-item>
-      <a-descriptions-item label="한줄 상품 설명" :span="3">
-        <a-input placeholder="한줄 상품 설명" class="large-size" v-model="data.brand_name_english" />
+      <a-descriptions-item label="한줄 상품 설명" :span="3" v-if="false">
+        <a-input placeholder="한줄 상품 설명" class="large-size" v-model="dataStore.detailData.brand_name_english" />
       </a-descriptions-item>
       <a-descriptions-item :span="3">
         <template slot="label">이미지 등록 <span class="required">*</span></template>
 
-        <image-upload v-for="i in [0,1,2,3,4]" :key="i"/>
+        <template v-for="i in [0,1,2,3,4]">
+          <image-upload v-model="dataStore.detailData.productThumbnailImages[i]" :key="i"/>
+        </template>
         <br>
         <info-text label="640 * 720 사이즈 이상 등록 가능하며 확장자는 jpg 만 등록 가능합니다."/>
 
       </a-descriptions-item>
       <a-descriptions-item :span="3">
         <template slot="label">상세 상품 정보 <span class="required">*</span></template>
-        <a-textarea>곧 만들예정</a-textarea>
+        <a-textarea v-model="dataStore.detailData.productDetailImage">곧 만들예정</a-textarea>
       </a-descriptions-item>
     </a-descriptions>
     <product-history-modal ref="historyModal"/>
@@ -103,6 +105,7 @@
 </template>
 
 <script>
+/* eslint-disable vue/valid-v-model */
 import ImageUpload from '@/admin/Components/Common/image-upload'
 import InfoText from '@/admin/Components/Common/info-text'
 import ProductHistoryModal from './product-history-modal'
@@ -112,22 +115,36 @@ export default {
     InfoText,
     ProductHistoryModal
   },
+  props: {
+    dataStore: {
+      default () {
+        return {}
+      }
+    }
+  },
   data () {
     return {
       data: {
         seller_property_id: 1,
-        brand_name_english: '',
+        isSelling: 0, // 판먀여부
+        isDisplay: 0, // 진열 여부
+        productName: '', // 상품명
         brand_name_korean: '',
-        gosiType: 1
+        gosiType: 1,
+        productDetailImage: '' // 상품 상세 정보
       }
     }
   },
   computed: {
     firstCategory () {
-      return this.$store.state.const.firstCategory
+      return this.dataStore.productCategory
+        .filter(d => d.level === 1)
+        .map(d => { return { value: d.id, text: d.name } })
     },
     secondCategory () {
-      return this.$store.state.const.secondCategory
+      return this.dataStore.productCategory
+        .filter(d => d.level === 2)
+        .map(d => { return { value: d.id, text: d.name } })
     }
   },
   methods: {
@@ -137,11 +154,11 @@ export default {
     setFormData (value) {
 
     },
-    getFromData () {
-      return JSON.stringify(JSON.parse(this.data))
-    },
     validate () {
       return true
+    },
+    getData () {
+      return JSON.parse(JSON.stringify(this.data))
     }
   }
 }
