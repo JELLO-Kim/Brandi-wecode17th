@@ -11,7 +11,7 @@ class UserService:
         pass
 
     def create_user(self, user_info, connection):
-        """ 유저 회원가입
+        """ [서비스] 유저 회원가입
         Author: Mark Hasung Kim
         Args:
             user_info (dict): 유저정보
@@ -43,7 +43,7 @@ class UserService:
         return created_user
 
     def signin_user(self, login_info, connection):
-        """ 유저 로그인
+        """ [서비스] 유저 로그인
         Author: Mark Hasung Kim
         Args:
             login_info (dict): 유저 로그인 정보

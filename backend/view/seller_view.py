@@ -260,24 +260,39 @@ class SellerView:
     @seller_app.route('/product/management/init', methods=['GET'])
     @login_decorator
     def get_seller_product_page_info():
-        """ 셀러 상품 등록하기전에 선택할수있는 정보 (product_categories, product_sizes, product_colors) 뿌려주기
-        Author: Mark Hasung Kim
-        Returns: product_get_info (all product_categories, product_sizes, product_colors)
+        """ [어드민] 셀러 상품 등록하기전에 선택할수있는 정보 (product_categories, product_sizes, product_colors) 뿌려주기
+        Author:
+            Mark Hasung Kim
+        Returns:
+            product_get_info (모든 product_categories, product_sizes, product_colors)
         """
-        connection = connect_db()
-        seller_service = SellerService()
-        product_get_info = seller_service.get_product_post_info(connection)
-        if connection:
-            connection.close()
+        connection = None
+        try:
+            user_type_id = g.token_info['user_type_id']
 
-        return product_get_info
+            if user_type_id != 2:
+                raise ApiException(403, ACCESS_DENIED)
+
+            connection = connect_db()
+            seller_service = SellerService()
+            product_get_info = seller_service.get_product_post_info(connection)
+
+            return product_get_info
+
+        except ApiException as e:
+            raise e
+        finally:
+            if connection:
+                connection.close()
 
     @seller_app.route('/product/management/init', methods=['POST'])
     @login_decorator
     def post_seller_product():
-        """ 셀러 상품 등록
-        Author: Mark Hasung Kim
-        Returns: {
+        """ [어드민] 셀러 상품 등록
+        Author:
+            Mark Hasung Kim
+        Returns:
+            {
                     "custom_message": "PRODUCT_CREATED",
                     "result": "POST"
                     }
@@ -299,7 +314,7 @@ class SellerView:
                 raise ApiException(400, PRODUCT_CATEGORY_NOT_IN_KEYS)
             if 'productName' not in data:
                 raise ApiException(400, PRODUCT_NAME_NOT_IN_KEYS)
-            if 'productThumbnailImage' not in data:
+            if 'productThumbnailImages' not in data:
                 raise ApiException(400, PRODUCT_THUMBNAIL_IMAGE_NOT_IN_KEYS)
             if 'productDetailImage' not in data:
                 raise ApiException(400, PRODUCT_DETAIL_IMAGE_NOT_IN_KEYS)
@@ -313,6 +328,7 @@ class SellerView:
                 raise ApiException(400, PRODUCT_OPTION_NOT_IN_KEYS)
             if not data['productOptions']:
                 raise ApiException(400, PRODUCT_OPTION_NOT_IN_INPUT)
+
             for product_option in data['productOptions']:
                 if 'colorId' not in product_option:
                     raise ApiException(400, COLOR_NOT_IN_INPUT)
@@ -321,6 +337,7 @@ class SellerView:
                 if 'stock' not in product_option:
                     raise ApiException(400, STOCK_NOT_IN_INPUT)
 
+            product_thumbnail_images = data['productThumbnailImages']
             product_options = data['productOptions']
 
             product_info = {
@@ -330,7 +347,6 @@ class SellerView:
                 'is_display': data['isDisplay'],
                 'product_category_id': data['productCategoryId'],
                 'product_name': data['productName'],
-                'product_thumbnail_image': data['productThumbnailImage'],
                 'product_detail_image': data['productDetailImage'],
                 'price': data['price'],
                 'discount_rate': data['discountRate'],
@@ -348,10 +364,160 @@ class SellerView:
 
             connection = connect_db()
             seller_service = SellerService()
-            seller_service.post_product(product_info, product_options, connection)
+            product_id = seller_service.post_product(product_info, product_thumbnail_images, product_options, connection)
             connection.commit()
 
-            return {"custom_message": "PRODUCT_CREATED", "result": "POST"}
+            return product_id
+
+        except ApiException as e:
+            if connection:
+                connection.rollback()
+            raise e
+        finally:
+            if connection:
+                connection.close()
+
+    @seller_app.route('/product/management/<int:product_id>', methods=['GET'])
+    @login_decorator
+    def get_seller_product_edit_info(product_id):
+        """ [어드민] 상품 수정하기전에 보내줘야할 상품 정보 갖고오기
+        Author:
+            Mark Hasung Kim
+        Args:
+            product_id (url을 통해서 product_id를 받는다)
+        Returns:
+            product_edit_info (dict형식으로 상품의 디테일 정보, 모든 상품 카테고리, 컬러, 사이즈를 반환해준다)
+        """
+        connection = None
+        try:
+            user_id = g.token_info['user_id']
+            user_type_id = g.token_info['user_type_id']
+
+            if user_type_id != 2:
+                raise ApiException(403, ACCESS_DENIED)
+
+            product_info = {
+                'user_id': user_id,
+                'user_type_id': user_type_id,
+                'product_id': product_id
+            }
+
+            connection = connect_db()
+            seller_service = SellerService()
+            default_product_info = seller_service.get_product_post_info(connection)
+            product_edit_info = seller_service.get_product_edit_info(product_info, connection)
+            product_edit_info['defaultInfo'] = default_product_info
+
+            return product_edit_info
+
+        except ApiException as e:
+            raise e
+        finally:
+            if connection:
+                connection.close()
+
+    @seller_app.route('/product/management/<int:product_id>', methods=['PATCH'])
+    @login_decorator
+    def edit_seller_product(product_id):
+        """ [어드민] 셀러 상품 수정
+        Author:
+            Mark Hasung Kim
+        Returns:
+            {
+                'custom_message': 'PRODUCT_UPDATED',
+                'result': 'PATCH'
+                }
+        """
+        connection = None
+        try:
+            data = request.json
+            user_id = g.token_info['user_id']
+            user_type_id = g.token_info['user_type_id']
+
+            if user_type_id != 2:
+                raise ApiException(403, ACCESS_DENIED)
+
+            product_info = {
+                'user_id': user_id,
+                'user_type_id': user_type_id,
+                'product_id': product_id
+            }
+            product_options = None
+            delete_product_options = None
+            product_thumbnail_images = None
+            delete_product_thumbnails = None
+
+            if 'isSelling' in data:
+                product_info['is_selling'] = data['isSelling']
+            if 'isDisplay' in data:
+                product_info['is_display'] = data['isDisplay']
+            if 'productCategoryId' in data:
+                product_info['product_category_id'] = data['productCategoryId']
+            if 'productName' in data:
+                product_info['product_name'] = data['productName']
+            if 'productDetailImage' in data:
+                product_info['product_detail_image'] = data['productDetailImage']
+            if 'price' in data:
+                product_info['price'] = data['price']
+            if 'minimum' in data:
+                product_info['minimum'] = data['minimum']
+            if 'maximum' in data:
+                product_info['maximum'] = data['maximum']
+
+            if 'productOptions' in data:
+                product_options = data['productOptions']
+                for product_option in product_options:
+                    if 'colorId' not in product_option:
+                        raise ApiException(400, COLOR_NOT_IN_INPUT)
+                    if 'sizeId' not in product_option:
+                        raise ApiException(400, SIZE_NOT_IN_INPUT)
+                    if 'stock' not in product_option:
+                        raise ApiException(400, STOCK_NOT_IN_INPUT)
+
+            if 'deleteProductOptions' in data:
+                delete_product_options = data['deleteProductOptions']
+
+            if 'productThumbnailImages' in data:
+                product_thumbnail_images = data['productThumbnailImages']
+
+            if 'deleteProductThumbnails' in data:
+                delete_product_thumbnails = data['deleteProductThumbnails']
+
+            if 'discountRate' in data:
+                if data['discountRate'] != 0:
+                    if 'discountPrice' not in data:
+                        raise ApiException(400, DISCOUNT_PRICE_NOT_IN_KEYS)
+                    if 'discountStart' not in data:
+                        raise ApiException(400, DISCOUNT_START_NOT_IN_KEYS)
+                    if 'discountEnd' not in data:
+                        raise ApiException(400, DISCOUNT_END_NOT_IN_KEYS)
+                    product_info['is_discount'] = 1
+                    product_info['discount_price'] = data['discountPrice']
+                    product_info['discount_start'] = data['discountStart']
+                    product_info['discount_end'] = data['discountEnd']
+                else:
+                    product_info['is_discount'] = 0
+                    product_info['discount_price'] = ''
+                    product_info['discount_start'] = ''
+                    product_info['discount_end'] = ''
+                product_info['discount_rate'] = data['discountRate']
+
+            if 'isDelete' in data:
+                product_info['is_delete'] = 1
+
+            connection = connect_db()
+            seller_service = SellerService()
+            seller_service.edit_product(
+                product_info,
+                product_options,
+                delete_product_options,
+                product_thumbnail_images,
+                delete_product_thumbnails,
+                connection
+            )
+            connection.commit()
+
+            return {'custom_message': 'PRODUCT_UPDATED', 'result': 'PATCH'}
 
         except ApiException as e:
             if connection:

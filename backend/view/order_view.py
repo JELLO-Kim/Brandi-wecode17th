@@ -11,17 +11,19 @@ class OrderView:
     @order_app.route('/cart', methods=['POST'])
     @login_decorator
     def post_cart():
-        """ 카트에 상품 담기
-        Author: Mark Hasung Kim
-        Returns: {
+        """ [서비스] 카트에 상품 담기
+        Author:
+            Mark Hasung Kim
+        Returns:
+            {
                     "custom_message": "SUCCESS",
                     "result": "POST
                     }
         """
         connection = None
         try:
-            data     = request.json
-            user_id  = g.token_info['user_id']
+            data = request.json
+            user_id = g.token_info['user_id']
             products = data['products']
 
             if 'products' not in data:
@@ -63,26 +65,36 @@ class OrderView:
     @order_app.route('/cart', methods=['GET'])
     @login_decorator
     def get_cart():
-        """ 유저의 모든 카트들 가져오기
-        Author: Mark Hasung Kim
-        Returns: cart_details (유저의 모든 카트 정보)
+        """ [서비스] 유저의 모든 카트들을 가져오기
+        Author:
+            Mark Hasung Kim
+        Returns:
+            cart_details (유저의 모든 카트 정보)
         """
-        user_id = g.token_info['user_id']
-        order_info = {'user_id': user_id}
-        connection = connect_db()
-        order_service = OrderService()
-        cart_details = order_service.get_cart(order_info, connection)
-        if connection:
-            connection.close()
+        connection = None
+        try:
+            user_id = g.token_info['user_id']
+            order_info = {'user_id': user_id}
+            connection = connect_db()
+            order_service = OrderService()
+            cart_details = order_service.get_cart(order_info, connection)
 
-        return cart_details
+            return cart_details
+
+        except Exception as e:
+            raise e
+        finally:
+            if connection:
+                connection.close()
 
     @order_app.route('/cart', methods=['DELETE'])
     @login_decorator
     def delete_cart():
-        """ 카트 삭제 하기 (is_delete = 1)
-        Author: Mark Hasung Kim
-        Returns: {
+        """ [서비스] 카트 삭제 하기 (is_delete = 1)
+        Author:
+            Mark Hasung Kim
+        Returns:
+            {
                     "custom_message": "SUCCESS",
                     "result": "DELETE"
                     }

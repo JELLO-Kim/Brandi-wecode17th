@@ -2,7 +2,7 @@ import pymysql
 
 class UserDao:
     def find_user_info(self, user_info, connection):
-        """ 유저 조회
+        """ [서비스] 유저 username 조회
         Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
@@ -38,7 +38,7 @@ class UserDao:
         return identified_user
 
     def create_user_info(self, user_info, connection):
-        """ 유저 생성
+        """ [서비스] 유저 생성
         Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
@@ -66,7 +66,7 @@ class UserDao:
             return new_user_info
 
     def create_user_info_log(self, user_info, connection):
-        """ 유저 이력 생성
+        """ [서비스] 유저 이력 생성
         Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
@@ -103,15 +103,13 @@ class UserDao:
             return new_user_info_log
 
     def find_user_email(self, user_info, connection):
-        """ 서비스 유저 이메일 조회
+        """ [서비스] 서비스 유저 이메일 조회
         Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
             connection: 커넥션
-
         Returns:
             found_user: 유저 이메일 정보
-
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
@@ -127,12 +125,11 @@ class UserDao:
             return found_user
 
     def create_user(self, user_info, connection):
-        """ 서비스 유저 생성
+        """ [서비스] 서비스 유저 생성
         Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
             connection: 커넥션
-
         Returns:
             new_user: 생성한 서비스 유저 id
         """
@@ -158,12 +155,11 @@ class UserDao:
             return new_user
 
     def create_user_log(self, user_info, connection):
-        """ 서비스 유저 이력 생성
+        """ [서비스] 서비스 유저 이력 생성
         Author: Mark Hasung Kim
         Args:
             user_info: 유저정보 dict
             connection: 커넥션
-
         Returns:
             new_user_log: 생성한 서비스 유저 이력
         """
@@ -196,7 +192,7 @@ class UserDao:
             return new_user_log
 
     def find_user_login_info(self, login_info, connection):
-        """ 유저 로그인 정보 조회
+        """ [서비스] 유저 로그인 정보 조회
         Author: Mark Hasung Kim
         Args:
             login_info: 유저 로그인 정보 dict
