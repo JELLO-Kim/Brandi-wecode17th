@@ -161,12 +161,12 @@ NOT_MANAGER_NAME = "담당자 이름을 입력해 주세요"
 NOT_MANAGER_NUMBER = "담당자 연락처를 입력해 주세요"
 NOT_MANAGER_EMAIL = "담당자 이메일을 입력해 주세요"
 EXSISTING_MANAGER_NAME = "이미 존재하는 담당자 이름입니다"
-EXSISTING_MANAGER_EMAIL = "이미 존재하는 담당자 이메일입니다"
-EXSISTING_MANAGER_PHONE = "이미 존재하는 담당자 연락처입니다"
+EXSISTING_MANAGER_EMAIL = "이 이메일은 이미 해당 셀러 담당자의 이메일로 사용되었습니다."
+EXSISTING_MANAGER_PHONE = "이 연락처는 이미 해당 셀러 담당자의 연락처로 사용되었습니다."
 
 SERVICE_USER_NO_ACCESS = "일반 유저는 접근 권한이 없습니다"
 
-MAXIMUN_MANAGER = "매니저 입력 최대치는 3명 입니다."
+MAX_LIMIT_MANAGER = "매니저 입력 최대치는 3명 입니다."
 
 UPDATED = "정보를 수정하였습니다"
 # 마스터 API에 user나 seller가 들어왔을 때

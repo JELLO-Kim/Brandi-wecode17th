@@ -88,18 +88,20 @@ class SellerService:
         master_dao = MasterDao()
 
         # 로그인한 seller의 추가정보 내용 확인 (첫번째 수정이라면 회원가입시 입력했던 정보 외에 null과 빈 string으로 처리되어 있음)
-        if user['user_type_id'] == 2:
-            find_information = seller_dao.find_seller_info(user, connection)
-        elif user['user_type_id'] == 3:
-            find_information = master_dao.master_find_seller_info(user, connection)
-        # 필수입력 정보중 None이 있다면 첫 수정으로 간주. 필수 parameter들이 요구된다.
+        find_information = seller_dao.find_seller_info(user, connection)
+        
         managers = None
         if 'managers' in seller_edit_info:
             managers = seller_edit_info.pop('managers')
+            # 들어온 manager들의 객체가 담긴 배열 managers의 길이가 3 초과면 에러 반환
+            if managers is not None:
+                if len(managers) > 3:
+                    raise ApiException(400, MAX_LIMIT_MANAGER)
             SellerService().manager_service(user, {'managers': managers}, connection)
-
+        # 필수입력 정보중 None이 있다면 첫 수정으로 간주. first_update로 보내지며 필수 parameter들이 요구된다.
         if None in find_information.values():
             SellerService().first_update(user, seller_edit_info, connection)
+        # 필수입력 정보중 None이 없다면 이미 필수정보 입력 후 두번째 일부수정 가능 상태로 간주. seconde_update로 보내진다.
         else:
             SellerService().seconde_update(user, seller_edit_info, connection)
 
@@ -143,11 +145,11 @@ class SellerService:
                 raise ApiException(400, SHORT_INPUT_SELLER)
 
         # 첫 내용 기입과 이력 생성
-        seller_edit = seller_dao.update_information(seller_edit_info, connection)
+        seller_dao.update_information(seller_edit_info, connection)
         seller_dao.create_seller_update_log(user, connection)
-        
+        # return 하기 전 manager도 생성되었는지 count로 확인
         check_manager_num = seller_dao.check_seller_manager_number(user, connection)
-        if check_manager_num['COUNT(*)'] == 0:
+        if check_manager_num['totalCount'] == 0:
             raise ApiException(400, NOT_MANAGER)
 
         return True
@@ -181,78 +183,84 @@ class SellerService:
     # manager 수정/삭제/생성
     def manager_service(self, user, seller_edit_info, connection):
         seller_dao = SellerDao()
-        if seller_edit_info['managers']:
-            new_manager_id = []
-            for one_manager in seller_edit_info['managers']:
-                if 'name' not in one_manager:
-                    raise ApiException(400, NOT_MANAGER_NAME)
-                if 'phoneNumber' not in one_manager:
-                    raise ApiException(400, NOT_MANAGER_NUMBER)
-                if 'email' not in one_manager:
-                    raise ApiException(400, NOT_MANAGER_EMAIL)
 
-                # body에 담겨져 들어온 manager에 대한 정보가 신규정보가 아닌 기존 정보의 수정일 경우 update 진행 + 이력 생성
+        # 키값 벨리데이션
+        for one_request_manager in seller_edit_info['managers']:
+            if 'name' not in one_request_manager:
+                raise ApiException(400, NOT_MANAGER_NAME)
+            if 'phoneNumber' not in one_request_manager:
+                raise ApiException(400, NOT_MANAGER_NUMBER)
+            if 'email' not in one_request_manager:
+                raise ApiException(400, NOT_MANAGER_EMAIL)
+        # 중복 벨리데이션 (핸드폰 번호 중복 불허)
+        for one_request_manager in seller_edit_info['managers']:
+            phone = list(filter(lambda d:d['phoneNumber'] == one_request_manager['phoneNumber'], seller_edit_info['managers']))
+            if len(phone) > 1:
+                raise ApiException(400, EXSISTING_MANAGER_PHONE)
 
+        # 기존 매니저 리스트
+        db_managers = seller_dao.get_seller_manager(user, connection)
+        # 삭제 대상 추림 => 삭제전용 메소드로 보내짐(seller_edit_delete)
+        for row in db_managers:
+            find_manager = list(filter(lambda x:x['id'] == row['id'], seller_edit_info['managers']))
+            if len(find_manager) == 0:
                 one = {
-                    'id': one_manager.get('id', None),
-                    'name': one_manager.get('name', None),
-                    'email': one_manager.get('email', None),
-                    'phoneNumber': one_manager.get('phoneNumber', None),
-                    'user_id': user['user_id']
+                    'id' : row['id'],
+                    'manager_id' : row['id'],
+                    'user_id' : user['user_id'],
+                    'changer_id' : user['changer_id']
                 }
-                check_manager = seller_dao.get_seller_manager(user, connection)
-                origin_id = [] #db에 저장된 원래 manager id들이 담긴 list
-                for row in check_manager:
-                    origin_id.append(row['id'])
-                new_manager_id.append(one['id'])
-                extra = {
-                    "manager_id" : []
-                }
-                for row in origin_id:
-                    if row not in new_manager_id:
-                        extra['manager_id'].append(row)
-                extra['user_id'] = user['user_id']
-                SellerService().seller_edit_delete(extra, connection)
-                for check_one in check_manager:
-                    if one['id']:
-                        if check_one['id'] == one['id']:
-                            seller_dao.update_manager(one, connection)
-                            extra = {
-                                'changeId' : one['id'],
-                                'user_id' : user['user_id']
-                            }
-                            seller_dao.create_manager_log(extra, connection)
-                    else:
-                        if check_one['email'] == one['email']:
-                            raise ApiException(400, EXSISTING_MANAGER_EMAIL)
-                        if check_one['phoneNumber'] == one['phoneNumber']:
-                            raise ApiException(400, EXSISTING_MANAGER_PHONE)
-                            
-                    # 작성된 manager와 같은 id 값이 아닐 경우 매니저 신규 생성&이력 생성
-                if one['id'] is None:
-                    check_manager_num = seller_dao.check_seller_manager_number(user, connection)
-                    if check_manager_num['COUNT(*)'] >= 10:
-                        raise ApiException(400, MAXIMUN_MANAGER)
-                    result = seller_dao.insert_information_manager(one, connection)
-                    extra = {
-                        'changeId' : result,
-                        'user_id' : user['user_id']
-                    }
-                    seller_dao.create_manager_log(extra, connection)
+                SellerService().seller_edit_delete(one, connection)
+
+        # 수정 대상 수정
+        for one_request_manager in seller_edit_info['managers']:
+            find_manager = list(filter(lambda x:x['id'] == one_request_manager['id'], db_managers))
+            # 기존 매니저 요청 매니저가 일치함
+            if len(find_manager) >= 1:
+                one = {
+                    'id': one_request_manager['id'],
+                    'name': one_request_manager['name'],
+                    'email': one_request_manager['email'],
+                    'phoneNumber': one_request_manager['phoneNumber'],
+                    'user_id': user['user_id'],
+                    'changer_id' : user['changer_id']
+                }                    
+                seller_dao.update_manager(one, connection)
+                seller_dao.create_manager_log(one, connection)            
+        
+        # 신규 대상을 추가
+        for one_request_manager in seller_edit_info['managers']:
+            # 추가 전에 이미 soft_delete 되지 않은 manager의 수가 3 이상이면 에러 반환
+            check_manager_num = seller_dao.check_seller_manager_number(user, connection)
+            if check_manager_num['totalCount'] >= 3:
+                raise ApiException(400, MAX_LIMIT_MANAGER)
+            # 신규는 ID가 전달 되지 않음
+            if one_request_manager.get('id', None) is None:
+                one = {
+                    'name': one_request_manager['name'],
+                    'email': one_request_manager['email'],
+                    'phoneNumber': one_request_manager['phoneNumber'],
+                    'user_id': user['user_id'],
+                    'changer_id': user['changer_id']
+                }                    
+                one['id'] = seller_dao.insert_information_manager(one, connection)
+                seller_dao.create_manager_log(one, connection)
         return True
 
-
     # 채현 : delete
-    def seller_edit_delete(self, extra, connection):
+    def seller_edit_delete(self, one, connection):
+        """ [어드민] seller의 상세 정보 수정 : manager 삭제 (soft_delete)
+        Author:
+            Chae hyun Kim
+        Args:
+            - extra(dict) :
+
+        """
         try:
             seller_dao = SellerDao()
-            seller_dao.delete_manager_dao(extra, connection)
-            for row in extra['manager_id']:
-                extra = {
-                    'changeId'  : row,
-                    'user_id'   : extra['user_id']
-                }
-                seller_dao.create_manager_log(extra, connection)
+            seller_dao.delete_manager_dao(one, connection)
+            seller_dao.create_manager_log(one, connection)
+            return True
         except ApiException as e:
             raise e
 
@@ -310,4 +318,3 @@ class SellerService:
 
         except ApiException as e:
             raise e
-
