@@ -212,7 +212,7 @@ class MasterService:
 
     return {'custom_message':'updated', 'data':'PATCH'}
   
-  def order_detail(self, connection, product_id, cart_number):
+  def order_detail(self, connection, cart_number):
     """ [어드민] 주문 상세 관리(마스터)
       Author: 
         Sung joun Jang
@@ -226,7 +226,7 @@ class MasterService:
     master_dao = MasterDao()
 
     # 주문 상세를 반환
-    order_detail = master_dao.order_detail(connection, product_id, cart_number)
+    order_detail = master_dao.order_detail(connection, cart_number)
     # 할인율을 없앤 원래의 가격
     order_detail['originalPrice'] = order_detail['unitOriginalPrice'] * order_detail['quantity']
 

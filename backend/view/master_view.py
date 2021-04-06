@@ -428,9 +428,9 @@ class MasterView:
             if connection is not None:
                 connection.close 
 
-    @master_app.route('/order/<product_id>/<cart_number>', methods=['GET'])
+    @master_app.route('/order/<cart_number>', methods=['GET'])
     @login_decorator
-    def order_detail(cart_number, product_id):
+    def order_detail(cart_number):
         """ [어드민] 주문 상세 관리(마스터)
         Author: 
             Sung joun Jang
@@ -451,7 +451,7 @@ class MasterView:
         try:
             connection     = connect_db()
             master_service = MasterService()
-            result         = master_service.order_detail(connection, product_id, cart_number)
+            result         = master_service.order_detail(connection, cart_number)
 
             return {"result" : result}
         except Exception as e:

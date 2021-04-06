@@ -878,7 +878,7 @@ class MasterDao:
 
 			return True
 
-	def order_detail(self, connection, product_id, cart_number):
+	def order_detail(self, connection, cart_number):
 		""" [어드민] 주문 상세 관리(마스터)
         Author: 
             Sung joun Jang
@@ -948,16 +948,22 @@ class MasterDao:
 						FROM 
 							product_logs
 						WHERE 
-							product_id = %(product_id)s AND change_date <= now()
+							product_id = (
+								SELECT 
+									po.product_id
+								FROM 
+									carts c
+								LEFT JOIN product_options po
+									ON po.id = c.product_option_id
+								WHERE 
+									c.cart_number = %(cart_number)s
+							) AND change_date <= now()
 						)
 					AND
 					c.cart_number = %(cart_number)s;
 			"""
 
-			cursor.execute(sql, {
-				'cart_number' : cart_number,
-				'product_id'  : product_id
-			})
+			cursor.execute(sql, {'cart_number' : cart_number})
 			result = cursor.fetchone()
 
 			return result
