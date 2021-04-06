@@ -4,6 +4,7 @@ from .product_view import ProductView
 from .mypage_view  import MyPageView
 from .master_view  import MasterView
 from .seller_view  import SellerView, MasterEditView
+from .service_view import ServiceView
 
 __all__ = [
     'ProductView',
@@ -13,4 +14,5 @@ __all__ = [
     'SellerView',
     'MasterView',
     'MasterEditView'
+    'ServiceView'
 ]

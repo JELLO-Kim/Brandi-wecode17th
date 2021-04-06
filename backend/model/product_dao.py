@@ -326,11 +326,53 @@ class ProductDao:
 
             return cursor.lastrowid
 
+    
+    def post_product_qna_log(self, log_info, connection):
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+            INSERT INTO qna_logs(
+                qna_id,
+                product_id,
+                writer_id,
+                question_type_id,
+                parent_id,
+                is_finished,
+                is_private,
+                created_at,
+                updated_at,
+                contents,
+                is_delete,
+                changer_id,
+                change_date
+            ) SELECT (
+                %(qna_id)s,
+                product_id,
+                writer_id,
+                question_type_id,
+                parent_id,
+                is_finished,
+                is_private,
+                created_at,
+                updated_at,
+                contents,
+                is_delete,
+                %(user_id)s,
+                updated_at
+            )
+            FROM
+                qna AS q
+            WHERE q.id = %(qna_id)s
+            """
+            cursor.execute(query, log_info)
+
+            return cursor.lastrowid
+
 
     def get_other_products(self, info, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
             SELECT
+                p.id,
                 s.korean_brand_name AS brand,
                 p.name,
                 p.price,

@@ -160,6 +160,7 @@ class OrderDao:
                 FROM
                     orders
             """
+            # 1=결제전 2=결제후 3 = 바로결제시도
             cursor.execute(query, order_info)
             new_order = cursor.lastrowid
         return new_order
@@ -200,6 +201,7 @@ class OrderDao:
                 WHERE
                     o.id = %(order_id)s 
             """
+            ##post_order_log로 합치기?
             #include shipping_info_id (make sure to account for order_view if user has shipping_info_id)
             cursor.execute(query, order_info)
             new_order_log_id = cursor.lastrowid
@@ -226,13 +228,15 @@ class OrderDao:
                 SELECT
                     %(product_option_id)s,
                     %(order_id)s,
-                    1,
+                    %(cart_status_type_id)s,
                     %(quantity)s,
                     %(price)s,
                     MAX(cart_number) + 1
                 FROM
                     carts
             """
+            ## cart_status_type_id 값 받아서 넣기 ( 하드코딩 x)
+            # 1 = 장바구니, 2 = 결제완료, 3 = 바로결제 시도
             cursor.execute(query, order_info)
             new_cart = cursor.lastrowid
         return new_cart
@@ -475,6 +479,22 @@ class OrderDao:
             deleted_cart = cursor.lastrowid
         return deleted_cart
 
+
+
+    def get_shipping_memo(self, connection):
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+            SELECT
+                id,
+                contents
+            FROM
+                shipping_memo_types
+            """
+            cursor.execute(query)
+
+            return cursor.fetchall()
+
+
     def get_address(self, user_id, connection):
 
         """
@@ -494,12 +514,30 @@ class OrderDao:
                 s.is_default as isDefault
             FROM
                 shipping_info AS s
-            WHERE s.user_id = %(user_id)s
-            ORDER BY isDefault DESC, ordering ASC
+            WHERE 
+                s.user_id = %(user_id)s
+                AND
+                s.is_delete = 0
+            ORDER BY isDefault DESC, id DESC
             """
             cursor.execute(query, {"user_id" : user_id})
 
-            return {"data": cursor.fetchall()}
+            return cursor.fetchall()
+
+
+    def delete_address(self, address_id, connection):
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+            UPDATE
+                shipping_info
+            SET
+                is_delete = 1
+            WHERE
+                id = %(address_id)s
+            """
+            cursor.execute(query, address_id)
+            delete_address = cursor.lastrowid
+        return delete_address
 
 
     def post_address(self, address_info, connection):
@@ -517,7 +555,10 @@ class OrderDao:
                 recipient_postal_code,
                 recipient_address,
                 recipient_address_detail,
-                is_default
+                is_default,
+                created_at,
+                updated_at,
+                is_delete
             ) VALUES (
                 %(user_id)s,
                 %(recipient_name)s,
@@ -525,23 +566,139 @@ class OrderDao:
                 %(recipient_postal_code)s,
                 %(recipient_address)s,
                 %(recipient_address_detail)s,
-                %(is_detail)s
+                %(is_default)s,
+                NOW(),
+                NOW(),
+                0
             )
             """
             cursor.execute(query, address_info)
 
             return cursor.lastrowid
 
+    def check_duplicated_address(self, address_info, connection):
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+            SELECT
+                recipient_address AS address,
+                recipient_address_detail AS detail
+            FROM
+                shipping_info
+            WHERE
+                user_id = %(user_id)s
+            """
+            cursor.execute(query, address_info)
+            return cursor.fetchall()
 
-    def post_order(self, order_info, connection):
+
+    def post_address_log(self, address_info, connection):
+        
+        """
+        주문시 기존 주문내역에 있는 배송지가 아닌 새 배송지를 입력하는경우 db에 추가
+        """
+
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+            INSERT INTO shipping_info_logs (
+                shipping_info_id,
+                user_id,
+                recipient_name,
+                recipient_phone,
+                recipient_postal_code,
+                recipient_address,
+                recipient_address_detail,
+                is_default,
+                is_delete,
+                changer_id,
+                change_date
+            ) SELECT
+                %(shipping_info_id)s,
+                s.user_id,
+                s.recipient_name,
+                s.recipient_phone,
+                s.recipient_postal_code,
+                s.recipient_address,
+                s.recipient_address_detail,
+                s.is_default,
+                s.is_delete,
+                %(user_id)s,
+                NOW()
+            FROM 
+                shipping_info AS s
+            WHERE s.id = %(shipping_info_id)s
+            """
+            cursor.execute(query, address_info)
+
+            return cursor.lastrowid
+
+    def reset_address_default(self, address_info, connection):
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            reset = """
+            UPDATE 
+                shipping_info
+            SET 
+                is_default = 0
+            WHERE 
+                user_id = %(user_id)s
+            """
+            # AND 조건 필요한지 굳이..? (하나의 row를 찾는거 vs 전)
+            cursor.execute(reset, address_info)
+            
+            return cursor.lastrowid
+            ## check if this returns the right id number
+
+
+    def update_order(self, order_info, connection):
         
         """
         order 테이블에 status=1로 장바구니에 담겨있는 상품들이 결제되므로 patch 함수로 결제되는 상품들만 status=2 로 변경.
         """
-
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            order = """
-            INSERT INTO orders(
+            query = """
+            UPDATE 
+                orders
+            SET 
+                order_status_type_id = 2,
+                order_name = %(order_name)s,
+                order_phone = %(order_phone)s,
+                order_email = %(order_email)s,
+                shipping_info_id = %(shipping_info_id)s,
+                shipping_memo_type_id = %(shipping_memo_type_id)s,
+                updated_at = NOW()
+            WHERE 
+                id = %(order_id)s
+            """
+            cursor.execute(query, order_info)
+            return cursor.lastrowid
+
+
+    def find_product_option_id(self, order_info, connection):
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                SELECT
+                    id
+                FROM
+                    product_options
+                WHERE
+                    product_color_type_id =
+                        (SELECT id FROM product_color_types WHERE name = %(color)s) 
+                    AND
+                    product_size_type_id =
+                        (SELECT id FROM product_size_types WHERE name = %(size)s) 
+                    AND
+                    product_id = %(product_id)s
+                """
+            cursor.execute(query, order_info)
+            return cursor.fetchone()
+
+
+    def create_order_fullinfo(self, order_info, connection):
+        """
+        바로결제시
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+            INSERT INTO orders ( 
                 order_status_type_id,
                 user_id,
                 order_name,
@@ -553,7 +710,8 @@ class OrderDao:
                 updated_at,
                 total_price,
                 order_number,
-                is_delete
+                is_delete,
+                payment
             ) VALUES (
                 2,
                 %(user_id)s,
@@ -561,34 +719,77 @@ class OrderDao:
                 %(order_phone)s,
                 %(order_email)s,
                 %(shipping_info_id)s,
-                %(shipping_memo_id)s,
+                %(shipping_memo_type_id)s,
                 NOW(),
                 NOW(),
                 %(total_price)s,
-                %(order_number)s,
-                0
+                FLOOR(RAND() * 401) + 100,
+                0,
+                NOW()
             )
             """
-            # updated_at을 우선에 결제시간으로 - 수정필요
-            ## transaction 걸기
-            cursor.execute(order, order_info)
+            cursor.execute(query, order_info)
             return cursor.lastrowid
 
 
-    def patch_cart(self, cart_info, connection):
+    def post_order_log(self, order_info, connection):
+
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+            INSERT INTO order_logs(
+                order_id,
+                order_status_type_id,
+                user_id,
+                order_name,
+                order_phone,
+                order_email,
+                shipping_info_id,
+                shipping_memo_type_id,
+                created_at,
+                updated_at,
+                total_price,
+                order_number,
+                is_delete,
+                changer_id,
+                change_date
+            ) SELECT
+                %(order_id)s,
+                order_status_type_id,
+                user_id,
+                order_name,
+                order_phone,
+                order_email,
+                shipping_info_id,
+                shipping_memo_type_id,
+                created_at,
+                updated_at,
+                total_price,
+                order_number,
+                is_delete,
+                %(user_id)s,
+                NOW()
+            FROM
+                orders AS o
+            WHERE 
+                o.id = %(order_id)s
+            """
+            cursor.execute(query, order_info)
+            return cursor.lastrowid
+
+    def patch_cart(self, order_info, connection):
         
         """
         order 테이블에 status=1로 장바구니에 담겨있는 상품들이 결제되므로 patch 함수로 결제되는 상품들만 status=2 로 변경.
         """
 
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            cart = """
+            query = """
             UPDATE carts
             SET 
-                order_id = %(order_id)s,
-                cart_status_type_id = 1
+                cart_status_type_id = 2,
+                order_id = %(order_id)s
             WHERE id = %(cart_id)s
             """
-            #1 = 확정대기
-            cursor.execute(cart, cart_info)
+            #1 = 장바구니, 2 = 결제, 3 = 바로결제 시도 4 = 배송중, 5 = 확정대기, 6 = 취소, 7 = 환불
+            cursor.execute(query, order_info)
             return cursor.lastrowid

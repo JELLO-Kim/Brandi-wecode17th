@@ -125,6 +125,9 @@ NOT_MANAGER_EMAIL = "담당자 이메일을 입력해 주세요"
 
 EXSISTING_MANAGER = "이미 존재하는 담당자 정보입니다"
 
+REQUEST_FAILED = "요청에 실패하였습니다"
+
+SELECT_ADDRESS_TO_DELETE = "삭제할 주소를 선택해주세요" 
 INVALID_INPUT_USERNAME = "아이디가 입력되지 않았습니다" # 아이디 입력되지 않았을 시 : 400 Bad request
 INVALID_INPUT_PASSWORD = "패스워드가 입력되지 않았습니다" # 패스워드 입력되지 않았을 시 : 400 Bad request
 INVALID_INPUT_KOREAN_BRAND_NAME = "셀러명이 입력되지 않았습니다" # 셀러명 미입력 시 :400 Bad request

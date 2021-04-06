@@ -1,7 +1,7 @@
 import json
 
 from flask import Flask, jsonify, Response
-from view import ProductView, MyPageView, UserView, OrderView, SellerView, MasterView, MasterEditView
+from view import ProductView, MyPageView, UserView, OrderView, SellerView, MasterView, MasterEditView, ServiceView
 from flask_cors import CORS
 from flask.json import JSONEncoder
 from decimal import Decimal
@@ -37,6 +37,7 @@ def create_app(test_config=None):
     app.register_blueprint(SellerView.seller_app)
     app.register_blueprint(ProductView.product_app)
     app.register_blueprint(MyPageView.mypage_app)
+    app.register_blueprint(ServiceView.service_app)
     app.register_blueprint(MasterView.master_app)
     app.register_blueprint(MasterEditView.master_edit_app)
     # 모든 곳에서 호출하는 것을 허용

@@ -3,6 +3,7 @@ from db_connector   import connect_db
 from service        import ProductService 
 from responses      import *
 from utils          import login_decorator, user_decorator
+from config import AWS_ID, AWS_KEY
 
 class ProductView:
     product_app = Blueprint('product_app', __name__, url_prefix='/products')
@@ -190,7 +191,7 @@ class ProductView:
                 'question_type_id' : data['questionType'],
                 'contents'         : data['content'],
                 'is_private'       : data.get('isPrivate', 1),
-                'product_id'       : data['product_id'],
+                'product_id'       : data['productId'],
                 'user_id'          : user_id,
             }
 
@@ -216,10 +217,15 @@ class ProductView:
     def get_other_products():
         connection = None
         try: 
+            # info = {
+            #     "seller_id"  : int(request.args['sellerId']),
+            #     "product_id" : int(request.args['productId'])
+            # } 
             info = {
-                "seller_id"  : int(request.args['sellerId']),
-                "product_id" : int(request.args['productId'])
+                "seller_id"  : 6,
+                "product_id" : 1
             } 
+
 
             connection = connect_db()
             if connection:
@@ -234,3 +240,38 @@ class ProductView:
         finally:
             if connection:
                 connection.close()
+
+
+    @product_app.route('/fileupload', methods=['POST'])
+    def file_upload():
+        try:
+            s3_client = boto3.client(
+                's3',
+                aws_access_key_id = AWS_ID,
+                aws_secret_access_key = AWS_KEY
+            )
+
+            image       = request.files['filename']
+
+            if image is None:
+                raise ApiException(400, "FILE_NOT_ATTACHED")
+
+            upload_time = (str(datetime.now()).replace(" ", "")).replace("-","_")
+            image_type  = (image.content_type).split("/")[1]
+
+            s3_client.upload_fileobj(
+                image,
+                "brandi-17th",
+                upload_time+"."+image_type,
+                ExtraArgs={
+                    "ContentType": image.content_type
+                }
+            )
+
+            image_url = "https://brandi-17th.s3.ap-northeast-2.amazonaws.com/" + upload_time + "." + image_type
+            image_url = image_url.replace(" ", "")
+
+            return {"custom_message" : OK, "result" : image_url}
+        
+        except Exception as e:
+            raise ApiException(400, "UPLOAD_FAILED")
