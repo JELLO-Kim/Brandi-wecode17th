@@ -51,17 +51,15 @@ def create_app(test_config=None):
 
     @app.after_request
     def final_return(response):
+        # error에 잡혀 message에 에러메세지가 이미 담겨있을 경우 그대로 반환
         if not response.json:
             return response
-            
-        # error에 잡혀 message에 에러메세지가 이미 담겨있을 경우 그대로 반환
         if 'error_message' in response.json:
             return Response(
                     json.dumps({"message": response.json['error_message']}),
                     status=response.json['status'],
                     mimetype="application/json"
                 )
-
         response = app.response_class(
             response=json.dumps({
                 'result': response.json.get('result', response.json),
@@ -70,5 +68,6 @@ def create_app(test_config=None):
             mimetype='application/json'
         )
         return response
+
     return app
 

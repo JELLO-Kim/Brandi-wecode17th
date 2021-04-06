@@ -10,7 +10,7 @@ __all__ = [
     'MyPageView',
     'UserView',
     'OrderView',
-    'SellerView'
+    'SellerView',
     'MasterView',
     'MasterEditView'
 ]

@@ -2,6 +2,13 @@ import pymysql
 
 class SellerDao:
     def check_existing_product_name(self, product_info, connection):
+        """ 셀러의 등록된 상품중에 이미 존재하는 상품 명을 또 추가할때 조회
+        Author: Mark Hasung Kim
+        Args:
+            product_info: 셀러가 등록 하고싶은 상품에대한 정보
+            connection: 커넥션
+        Returns: existing_product_name (존재하는 상품 명)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 SELECT
@@ -10,7 +17,7 @@ class SellerDao:
                     products
                 WHERE
                     name = %(product_name)s
-                AND
+                    AND
                     seller_id = %(user_id)s
             """
             cursor.execute(query, product_info)
@@ -18,10 +25,16 @@ class SellerDao:
             return existing_product_name
 
     def create_product(self, product_info, connection):
+        """ 셀러 상품 생성
+        Author: Mark Hasung Kim
+        Args:
+            product_info: 셀러가 등록 하고싶은 상품애대한 정보
+            connection: 커넥션
+        Returns: new_product_id (새로 생성된 상품 id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
-                INSERT INTO product_logs(
-                    product_id,
+                INSERT INTO products(
                     seller_id,
                     product_category_id,
                     name,
@@ -38,7 +51,8 @@ class SellerDao:
                     is_display,
                     is_discount,
                     minimum,
-                    maximum
+                    maximum,
+                    is_delete
                 )
                 VALUES(
                     %(user_id)s,
@@ -58,12 +72,21 @@ class SellerDao:
                     %(is_discount)s,
                     %(minimum)s,
                     %(maximum)s,
+                    0
+                )
             """
             cursor.execute(query, product_info)
             new_product_id = cursor.lastrowid
             return new_product_id
 
     def create_product_log(self, product_info, connection):
+        """ product_log 생성
+        Author: Mark Hasung Kim
+        Args:
+            product_info: 셀러가 등록 하고싶은 상품에대한 정보
+            connection: 커넥션
+        Returns: new_product_log_id (생성된 product_log id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 INSERT INTO product_logs(
@@ -89,48 +112,62 @@ class SellerDao:
                     changer_id,
                     change_date
                 )
-                VALUES(
-                    %(product_id)s,
+                SELECT
+                    p.id,
+                    p.seller_id,
+                    p.product_category_id,
+                    p.name,
+                    p.discount_start,
+                    p.discount_end,
+                    p.discount_rate,
+                    p.price,
+                    p.discountPrice,
+                    p.contents_image,
+                    p.created_at,
+                    p.updated_at,
+                    p.is_selling,
+                    p.code,
+                    p.is_display,
+                    p.is_discount,
+                    p.minimum,
+                    p.maximum,
+                    p.is_delete,
                     %(user_id)s,
-                    %(product_category_id)s,
-                    %(product_name)s,
-                    %(discount_start)s,
-                    %(discount_end)s,
-                    %(discount_rate)s,
-                    %(price)s,
-                    %(discount_price)s,
-                    %(product_detail_image)s,
-                    NOW(),
-                    NOW(),
-                    %(is_selling)s,
-                    FLOOR(RAND() * 901) + 100,
-                    %(is_display)s,
-                    %(is_discount)s,
-                    %(minimum)s,
-                    %(maximum)s,
-                    0,
-                    %(user_id)s,
-                    SELECT created_at FROM products WHERE id = %(new_product_id)s
-                )
+                    p.updated_at
+                FROM
+                    products AS p
+                WHERE
+                    p.id = %(product_id)s
             """
             cursor.execute(query, product_info)
             new_product_log_id = cursor.lastrowid
             return new_product_log_id
 
     def create_product_option(self, product_info, connection):
+        """ product_option 생성
+        Author: Mark Hasung Kim
+        Args:
+            product_info: 셀러가 등록 하고싶은 상품에대한 정보
+            connection: 커넥션
+        Returns: new_product_option_id (생성된 product_option id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 INSERT INTO product_options(
                     product_color_type_id,
                     product_size_type_id,
                     product_id,
-                    stock 
+                    stock,
+                    created_at,
+                    updated_at
                 ) 
                 VALUES(
                     %(product_color_id)s,
                     %(product_size_id)s,
                     %(product_id)s,
-                    %(stock)s
+                    %(stock)s,
+                    NOW(),
+                    NOW()
                 )
             """
             cursor.execute(query, product_info)
@@ -138,6 +175,13 @@ class SellerDao:
             return new_product_option_id
 
     def create_product_option_log(self, product_info, connection):
+        """ product_option_log 생성
+        Author: Mark Hasung Kim
+        Args:
+            product_info: 셀러가 등록 하고싶은 상품에대한 정보
+            connection: 커넥션
+        Returns: product_option_log_id (생성된 product_option_log id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 INSERT INTO product_option_logs(
@@ -147,23 +191,37 @@ class SellerDao:
                     product_id,
                     stock,
                     changer_id,
-                    change_date 
-                ) 
-                VALUES(
-                    %(product_option_id)s,
-                    %(product_color_id)s,
-                    %(product_size_id)s,
-                    %(product_id)s,
-                    %(stock)s,
-                    %(user_id)s,
-                    NOW()
+                    change_date,
+                    created_at,
+                    updated_at 
                 )
+                SELECT
+                    po.id,
+                    po.product_color_type_id,
+                    po.product_size_type_id,
+                    po.product_id,
+                    po.stock,
+                    %(user_id)s,
+                    po.updated_at,
+                    po.created_at,
+                    po.updated_at
+                FROM
+                    product_options AS po
+                WHERE
+                    po.id = %(product_option_id)s
             """
             cursor.execute(query, product_info)
             product_option_log_id = cursor.lastrowid
             return product_option_log_id
 
     def create_product_thumbnail(self, product_info, connection):
+        """ product_thumbnail image 생성
+        Author: Mark Hasung Kim
+        Args:
+            product_info: 셀러가 등록 하고싶은 상품에대한 정보
+            connection: 커넥션
+        Returns: product_thumbnail_id (생성된 product_thumbnail id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 INSERT INTO product_thumbnails(
@@ -182,6 +240,13 @@ class SellerDao:
             return product_thumbnail_id
 
     def create_product_thumbnail_log(self, product_info, connection):
+        """ product_thumbnail_log 생성
+        Author: Mark Hasung Kim
+        Args:
+            product_info: 셀러가 등록 하고싶은 상품에대한 정보
+            connection: 커넥션
+        Returns: product_thumbnail_log_id (생성된 product_thumbnail_log id)
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 INSERT INTO product_thumbnail_logs(
@@ -192,18 +257,85 @@ class SellerDao:
                     changer_id,
                     change_date
                 )
-                VALUES(
-                    %(product_thumbnail_id)s,
-                    %(product_id)s,
-                    %(product_thumbnail_image)s,
-                    1,
+                SELECT
+                    pt.id,
+                    pt.product_id,
+                    pt.image_url,
+                    pt.ordering,
                     %(user_id)s,
                     NOW()
-                )
+                FROM
+                    product_thumbnails AS pt
+                WHERE
+                    pt.id = %(product_thumbnail_id)s 
             """
             cursor.execute(query, product_info)
             product_thumbnail_log_id = cursor.lastrowid
             return product_thumbnail_log_id
+
+    def get_all_product_categories(self, connection):
+        """ 모든 상품 카테고리 갖고오기
+        Author: Mark Hasung Kim
+        Args:
+            connection: 커넥션
+        Returns: product_categories (모든 상품 카테고리 객체)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                SELECT
+                    id,
+                    parent_id,
+                    name,
+                    level,
+                    is_delete
+                FROM
+                    product_categories
+            """
+            cursor.execute(query)
+            product_categories = cursor.fetchall()
+            return product_categories
+
+    def get_all_product_colors(self, connection):
+        """ 모든 상품 색갈 갖고오기
+        Author: Mark Hasung Kim
+        Args:
+            connection: 커넥션
+        Returns: product_color_types (모든 상품 색갈 객체)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                SELECT
+                    id,
+                    name,
+                    ordering,
+                    is_delete
+                FROM
+                    product_color_types
+            """
+            cursor.execute(query)
+            product_color_types = cursor.fetchall()
+            return product_color_types
+
+    def get_all_product_sizes(self, connection):
+        """ 모든 상품 사이즈 갖고오기
+        Author: Mark Hasung Kim
+        Args:
+            connection: 커넥션
+        Returns: product_size_types (모든 상품 사이즈 객체)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                SELECT
+                    id,
+                    name,
+                    ordering,
+                    is_delete 
+                FROM
+                    product_size_types
+            """
+            cursor.execute(query)
+            product_size_types = cursor.fetchall()
+            return product_size_types
 
     def find_seller_username(self, seller_info, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -328,30 +460,33 @@ class SellerDao:
                 changer_id,
                 change_date
             )
-            VALUES(
+            SELECT
+                s.user_info_id,
+                s.seller_category_id,
+                s.korean_brand_name,
+                s.english_brand_name,
+                s.customer_service_name,
+                s.customer_service_opening,
+                s.customer_service_closing,
+                s.customer_service_number,
+                s.created_at,
+                s.updated_at,
+                s.image_url,
+                s.background_image_url,
+                s.introduce,
+                s.description,
+                s.postal_code,
+                s.address,
+                s.address_detail,
+                s.delivery_information,
+                s.refund_information,
+                s.is_delete,
                 %(user_info_id)s,
-                %(seller_category_id)s,
-                %(korean_brand_name)s,
-                %(english_brand_name)s,
-                %(customer_service_name)s,
-                %(customer_service_opening)s,
-                %(customer_service_closing)s,      
-                %(customer_service_number)s,
-                NOW(),
-                NOW(),
-                %(image_url)s,
-                %(background_image_url)s,
-                %(introduce)s,
-                %(description)s,
-                %(postal_code)s,
-                %(address)s,
-                %(address_detail)s,
-                %(delivery_information)s,
-                %(refund_information)s,
-                0,
-                %(user_info_id)s,
-                NOW()
-            )  
+                s.updated_at
+            FROM
+                sellers AS s
+            WHERE
+                s.user_info_id = %(user_info_id)s
             """
             cursor.execute(query, seller_info)
             new_seller_log_id = cursor.lastrowid
@@ -383,15 +518,13 @@ class SellerDao:
                     user_type_id,
                     username,
                     phone_number,
-                    password,
-                    is_delete
+                    password
                 )
                 VALUES(
                     %(user_type_id)s,
                     %(username)s,
-                    %(phoneNumber)s,
-                    %(password)s,
-                    0
+                    %(phone_number)s,
+                    %(password)s
                 )
             """
             cursor.execute(query, seller_info)
@@ -410,15 +543,18 @@ class SellerDao:
                     changer_id,
                     change_date
                 )
-                VALUES(
-                    %(user_info_id)s,
-                    %(user_type_id)s,
-                    %(username)s,
-                    %(phoneNumber)s,
-                    %(password)s,
-                    %(user_info_id)s,
+                SELECT
+                    ui.id,
+                    ui.user_type_id,
+                    ui.username,
+                    ui.phone_number,
+                    ui.password,
+                    ui.id,
                     NOW()
-                )
+                FROM
+                    user_info AS ui
+                WHERE
+                    ui.id = %(user_info_id)s
             """
             cursor.execute(query, seller_info)
             new_seller_log_id = cursor.lastrowid
@@ -481,7 +617,6 @@ class SellerDao:
                     m.seller_id = %(user_id)s
                     AND
                     is_delete = 0
-
             """
             cursor.execute(manager_info, {"user_id": user['user_id']})
 
