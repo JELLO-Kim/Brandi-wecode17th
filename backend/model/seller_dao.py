@@ -1,6 +1,5 @@
 import pymysql
 
-
 class SellerDao:
     def check_existing_product_name(self, product_info, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -424,7 +423,7 @@ class SellerDao:
             cursor.execute(query, seller_info)
             new_seller_log_id = cursor.lastrowid
           
-#채현 : 정보수정페이지 내용 가져오기 (get)
+    # 채현 : 정보수정페이지 내용 가져오기 (get)
     def seller_edit_get_dao(self, user, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             get_info = """
@@ -467,7 +466,7 @@ class SellerDao:
             cursor.execute(get_info, {"user_id": user['user_id']})
 
             return cursor.fetchone()
-# 채현 : seller의 manager 정보 가져오기
+    # 채현 : seller의 manager 정보 가져오기
     def get_seller_manager(self, user, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             manager_info = """
@@ -487,7 +486,7 @@ class SellerDao:
             cursor.execute(manager_info, {"user_id": user['user_id']})
 
             return cursor.fetchall()
-# 채현 : seller의 정보수정내용 중 필수입력란만 확인하기
+    # 채현 : seller의 정보수정내용 중 필수입력란만 확인하기
     # 수정화면을 처음 들어갔는지 확인하는 쿼리문(처음이라면 모든 값이 null)
     def find_seller_info(self, user, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -512,7 +511,7 @@ class SellerDao:
             cursor.execute(find_info, {"user_id": user['user_id']})
 
             return cursor.fetchone()
-# 채현 : 들어온 값들에 대해 update 해주기 (patch)
+    # 채현 : 들어온 값들에 대해 update 해주기 (patch)
     def update_information(self, seller_edit_info, connection):
         """
         주석 추가 (# 필수입력 정보가 모두 작성되있던 상태에서 일부 값들을 수정할 경우(매니저 제외)) RESTFUL
@@ -549,11 +548,11 @@ class SellerDao:
                 """
             if seller_edit_info['delivery_info']:
                 query += """
-                    delivery_info = %(delivery_info)s,
+                    delivery_information = %(delivery_info)s,
                 """
             if seller_edit_info['refund_info']:
                 query += """
-                    refund_info = %(refund_info)s,
+                    refund_information = %(refund_info)s,
                 """
             if seller_edit_info['callName']:
                 query += """
@@ -575,14 +574,6 @@ class SellerDao:
                 query += """
                     english_brand_name = %(brandEnglish)s,
                 """
-            if seller_edit_info['service_open']:
-                query += """
-                    customer_service_opening = %(service_open)s,
-                """
-            if seller_edit_info['service_close']:
-                query += """
-                    customer_serivce_closing = %(service_close)s,
-                """
             query += """
                     updated_at = now()
                 WHERE
@@ -590,19 +581,9 @@ class SellerDao:
             """
 
             cursor.execute(query, seller_edit_info)
-
-            # # 새로 변경된 값이 담긴 배열 생성 (token으로 부터 받은 user_id도 포함됨)
-            # values = [a for a in seller_edit_info.values()]
-            # changed_value = []
-            # for row in values:
-            #     if row is not None:
-            #         changed_value.append(row)
-
-            # # 실제로 새로 입력받은 seller의 정보갯수 반환
-            # return len(changed_value) - 1
             return cursor.lastrowid
-
     # 수정되는 유저에 배당된 is_delete=0 인 매니저의 수 파악
+    
     def check_seller_manager_number(self, user, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             check_manager_number = """
@@ -620,14 +601,14 @@ class SellerDao:
             return cursor.fetchone()
 
     # 들어온 값 중이 이미 존재하는 값이 있을 경우 에러 반환
-    def check_seller_manager(self, seller_edit_info, connection):
+    def check_seller_manager(self, user, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             manager_query = """
                     SELECT
                         m.id,
                         m.name,
                         m.email,
-                        m.phone_number
+                        m.phone_number AS phoneNumber
                     FROM
                         managers AS m
                     WHERE
@@ -635,7 +616,7 @@ class SellerDao:
                         AND
                         is_delete = 0
                 """
-            cursor.execute(manager_query, {"user_id": seller_edit_info['user_id']})
+            cursor.execute(manager_query, {"user_id": user['user_id']})
             return cursor.fetchall()
 
     # 이미 작성된 manager의 정보 수정
@@ -678,7 +659,7 @@ class SellerDao:
             cursor.execute(manager_query, one)
             return cursor.lastrowid
 
-    def delete_manager_dao(self, man_id, connection):
+    def delete_manager_dao(self, extra, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             delete_query = """
                 UPDATE
@@ -688,7 +669,7 @@ class SellerDao:
                 WHERE
                     id IN %(man_id)s
             """
-            cursor.execute(delete_query, {"man_id" : man_id})
+            cursor.execute(delete_query, {"man_id" : extra['manager_id']})
             return True
 
     def create_manager_log(self, extra, connection):
@@ -696,21 +677,35 @@ class SellerDao:
             log_query = """
                 INSERT INTO
                     manager_logs(
+                        manager_id,
                         name,
                         email,
                         phone_number,
-                        seller_id
+                        created_at,
+                        updated_at,
+                        seller_id,
+                        changer_id,
+                        change_date,
+                        is_delete
                     )
                 SELECT
+                    m.id,
                     m.name,
                     m.email,
                     m.phone_number,
-                    %(user_id)s
+                    m.created_at,
+                    m.updated_at,
+                    m.seller_id,
+                    %(user_id)s,
+                    now(),
+                    is_delete
                 FROM
                     managers AS m
-                )
-
+                WHERE
+                    m.id = %(changeId)s
             """
+            cursor.execute(log_query, {"changeId" :extra['changeId'], "user_id" : extra['user_id']})
+            return True
 
     # seller_logs 생성
     def create_seller_update_log(self, user, connection):

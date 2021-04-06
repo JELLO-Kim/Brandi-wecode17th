@@ -34,7 +34,6 @@ def login_decorator(func):
 
             else:
                 raise ApiException(401, LOGIN_REQUIRED)
-
         except jwt.InvalidTokenError:
             raise ApiException(400, INVALID_TOKEN)
         except ApiException as e:
