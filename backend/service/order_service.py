@@ -12,13 +12,14 @@ class OrderService:
         pass
 
     def post_cart(self, order_info, products, connection):
-        """
+        """ [서비스] 카트 생성하기
         Author: Mark Hasung Kim
         Args:
             order_info (dict): 유저 주문 관련 정보
             products (dict): 카트에 담길 products에대한 정보 (color, size, quantity, price)
             connection: 커넥션
-        Returns: True (카트에 상품이 성공적으로 담기면 True를 반환해준다)
+        Returns:
+            True (카트에 상품이 성공적으로 담기면 True를 반환해준다)
         """
         order_dao = OrderDao()
         #유저가 결제전인 order (order_status_type)를 갖고 있는지 확인
@@ -92,7 +93,7 @@ class OrderService:
             return True
 
     def get_cart(self, order_info, connection):
-        """
+        """ [서비스] 유저의 모든 카트를 갖고오기
         Author: Mark Hasung Kim
         Args:
             order_info (dict): 유저 주문 관련 정보
@@ -138,13 +139,13 @@ class OrderService:
             raise e
 
     def delete_cart(self, order_info, connection):
-        """
+        """ [서비스] 카트 soft delete
         Author: Mark Hasung Kim
         Args:
             order_info (dict): 유저 주문 관련 정보
             connection: 커넥션
-        Returns: True (카트가 삭제돼면 True를 반환해준다)
-
+        Returns:
+            True (카트가 삭제돼면 True를 반환해준다)
         """
         try:
             order_dao = OrderDao()

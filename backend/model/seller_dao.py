@@ -2,12 +2,13 @@ import pymysql
 
 class SellerDao:
     def check_existing_product_name(self, product_info, connection):
-        """ 셀러의 등록된 상품중에 이미 존재하는 상품 명을 또 추가할때 조회
+        """ [어드민] 셀러의 등록된 상품중에 이미 존재하는 상품 명을 또 추가할때 조회
         Author: Mark Hasung Kim
         Args:
             product_info: 셀러가 등록 하고싶은 상품에대한 정보
             connection: 커넥션
-        Returns: existing_product_name (존재하는 상품 명)
+        Returns:
+            existing_product_name (존재하는 상품 명)
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
@@ -25,12 +26,13 @@ class SellerDao:
             return existing_product_name
 
     def create_product(self, product_info, connection):
-        """ 셀러 상품 생성
+        """ [어드민] 셀러 상품 생성
         Author: Mark Hasung Kim
         Args:
             product_info: 셀러가 등록 하고싶은 상품애대한 정보
             connection: 커넥션
-        Returns: new_product_id (새로 생성된 상품 id)
+        Returns:
+            new_product_id (새로 생성된 상품 id)
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
@@ -79,13 +81,113 @@ class SellerDao:
             new_product_id = cursor.lastrowid
             return new_product_id
 
+    def update_product(self, product_info, connection):
+        """ [어드민] 셀러 상품 수정
+        Author: Mark Hasung Kim
+        Args:
+            product_info: 셀러가 수정 하고싶은 상품애대한 정보
+            connection: 커넥션
+        Returns:
+            updated_product_id (수정된 상품 id)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                UPDATE
+                    products
+                SET
+            """
+            if product_info.get('is_selling'):
+                query += """
+                    is_selling = %(is_selling)s,
+                """
+            if product_info.get('is_display'):
+                query += """
+                    is_display = %(is_display)s,
+                """
+            if product_info.get('product_category_id'):
+                query += """
+                    product_category_id = %(product_category_id)s,
+                """
+            if product_info.get('product_name'):
+                query += """
+                    name = %(product_name)s,
+                """
+            if product_info.get('product_detail_image'):
+                query += """
+                    contents_image = %(product_detail_image)s,
+                """
+            if product_info.get('price'):
+                query += """
+                    price = %(price)s,
+                """
+            if product_info.get('minimum'):
+                query += """
+                    minimum = %(minimum)s,
+                """
+            if product_info.get('maximum'):
+                query += """
+                    maximum = %(maximum)s,
+                """
+            if product_info.get('discount_rate'):
+                query += """
+                    discount_rate = %(discount_rate)s,
+                """
+            if product_info.get('discount_price'):
+                query += """
+                    discountPrice = %(discount_price)s,
+                """
+            if product_info.get('discount_start'):
+                query += """
+                    discount_start = %(discount_start)s,
+                """
+            if product_info.get('discount_end'):
+                query += """
+                    discount_end = %(discount_end)s,
+                """
+            if product_info.get('is_discount'):
+                query += """
+                    is_discount = %(is_discount)s,
+                """
+            query += """
+                    updated_at = NOW()
+                WHERE
+                    id = %(product_id)s
+            """
+            cursor.execute(query, product_info)
+            updated_product_id = cursor.lastrowid
+            return updated_product_id
+
+    def soft_delete_product(self, product_info, connection):
+        """ [어드민] 상품 soft delete (is_delete = 1)
+        Author: Mark Hasung Kim
+        Args:
+            product_info: product_id를 갖고있는 dict
+            connection: 커넥션
+        Returns:
+            deleted_product_id (삭제된 product_id)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                UPDATE
+                    products
+                SET
+                    is_delete = 1,
+                    updated_at = NOW()
+                WHERE
+                    id = %(product_id)s
+            """
+            cursor.execute(query, product_info)
+            deleted_product_id = cursor.lastrowid
+            return deleted_product_id
+
     def create_product_log(self, product_info, connection):
-        """ product_log 생성
+        """ [어드민] product_log 생성
         Author: Mark Hasung Kim
         Args:
             product_info: 셀러가 등록 하고싶은 상품에대한 정보
             connection: 커넥션
-        Returns: new_product_log_id (생성된 product_log id)
+        Returns:
+            new_product_log_id (생성된 product_log id)
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
@@ -144,12 +246,13 @@ class SellerDao:
             return new_product_log_id
 
     def create_product_option(self, product_info, connection):
-        """ product_option 생성
+        """ [어드민] product_option 생성
         Author: Mark Hasung Kim
         Args:
             product_info: 셀러가 등록 하고싶은 상품에대한 정보
             connection: 커넥션
-        Returns: new_product_option_id (생성된 product_option id)
+        Returns:
+            new_product_option_id (생성된 product_option id)
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
@@ -174,13 +277,37 @@ class SellerDao:
             new_product_option_id = cursor.lastrowid
             return new_product_option_id
 
+    def soft_delete_product_option(self, product_info, connection):
+        """ [어드민] product_option soft delete
+        Author: Mark Hasung Kim
+        Args:
+            product_info: product_option_id를 갖고있는 dict
+            connection: 커넥션
+        Returns:
+            deleted_product_option (삭제된 product_option_id)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                UPDATE
+                    product_option_logs
+                SET
+                    is_delete = 1,
+                    updated_at = NOW()
+                WHERE
+                    id = %(product_option_id)s    
+            """
+            cursor.execute(query, product_info)
+            deleted_product_option = cursor.lastrowid
+            return deleted_product_option
+
     def create_product_option_log(self, product_info, connection):
-        """ product_option_log 생성
+        """ [어드민] product_option_log 생성
         Author: Mark Hasung Kim
         Args:
             product_info: 셀러가 등록 하고싶은 상품에대한 정보
             connection: 커넥션
-        Returns: product_option_log_id (생성된 product_option_log id)
+        Returns:
+            product_option_log_id (생성된 product_option_log id)
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
@@ -214,38 +341,70 @@ class SellerDao:
             product_option_log_id = cursor.lastrowid
             return product_option_log_id
 
-    def create_product_thumbnail(self, product_info, connection):
-        """ product_thumbnail image 생성
+    def create_new_product_thumbnail(self, product_info, connection):
+        """ [어드민] product_thumbnail image 생성
         Author: Mark Hasung Kim
         Args:
             product_info: 셀러가 등록 하고싶은 상품에대한 정보
             connection: 커넥션
-        Returns: product_thumbnail_id (생성된 product_thumbnail id)
+        Returns:
+            product_thumbnail_id (생성된 product_thumbnail id)
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 INSERT INTO product_thumbnails(
                     product_id,
                     image_url,
+                    is_delete,
                     ordering
                 )
-                VALUES(
+                SELECT
                     %(product_id)s,
-                    %(product_thumbnail_image)s,
-                    1
-                )
+                    %(image_url)s,
+                    0,
+                    IFNULL(MAX(pt.ordering), 0) + 1
+                FROM
+                    product_thumbnails AS pt
+                WHERE
+                    pt.product_id = %(product_id)s
+                    AND
+                    pt.is_delete = 0
             """
             cursor.execute(query, product_info)
             product_thumbnail_id = cursor.lastrowid
             return product_thumbnail_id
 
+    def delete_product_thumbnail(self, product_info, connection):
+        """ [어드민] product_thumbnail image 삭제
+        Author:
+            Mark Hasung Kim
+        Args:
+            product_info: 셀러가 삭제 하고싶은 상품 이비지 정보
+            connection: 커넥션
+        Returns:
+            product_thumbnail_id (생성된 product_thumbnail id)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                UPDATE
+                    product_thumbnails
+                SET
+                    is_delete = 1
+                WHERE
+                    id = %(product_thumbnail_id)s
+            """
+            cursor.execute(query, product_info)
+            deleted_product_thumbnail_id = cursor.lastrowid
+            return deleted_product_thumbnail_id
+
     def create_product_thumbnail_log(self, product_info, connection):
-        """ product_thumbnail_log 생성
+        """ [어디민] product_thumbnail_log 생성
         Author: Mark Hasung Kim
         Args:
             product_info: 셀러가 등록 하고싶은 상품에대한 정보
             connection: 커넥션
-        Returns: product_thumbnail_log_id (생성된 product_thumbnail_log id)
+        Returns:
+            product_thumbnail_log_id (생성된 product_thumbnail_log id)
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
@@ -255,7 +414,8 @@ class SellerDao:
                     image_url,
                     ordering,
                     changer_id,
-                    change_date
+                    change_date,
+                    is_delete
                 )
                 SELECT
                     pt.id,
@@ -263,7 +423,8 @@ class SellerDao:
                     pt.image_url,
                     pt.ordering,
                     %(user_id)s,
-                    NOW()
+                    NOW(),
+                    pt.is_delete
                 FROM
                     product_thumbnails AS pt
                 WHERE
@@ -274,11 +435,12 @@ class SellerDao:
             return product_thumbnail_log_id
 
     def get_all_product_categories(self, connection):
-        """ 모든 상품 카테고리 갖고오기
+        """ [어드민] 모든 상품 카테고리 갖고오기
         Author: Mark Hasung Kim
         Args:
             connection: 커넥션
-        Returns: product_categories (모든 상품 카테고리 객체)
+        Returns:
+            product_categories (모든 상품 카테고리를 dict형식으로 반환해준다)
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
@@ -296,11 +458,12 @@ class SellerDao:
             return product_categories
 
     def get_all_product_colors(self, connection):
-        """ 모든 상품 색갈 갖고오기
+        """ [어드민] 모든 상품 색갈 갖고오기
         Author: Mark Hasung Kim
         Args:
             connection: 커넥션
-        Returns: product_color_types (모든 상품 색갈 객체)
+        Returns:
+            product_color_types (모든 상품 색갈들을 dict형식으로 반환해준다)
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
@@ -317,11 +480,12 @@ class SellerDao:
             return product_color_types
 
     def get_all_product_sizes(self, connection):
-        """ 모든 상품 사이즈 갖고오기
+        """ [어드민] 모든 상품 사이즈 갖고오기
         Author: Mark Hasung Kim
         Args:
             connection: 커넥션
-        Returns: product_size_types (모든 상품 사이즈 객체)
+        Returns:
+            product_size_types (모든 상품 사이즈들을 dict형식으로 반환해준다)
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
@@ -336,6 +500,93 @@ class SellerDao:
             cursor.execute(query)
             product_size_types = cursor.fetchall()
             return product_size_types
+
+    def get_product_colors_sizes(self, product_info, connection):
+        """ [어드민] 상품의 모든 커러id, 사이즈id, stock 갖고오기
+        Author:
+            Mark Hasung Kim
+        Args:
+            product_info: product_id를 가지고있는 dict
+            connection: 커넥션
+        Returns:
+            product_colors_sizes (dict형식으로 커러id, 사이즈id, stock을 반환해준다)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                SELECT
+                    product_color_type_id,
+                    product_size_type_id,
+                    stock
+                FROM
+                    product_options
+                WHERE
+                    product_id = %(product_id)s
+                    AND
+                    is_delete = 0
+            """
+            cursor.execute(query, product_info)
+            product_colors_sizes = cursor.fetchall()
+            return product_colors_sizes
+
+    def get_product_details(self, product_info, connection):
+        """ [어드민] 상품 상세 정보 갖고오기
+        Author:
+            Mark Hasung Kim
+        Args:
+            product_info: product_id를 가지고있는 dict
+            connection: 커넥션
+        Returns:
+            product_details (dict형식으로 상품 상세정보를 반환해준다)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                SELECT
+                    name,
+                    price,
+                    product_category_id,
+                    discount_start,
+                    discount_end,
+                    discount_rate,
+                    discountPrice,
+                    contents_image,
+                    is_selling,
+                    is_display,
+                    minimum,
+                    maximum
+                FROM
+                    products
+                WHERE
+                    id = %(product_id)s
+            """
+            cursor.execute(query, product_info)
+            product_details = cursor.fetchone()
+            return product_details
+
+    def get_product_thumbnails(self, product_info, connection):
+        """ [어드민] 상품 thumbnail사진 url, id 갖고오기
+        Author:
+            Mark Hasung Kim
+        Args:
+            product_info: product_id를 가지고있는 dict
+            connection: 커넥션
+        Returns:
+            product_thumbnails (dict형식으로 상품의 모든 thumbnail사진 정보를 반환해준다)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                SELECT
+                    id,
+                    image_url
+                FROM
+                    product_thumbnails
+                WHERE
+                    product_id = %(product_id)s
+                    AND
+                    is_delete = 0
+            """
+            cursor.execute(query, product_info)
+            product_thumbnails = cursor.fetchall()
+            return product_thumbnails
 
     def find_seller_username(self, seller_info, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -534,7 +785,7 @@ class SellerDao:
             """
             cursor.execute(query, seller_info)
             new_seller_log_id = cursor.lastrowid
-          
+
     # 채현 : 정보수정페이지 내용 가져오기 (get)
     def seller_edit_get_dao(self, user, connection):
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:

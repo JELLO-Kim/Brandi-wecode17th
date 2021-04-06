@@ -265,31 +265,40 @@ class SellerService:
             raise e
 
     def get_product_post_info(self, connection):
-        """ 셀러 상품 등록하기전에 선택할 정보 (product_category, product_sizes, product_colors) 뿌려주기)
-        Author: Mark Hasung Kim
+        """ [어드민] 셀러 상품 등록하기전에 선택할 정보 (product_category, product_sizes, product_colors) 뿌려주기)
+        Author:
+            Mark Hasung Kim
         Args:
             connection: 커넥션
-        Returns: product_get_info (product_categories, product_colors, product_sizes 정보)
+        Returns:
+            product_get_info (product_categories, product_colors, product_sizes 정보)
         """
-        seller_dao = SellerDao()
-        product_categories = seller_dao.get_all_product_categories(connection)
-        product_colors = seller_dao.get_all_product_colors(connection)
-        product_sizes = seller_dao.get_all_product_sizes(connection)
-        product_get_info = {
-            'product_categories': product_categories,
-            'product_colors': product_colors,
-            'product_sizes': product_sizes
-        }
-        return product_get_info
+        try:
+            seller_dao = SellerDao()
+            product_categories = seller_dao.get_all_product_categories(connection)
+            product_colors = seller_dao.get_all_product_colors(connection)
+            product_sizes = seller_dao.get_all_product_sizes(connection)
+            product_get_info = {
+                'product_categories': product_categories,
+                'product_colors': product_colors,
+                'product_sizes': product_sizes
+            }
+            return product_get_info
 
-    def post_product(self, product_info, product_options, connection):
-        """ 셀러 상품 등록
-        Author: Mark Hasung Kim
+        except Exception as e:
+            raise e
+
+    def post_product(self, product_info, product_thumbnail_images, product_options, connection):
+        """ [어드민] 셀러 상품 등록
+        Author:
+            Mark Hasung Kim
         Args:
             product_info (dict): 등록할 상품에대한 정보
+            product_thumbnail_images (list)
             product_options (dict): 등록할 상품의 옵션 정보 (product_colors, product_sizes, product_stock)
             connection: 커넥션
-        Returns: product_id (새로 등록한 product id 반환해준다)
+        Returns:
+            data (새로 등록한 product id를 dict형식으로 반환해준다)
         """
         try:
             seller_dao = SellerDao()
@@ -310,11 +319,104 @@ class SellerService:
                 product_info['product_option_id'] = product_option_id
                 seller_dao.create_product_option_log(product_info, connection)
 
-            product_thumbnail_id = seller_dao.create_product_thumbnail(product_info, connection)
-            product_info['product_thumbnail_id'] = product_thumbnail_id
-            seller_dao.create_product_thumbnail_log(product_info, connection)
+            for product_thumbnail_image in product_thumbnail_images:
+                product_info['image_url'] = product_thumbnail_image
+                product_thumbnail_id = seller_dao.create_new_product_thumbnail(product_info, connection)
+                product_info['product_thumbnail_id'] = product_thumbnail_id
+                seller_dao.create_product_thumbnail_log(product_info, connection)
 
-            return product_id
+            data = {'product_id': product_id}
+
+            return data
+
+        except ApiException as e:
+            raise e
+
+    def get_product_edit_info(self, product_info, connection):
+        """ [어드민] 상품 수정하기전에 보내줘야할 상품 정보 갖고오기
+        Author:
+            Mark Hasung Kim
+        Args:
+            product_info: product_id를 갖고있는 dict
+            connection: 커넥션
+        Returns:
+            product_details (상품을 수정할때 필요한 정보를 dict형식으로 반환해준다)
+        """
+        seller_dao = SellerDao()
+        product_details = seller_dao.get_product_details(product_info, connection)
+        product_thumbnails = seller_dao.get_product_thumbnails(product_info, connection)
+        product_details['productThumbnails'] = product_thumbnails
+        product_colors_sizes = seller_dao.get_product_colors_sizes(product_info, connection)
+        product_details['productColorsSizes'] = product_colors_sizes
+
+        return product_details
+
+    def edit_product(
+            self,
+            product_info,
+            product_options,
+            delete_product_options,
+            product_thumbnail_images,
+            delete_product_thumbnails,
+            connection
+    ):
+        """ [어드민] 셀러 상품 수정
+        Author:
+            Mark Hasung Kim
+        Args:
+            product_info (dict): 수정할 상품에대한 정보
+            product_options (dict): 수정할 상품의 옵션 정보 (product_colors, product_sizes, product_stock)
+            delete_product_options (list)
+            product_thumbnail_images (list)
+            delete_product_thumbnails (list)
+            connection: 커넥션
+        Returns:
+            True (상품이 정상적으로 수정 되었으면 True를 반환해준다)
+        """
+        try:
+            seller_dao = SellerDao()
+
+            if product_info.get('product_name'):
+                product_name_exists = seller_dao.check_existing_product_name(product_info, connection)
+                if product_name_exists:
+                    raise ApiException(400, PRODUCT_NAME_ALREADY_EXISTS)
+
+            seller_dao.update_product(product_info, connection)
+            seller_dao.create_product_log(product_info, connection)
+
+            if product_info.get('is_delete'):
+                seller_dao.soft_delete_product(product_info, connection)
+                seller_dao.create_product_log(product_info, connection)
+
+            if product_options:
+                for product_option in product_options:
+                    product_info['product_color_id'] = product_option['colorId']
+                    product_info['product_size_id'] = product_option['sizeId']
+                    product_info['stock'] = product_option['stock']
+                    product_option_id = seller_dao.create_product_option(product_info, connection)
+                    product_info['product_option_id'] = product_option_id
+                    seller_dao.create_product_option_log(product_info, connection)
+
+            if delete_product_options:
+                for delete_product_option in delete_product_options:
+                    product_info['product_option_id'] = delete_product_option
+                    seller_dao.soft_delete_product_option(product_info, connection)
+                    seller_dao.create_product_option_log(product_info, connection)
+
+            if product_thumbnail_images:
+                for product_thumbnail_image in product_thumbnail_images:
+                    product_info['image_url'] = product_thumbnail_image
+                    product_thumbnail_id = seller_dao.create_new_product_thumbnail(product_info, connection)
+                    product_info['product_thumbnail_id'] = product_thumbnail_id
+                    seller_dao.create_product_thumbnail_log(product_info, connection)
+
+            if delete_product_thumbnails:
+                for delete_product_thumbnail in delete_product_thumbnails:
+                    product_info['product_thumbnail_id'] = delete_product_thumbnail
+                    seller_dao.delete_product_thumbnail(product_info, connection)
+                    seller_dao.create_product_thumbnail_log(product_info, connection)
+
+            return True
 
         except ApiException as e:
             raise e

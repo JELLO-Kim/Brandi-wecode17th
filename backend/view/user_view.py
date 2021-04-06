@@ -10,7 +10,7 @@ class UserView:
 
     @user_app.route('signup', methods=['POST'])
     def sign_up_user():
-        """ 유저 회원가입
+        """ [서비스] 유저 회원가입
         Author: Mark Hasung Kim
         Returns:
             {
@@ -27,7 +27,7 @@ class UserView:
                 raise ApiException(400, INVALID_INPUT)
             if 'password' not in data:
                 raise ApiException(400, INVALID_INPUT)
-            if 'user_type_id' not in data:
+            if 'userTypeId' not in data:
                 raise ApiException(400, INVALID_INPUT)
 
             if not validate_password(data['password']):
@@ -39,7 +39,7 @@ class UserView:
                 'username': data['username'],
                 'email': data['email'],
                 'password': data['password'],
-                'user_type_id': int(data['user_type_id']),
+                'user_type_id': int(data['userTypeId']),
                 'phone_number': '',
             }
 
@@ -60,10 +60,10 @@ class UserView:
 
     @user_app.route('signin', methods=['POST'])
     def signin_user():
-        """ 유저 로그인
+        """ [서비스] 유저 로그인
         Author: Mark Hasung Kim
         Returns:
-             user_info: 유저 로그인 토큰
+             user_info: 유저 로그인 토큰 dict형식으로 반환해준다
         """
         connection = None
         try:

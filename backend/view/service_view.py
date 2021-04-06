@@ -12,8 +12,6 @@ class ServiceView:
     @service_app.route('/fileupload', methods=['POST'])
     def file_upload():
         try:
-            # data = request.json
-            # folder = data["folder"]
 
             s3_client = boto3.client(
                 's3',
@@ -30,7 +28,7 @@ class ServiceView:
             image_type  = (image.content_type).split("/")[1]
             path = "Product/" + upload_time+"."+image_type
 
-            reponse = s3_client.upload_fileobj(
+            s3_client.upload_fileobj(
                 image,
                 "brandi-17th",
                 path,
