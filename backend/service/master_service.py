@@ -33,7 +33,8 @@ class MasterService:
 
     master_dao = MasterDao()
 
-    account     = master_dao.account(connection, page_condition, filters)
+    # 샐러 계정 리스트 반환
+    account       = master_dao.account(connection, page_condition, filters)
     # totalCount 수 반환
     account_count = master_dao.account_count(connection, filters)
     total_count   = account_count['COUNT(*)']
@@ -54,6 +55,7 @@ class MasterService:
         'createdAt'    : row['created']
       }
 
+      # 해당 샐러의 level에 따른 action 리스트를 반환
       data['actions'] = master_dao.action(connection, row['seller_status'])
       result.append(data)
 
@@ -72,6 +74,7 @@ class MasterService:
     """
     master_dao = MasterDao()
 
+    # 초기값에 필요한 타입들을 반환하는 로직
     seller_type      = master_dao.seller_type(connection)
     seller_status    = master_dao.seller_status(connection)
     seller_attribute = master_dao.seller_attribute(connection)
@@ -97,8 +100,10 @@ class MasterService:
     action_id     = data['action_id']
     update_action = ""
 
+    # 액션의 pk값을 name으로 반환하는 로직
     check_action = master_dao.check_action_id(connection, action_id)
 
+    # 액션에 따른 레벨의 name 값을 매칭
     if check_action['name'] in ["입점 승인", "휴점 해제", "퇴점 철회 처리"]:
       update_action = "입점"
     if check_action['name'] in ["입점 거절"]:
@@ -109,11 +114,15 @@ class MasterService:
       update_action = "퇴점 대기"
     if check_action['name'] in ["퇴점 확정 처리"]:
       update_action = "퇴점"
+      # 퇴점일때 soft delete 실행
       master_dao.seller_delete(connection, data)
+      master_dao.seller_delete_log(connection, data)
 
+    # 레벨에 따른 name 값을 id로 변경
     update_level = master_dao.check_action_name(connection, update_action)
     data['update_level'] = update_level['id']
 
+    # 해당 샐러의 레벨 값을 변경하는 함수(+ 내역 추가)
     master_dao.account_level(connection, data)
     master_dao.account_level_log(connection, data)
 
@@ -130,25 +139,29 @@ class MasterService:
     """
     master_dao = MasterDao()
 
+    # 초기값에 필요한 샐러 카테고리를 반환
     categories =  master_dao.seller_category(connection)
 
     return {"data" : {
       "sellerAttribute" : categories
     }}
 
-  def order_ready(self, connection, filters):
+  def order_ready(self, connection, filters, page_condition):
     """ [어드민] 주문관리(마스터) - 상품준비(검색값)
       Author: 
         Sung joun Jang
       Args:    
-
+        - filters : 필터에 대한 값들
+        - page_condition : 페이지에 대한 값들
       Returns:
         data : 전달하는 데이터 값
         totalCount : 전체 데이터 개수
     """
     master_dao = MasterDao()
 
-    data        = master_dao.order_ready(connection, filters)
+    # 주문 리스트를 반환
+    data        = master_dao.order_ready(connection, filters, page_condition)
+    # 주문 리스트의 count를 반환
     order_count = master_dao.order_ready_count(connection, filters)
     total_count = order_count['COUNT(*)']
 
@@ -166,6 +179,7 @@ class MasterService:
     """
     master_dao = MasterDao()
 
+    # 배송 상태를 배송중으로 변경(+ 내역 추가)
     master_dao.order_ready_update(connection, data)
     master_dao.order_ready_update_log(connection, data)
 
@@ -184,10 +198,13 @@ class MasterService:
     """
     master_dao = MasterDao()
 
+    # 주문 상세를 반환
     order_detail = master_dao.order_detail(connection, product_id, cart_number)
+    # 할인율을 없앤 원래의 가격
     order_detail['originalPrice'] = order_detail['unitOriginalPrice'] * order_detail['quantity']
 
-    order_log = master_dao.order_detail_log(connection, cart_number)
+    # 주문 상세에서 필요한 변경 이력의 데이터를 반환
+    order_log = master_dao.order_detail_get_log(connection, cart_number)
 
     data = {
       'orderDetails' : order_detail,
