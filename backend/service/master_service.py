@@ -1,9 +1,36 @@
 from model.master_dao   import MasterDao
+from model.seller_dao   import SellerDao
 from flask              import jsonify, json
 from responses          import *
 
 class MasterService:
-  
+
+  def master_update_seller_information(self, user, seller_edit_info, connection):
+      """ [어드민] seller의 본인 상세 정보 수정 : 회원가입 후 첫 수정
+      Author : Chae hyun Kim
+      Args:
+          connection : 커넥션
+          user_id : 로그인 유저의 user_id
+          seller_edit_info : 새로 입력될 내용들
+      Returns
+          : True
+      Note
+          : 필수 입력란에 대한 value가 None일 경우 해당하는 error message 반환
+      """
+      seller_dao = SellerDao()
+      master_dao = MasterDao()
+      find_information = master_dao.master_find_seller_info(user, connection)
+
+      # 필수입력 정보중 None이 있다면 첫 수정으로 간주. 필수 parameter들이 요구된다.
+      if None in find_information.values():
+        if not seller_edit_info['profile']:
+            raise ApiException(400, NOT_PROFILE)
+
+      seller_edit = master_dao.master_update_information(seller_edit_info, connection)
+      seller_dao.create_seller_update_log(user, connection)
+      
+      return True
+
   def account(self, connection, page_condition, filters):
     """ [어드민] 샐러 계정 관리(마스터)
       Author: 

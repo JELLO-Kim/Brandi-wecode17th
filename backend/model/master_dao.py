@@ -76,6 +76,53 @@ class MasterDao:
 			result = cursor.fetchall()
 		
 			return result
+	def master_find_seller_info(self, user, connection):
+		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+			find_info = """
+				SELECT
+					s.image_url
+				FROM
+					sellers AS s
+				LEFT JOIN
+					managers AS m
+				ON
+					m.seller_id = s.user_info_id
+				WHERE
+					s.user_info_id = %(user_id)s
+			"""
+			cursor.execute(find_info, {"user_id": user['user_id']})
+			return cursor.fetchone()
+
+    # 채현 : 들어온 값들에 대해 update 해주기 (patch)
+	"""
+	주석 추가 (# 필수입력 정보가 모두 작성되있던 상태에서 일부 값들을 수정할 경우(매니저 제외)) RESTFUL
+	"""
+	def master_update_information(self, seller_edit_info, connection):
+		with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+			query = """
+                UPDATE
+                    sellers
+                SET
+            """
+			if seller_edit_info['profile']:
+				query += """
+                    image_url = %(profile)s,
+                """
+			if seller_edit_info['brandKorean']:
+				query += """
+                    korean_brand_name = %(brandKorean)s,
+                """
+			if seller_edit_info['brandEnglish']:
+				query += """
+                    english_brand_name = %(brandEnglish)s,
+                """
+			query += """
+                    updated_at = now()
+                WHERE
+                    user_info_id = %(user_id)s
+            """
+			cursor.execute(query, seller_edit_info)
+			return cursor.lastrowid
 
 	def account(self, connection, page_condition, filters):
 		""" [어드민] 샐러 계정 관리(마스터) - 데이터 리스트
