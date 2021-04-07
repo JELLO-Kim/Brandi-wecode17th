@@ -202,12 +202,12 @@ class MasterView:
             return {'result': result}
         except Exception as e:
             if connection:
-                connection.rollback
+                connection.rollback()
 
             raise e
         finally:
             if connection is not None:
-                connection.close
+                connection.close()
 
     @master_app.route('/account/init', methods=['GET'])
     @login_decorator
@@ -238,11 +238,11 @@ class MasterView:
             return {'result': result}
         except Exception as e:
             if connection:
-                connection.rollback
+                connection.rollback()
             raise e
         finally:
             if connection is not None:
-                connection.close
+                connection.close()
     
     @master_app.route('/account/level', methods=['PATCH'])
     @login_decorator
