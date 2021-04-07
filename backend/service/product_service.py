@@ -76,7 +76,6 @@ class ProductService:
             product_detail['sizes'] = [{'key': int(size[0]), 'label': size[1]} for size in size_group]
         return {'product': product_detail}
 
-
     def get_product_qna(self, info, connection):
         """ [서비스] 제품 상세페이지 질문답변 가져오기
         Author:
@@ -90,13 +89,13 @@ class ProductService:
         product_qna = product_dao.get_product_question(info, connection)
 
         # 공개되야할 글 제외 내용은 비공개처리, 비공개 글 작성자 아이디 부분 암호처리
-        for item in product_qna['qna']:
+        for item in product_qna:
             if item['parent_id'] is None:
                 if item['contents'] == '비밀글입니다.':
-                    item['username'] = item['username'][:3]+'***' 
+                    item['username'] = item['username'][:3]+'***'
 
         qna_list = []
-        for item in product_qna['qna']:
+        for item in product_qna:
             tmp = {
                     'id' : item['id'],
                     'questionType': item['questionType'],
@@ -113,8 +112,7 @@ class ProductService:
                     'createdAt': item['r_createdAt']
                 }
             qna_list.append(tmp)
-    
-        return {'data': qna_list, 'totalCount': product_qna['totalCount']}
+        return {'data': qna_list, 'totalCount': product_qna[0]['count']}
 
 
     def get_question_open(self, connection):
