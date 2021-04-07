@@ -148,6 +148,14 @@ class ProductDao:
 
 
     def product_detail(self, product_id, connection):
+        """ [서비스] 제품 상세페이지 제품정보
+        Author:
+            Ji Yoon Lee
+        Args:
+            product_id(str)
+        Returns:
+            product_list
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
             SELECT
@@ -214,6 +222,14 @@ class ProductDao:
             return product_list
     
     def get_product_question(self, info, connection):
+        """ [서비스] 제품 상세페이지 질문 등록
+        Author:
+            Ji Yoon Lee
+        Args:
+            info(dict)
+        Returns:
+            {'qna' : cursor.fetchall(), 'totalCount': total_count['count(*)']}
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             count = """
             SELECT 
@@ -244,7 +260,7 @@ class ProductDao:
                 qt.name AS questionType,
                 q.is_finished AS isFinished,
                 IF(
-                    %(user_id)s = q.writer_id OR q.is_private = 0, q.contents, "비밀글입니다."
+                    %(user_id)s = q.writer_id OR q.is_private = 0, q.contents, '비밀글입니다.'
                 ) AS contents,
                 ui.username,
                 q.writer_id,
@@ -252,7 +268,7 @@ class ProductDao:
                 q.created_at AS createdAt,
                 q.is_private AS isPrivate,
                 IF(
-                    %(user_id)s = q.writer_id, self.contents, "비밀글입니다."
+                    %(user_id)s = q.writer_id, self.contents, '비밀글입니다.'
                 ) AS r_contents,
                 self.parent_id AS r_parent_id,
                 s.korean_brand_name AS brand,
@@ -278,10 +294,16 @@ class ProductDao:
             """
             cursor.execute(query, info)
             
-            return {"qna" : cursor.fetchall(), "totalCount": total_count["count(*)"]}
+            return {'qna' : cursor.fetchall(), 'totalCount': total_count['count(*)']}
 
 
     def get_question_open(self, connection):
+        """ [서비스] 제품 상세페이지에서 질문 올릴 때 질문유형 선택 드롭박스
+        Author:
+            Ji Yoon Lee
+        Returns:
+            질문 목록 드롭박스
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
             SELECT
@@ -298,6 +320,14 @@ class ProductDao:
 
     
     def post_product_qna(self, question_info, connection):
+        """ [서비스] 제품 상세페이지에서 질문 작성
+        Author:
+            Ji Yoon Lee
+        Args:
+            question_info(dict)
+        Returns:
+            생성된 질문 id
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
             INSERT INTO qnas(
@@ -328,6 +358,14 @@ class ProductDao:
 
     
     def post_product_qna_log(self, log_info, connection):
+        """ [서비스] 제품 상세페이지에서 질문 작성시 로그테이블 업데이트
+        Author:
+            Ji Yoon Lee
+        Args:
+            log_info(dict)
+        Returns:
+            생성된 질문 로그 id
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
             INSERT INTO qna_logs(
@@ -344,23 +382,22 @@ class ProductDao:
                 is_delete,
                 changer_id,
                 change_date
-            ) SELECT (
+            ) SELECT
                 %(qna_id)s,
-                product_id,
-                writer_id,
-                question_type_id,
-                parent_id,
-                is_finished,
-                is_private,
-                created_at,
-                updated_at,
-                contents,
-                is_delete,
+                q.product_id,
+                q.writer_id,
+                q.question_type_id,
+                q.parent_id,
+                q.is_finished,
+                q.is_private,
+                q.created_at,
+                q.updated_at,
+                q.contents,
+                q.is_delete,
                 %(user_id)s,
-                updated_at
-            )
+                q.updated_at
             FROM
-                qna AS q
+                qnas AS q
             WHERE q.id = %(qna_id)s
             """
             cursor.execute(query, log_info)
@@ -369,6 +406,16 @@ class ProductDao:
 
 
     def get_other_products(self, info, connection):
+        """ [서비스] 제품 상세페이지에서 판매자 다른 상품 추천
+        Author:
+            Ji Yoon Lee
+        Args:
+            info(dict)
+        Returns:
+            상품 리스트
+        Note:
+            추천상품에 현재 조회중인 상품 제외 5개
+        """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
             SELECT

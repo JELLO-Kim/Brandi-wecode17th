@@ -1,7 +1,7 @@
 from model.order_dao import OrderDao
 from responses import *
-from flask           import jsonify, json
-from datetime        import date, datetime
+from flask import jsonify, json
+from datetime import date, datetime
 from utils import login_decorator
 
 CURRENT_ORDER_STATUS_TYPE = 1
@@ -169,111 +169,139 @@ class OrderService:
             raise e
 
     def get_shipping_memo(self, connection):
-
+        """ [서비스] 결제페이지 (배송정보 입력 후 결제 버튼 누른 다음)
+        Author:
+            Ji Yoon Lee
+        Returns:
+            {'data': shipping_memo} ; 배송메모 리스트를 'data'라는 키값에 넣어서 반환
         """
-        배송메모 목록
-        """
-
-        order_dao   = OrderDao()
+        order_dao = OrderDao()
         shipping_memo = order_dao.get_shipping_memo(connection)
 
         return {'data': shipping_memo}
 
 
     def get_address(self, user_id, connection):
-
+        """ [서비스] 배송지 목록 가져오기
+        Author:
+            Ji Yoon Lee
+        Args:
+            user_id(str): 로그인한 user id
+        Returns:
+            {'data': get_address} ; 해당 사용자의 과거 배송지를 'data'라는 키값에 넣어서 반환
         """
-        이전 배송지 목록 가져오기
-        """
-
-        order_dao   = OrderDao()
+        order_dao = OrderDao()
         get_address = order_dao.get_address(user_id, connection)
 
         return {'data': get_address}
 
     
     def delete_address(self, address_info, connection):
-
-        order_dao   = OrderDao()
+        """ [서비스] 기존 배송지 삭제
+        Author:
+            Ji Yoon Lee
+        Args:
+            address_info(dict): 배송지 정보
+        Returns:
+            {'data': address_id} ; 삭제된 배송지의 id를 'data'라는 키값에 넣어서 반환
+        """
+        order_dao = OrderDao()
         address_id = order_dao.delete_address(address_info, connection)
 
         return {'data': address_id}
 
-
     def direct_purchase(self, order_info, products, connection):
+        """ [서비스] 바로결제
+        Author:
+            Ji Yoon Lee
+        Args:
+            order_info(dict)
+            products(dict)
+        Returns:
+            {'data': get_address}; 해당 사용자의 과거 배송지를 'data'라는 키값에 넣어서 반환
+        """
         order_dao = OrderDao()
         order_id = order_dao.create_order(order_info, connection)
-        order_info["order_id"] = order_id 
+        order_info['order_id'] = order_id 
         order_log = order_dao.post_order_log(order_info, connection)
-        # connection.commit()
-
-        order_info["order_status_type_id"] = 3
-        cart= []
+        order_info['order_status_type_id'] = 3
+        cart = []
 
         for product in products:
+            order_info['color'] = product['color']
+            order_info['size'] = product['size']
+            order_info['quantity'] = product['quantity']
+            order_info['price'] = product['price'] 
+            product_option_id = order_dao.find_product_option_id(order_info, connection)
+            
+            if product_option_id is None:
+                raise ApiException(400, PRODUCT_OPTION_NOT_EXISTING)
 
-            if "color" not in product:
-                raise ApiException(400, COLOR_NOT_IN_INPUT)
-
-            order_info["color"]    = product["color"]
-
-            if "size" not in product:
-                raise ApiException(400, SIZE_NOT_IN_INPUT)
-
-            order_info["size"]                = product["size"]
-            order_info["quantity"]            = product["quantity"]
-            order_info["price"]               = product["price"] 
-            product_option_id                 = order_dao.find_product_option_id(order_info, connection)
-            order_info["product_option_id"]   = product_option_id["id"]
-            order_info["cart_status_type_id"] = 3
-            cart_id                           = order_dao.create_cart(order_info, connection)
+            order_info['product_option_id'] = product_option_id['id']
+            order_info['cart_status_type_id'] = 3
+            # 바로결제 시도시 cart_status_type_id = 3
+            cart_id = order_dao.create_cart(order_info, connection)
             cart.append(cart_id)
-
 
         return {'orderId': order_id, 'items': cart}
 
 
     def post_address(self, address_info, connection):
-        
+        """ [서비스] 신규 배송지 추가
+        Author:
+            Ji Yoon Lee
+        Args:
+            address_info(dict)
+        Returns:
+            {'data': address_id}; 추가된 배송지의 id값을 'data'라는 키값에 넣어서 반환
         """
-        배송지 신규 등록
-        """
-        
-        order_dao    = OrderDao()
-        user_id = address_info["user_id"]
+        order_dao = OrderDao()
+        user_id = address_info['user_id']
         address_all = order_dao.get_address(user_id, connection)
+        default_address = None
 
+        # 해당 유저가 이미 등록한 배송지인지 검사
         for address in address_all:
-            if address["address"] == address_info["recipient_address"] and address["addressDetail"] == address_info["recipient_address_detail"]:
-                raise ApiException(400, "이미 존재하는 주소입니다")
+            if address['address'] == address_info['recipient_address'] and address['addressDetail'] == address_info['recipient_address_detail']:
+                raise ApiException(400, ADDRESS_ALREADY_EXISTS)
+
+            if address_info['is_default'] in ['1', 1]:
+                default_address = address['id']
         
-        if address_info["is_default"] in ["1", 1]:
-            reset                    = order_dao.reset_address_default(address_info, connection)
-            address_info["shipping_info_id"] = reset
-            reset_log                = order_dao.post_address_log(address_info, connection)
+        # 기본배송지가 이미 존재하는데, 새로추가된 배송지를 기본배송지로 등록할 때 - 기존 배송지 기본배송지 해제
+        if address_info['is_default'] in ['1', 1]:
+            if order_dao.reset_address_default(address_info, connection) == False:
+                raise ApiException(400, REQUEST_FAILED)
+            address_info['shipping_info_id'] = default_address
+            reset_log = order_dao.post_address_log(address_info, connection)
         
-        address_id                 = order_dao.post_address(address_info, connection)
-        address_info["shipping_info_id"] = address_id
-        address_log                = order_dao.post_address_log(address_info, connection)
+        # 신규 배송지 등록
+        address_id = order_dao.post_address(address_info, connection)
+        address_info['shipping_info_id'] = address_id
+        address_log = order_dao.post_address_log(address_info, connection)
 
         return {'data': address_id}
 
 
     def order_confirm(self, order_info, connection):
-        
+        """ [서비스] 배송지입력 후 결제버튼 눌렀을 때 오는 요청
+        Author:
+            Ji Yoon Lee
+        Args:
+            order_info(dict)
+        Returns:
+            {'data': get_address} : 해당 사용자의 과거 배송지를 'data'라는 키값에 넣어서 반환
         """
-        order table에서 status=1로 장바구니 상태인 상품들 중 결제 된 상품들은 status 2로 변경되면서 새로운  order number 부여.
-        """
-
-        order_dao  = OrderDao()
+        # 새로운 결제완료 order 생성
+        order_dao = OrderDao()
         order_id = order_dao.create_order_fullinfo(order_info, connection)
-
-        order_info["order_id"] = order_id
-        order_log  = order_dao.post_order_log(order_info, connection)
+        order_info['order_id'] = order_id
+        order_log = order_dao.post_order_log(order_info, connection)
     
-        for item in order_info["items"]:
-            order_info["cart_id"] = item
-            cart_id  = order_dao.patch_cart(order_info, connection)
+        # 새로 생성된 order를 Foreign Key로 가지고있는 카트(각각의 아이템)의 상태도 결제완료로 업데이트
+        for item in order_info['items']:
+            order_info['cart_id'] = item
+            cart_id = order_dao.patch_cart(order_info, connection)
             cart_log = order_dao.create_cart_log(order_info, connection)
 
-        return {"data" : order_info["order_id"]}
+        return {'data': order_info['order_id']}
