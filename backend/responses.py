@@ -179,3 +179,21 @@ PRODUCT_ID_NOT_IN_KEYS = 'product_id가 없습니다'
 DISCOUNT_PRICE_NOT_IN_KEYS = '할인 가격이 없습니댜'
 DISCOUNT_START_NOT_IN_KEYS = '할인 시작 날짜가 없습니다'
 DISCOUNT_END_NOT_IN_KEYS = '할인 끝나는 날짜가 없습니다'
+
+PRODUCT_OPTION_NOT_EXISTING = "해당 옵션이 존재하지 않습니다."
+ADDRESS_ALREADY_EXISTS = "이미 등록된 주소입니다."
+NAME_MISSING = "이름을 입력해주세요."
+PHONE_MISSING = "전화번호를 입력해주세요."
+POSTAL_MISSING = "우편번호를 입력해주세요."
+ADDRESS_MISSING = "주소를 입력해주세요."
+ADDRESS_DETAIL_MISSING = "상세주소를 입력해주세요." 
+EMAIL_MISSING = "이메일 주소를 입력해주세요."
+ORDER_MISSING = "주문번호를 입력해주세요."
+SHIPPING_MEMO_MISSING = "배송메모를 입력해주세요."
+SHIPPING_INFO_MISSING = "배송지를 입력해주세요"
+PRICE_MISSING = "가격을 확인해주세요."
+PRODUCT_INFO_MISSING = "상품정보를 입력해주세요."
+CONTENT_MISSING = "내용을 입력해주세요."
+
+
+
