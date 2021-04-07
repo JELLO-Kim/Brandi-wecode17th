@@ -226,12 +226,34 @@ class ProductDao:
         Args:
             info(dict)
         Returns:
-            질의응답 정보
+            {'qna' : cursor.fetchall(), 'totalCount': total_count['count(*)']}
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            count = """
+            SELECT 
+                count(*)
+            FROM 
+                qnas AS q
+            LEFT JOIN qnas AS self
+                ON self.parent_id = q.id    
+            LEFT JOIN sellers AS s
+                ON self.writer_id = s.user_info_id
+            INNER JOIN products AS p
+                ON q.product_id = p.id
+            INNER JOIN question_types AS qt
+                ON q.question_type_id = qt.id
+             INNER JOIN user_info AS ui
+                ON q.writer_id = ui.id
+            WHERE
+                p.id = %(product_id)s
+            AND
+                q.parent_id is NULL
+            """
+            cursor.execute(count, info)
+            total_count = cursor.fetchone()
+
             query = """
-            SELECT
-                count(*) AS count,
+            SELECT 
                 q.id,
                 qt.name AS questionType,
                 q.is_finished AS isFinished,
@@ -270,7 +292,7 @@ class ProductDao:
             """
             cursor.execute(query, info)
             
-        return cursor.fetchall()
+        return {'qna' : cursor.fetchall(), 'totalCount': total_count['count(*)']}
 
     def get_question_open(self, connection):
         """ [서비스] 제품 상세페이지에서 질문 올릴 때 질문유형 선택 드롭박스
@@ -399,11 +421,14 @@ class ProductDao:
                 p.name,
                 p.price,
                 p.discount_rate AS discountRate,
-                p.discountPrice AS discountPrice
+                p.discountPrice AS discountPrice,
+                t.image_url AS imageUrl
             FROM 
                 products AS p
             LEFT JOIN sellers AS s
                 ON p.seller_id = s.user_info_id
+            LEFT JOIN product_thumbnails AS t
+                ON p.id = t.product_id
             WHERE p.seller_id = %(seller_id)s
                 AND NOT(p.id = %(product_id)s)
             ORDER BY RAND()
