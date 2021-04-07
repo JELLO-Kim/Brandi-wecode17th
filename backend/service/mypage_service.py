@@ -1,6 +1,5 @@
 from model.mypage_dao   import MyPageDao
-from flask              import jsonify, json
-from responses          import *
+
 
 class MyPageService:
 

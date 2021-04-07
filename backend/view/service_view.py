@@ -1,8 +1,8 @@
 import boto3
 
-from flask import Flask, request, Blueprint, jsonify
+from flask import request, Blueprint
 from responses import *
-from datetime import date, datetime
+from datetime import datetime
 from config import AWS_ID, AWS_KEY
     
     

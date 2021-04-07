@@ -1,11 +1,11 @@
-from flask import request, Blueprint, jsonify, g
+from flask import request, Blueprint, g
 from db_connector import connect_db
 from service import MasterService, SellerService
 from responses import *
 from utils import login_decorator
 
-class MasterView:
 
+class MasterView:
     master_app = Blueprint('master_app', __name__, url_prefix='/master')
 
     @master_app.route('/seller-information/<int:sellerId>', methods=['GET'])

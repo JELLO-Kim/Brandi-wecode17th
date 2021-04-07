@@ -1,7 +1,5 @@
 import pymysql
 
-from flask import jsonify
-from responses import *
 
 class MasterDao:
 

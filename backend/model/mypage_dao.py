@@ -1,7 +1,6 @@
 import pymysql
-
-from flask import jsonify
 from responses import *
+
 
 class MyPageDao:
     def mypyage_qna_dao(self, connection, user, page_condition):

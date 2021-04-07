@@ -1,30 +1,7 @@
 import pymysql
 
-class SellerDao:
-    def check_existing_product_name(self, product_info, connection):
-        """ [어드민] 셀러의 등록된 상품중에 이미 존재하는 상품 명을 또 추가할때 조회
-        Author: Mark Hasung Kim
-        Args:
-            product_info: 셀러가 등록 하고싶은 상품에대한 정보
-            connection: 커넥션
-        Returns:
-            existing_product_name (존재하는 상품 명)
-        """
-        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            query = """
-                SELECT
-                    name
-                FROM
-                    products
-                WHERE
-                    name = %(product_name)s
-                    AND
-                    seller_id = %(user_id)s
-            """
-            cursor.execute(query, product_info)
-            existing_product_name = cursor.fetchone()
-            return existing_product_name
 
+class SellerDao:
     def create_product(self, product_info, connection):
         """ [어드민] 셀러 상품 생성
         Author: Mark Hasung Kim
@@ -65,7 +42,7 @@ class SellerDao:
                     %(discount_rate)s,
                     %(price)s,
                     %(discount_price)s,
-                    %(product_detail_image)s,
+                    %(contents_image)s,
                     NOW(),
                     NOW(),
                     %(is_selling)s,
@@ -112,9 +89,9 @@ class SellerDao:
                 query += """
                     name = %(product_name)s,
                 """
-            if product_info.get('product_detail_image'):
+            if product_info.get('contents_image'):
                 query += """
-                    contents_image = %(product_detail_image)s,
+                    contents_image = %(contents_image)s,
                 """
             if product_info.get('price'):
                 query += """
@@ -277,6 +254,34 @@ class SellerDao:
             new_product_option_id = cursor.lastrowid
             return new_product_option_id
 
+    def check_product_option(self, product_info, connection):
+        """ [어드민] 셀러가 product_option을 삭제할때 product_option을 갖고 있는지를 조회한다
+        Author: Mark Hasung Kim
+        Args:
+            product_info: 상품 수정 정보를 갖고있는 dict
+            connection: 커넥션
+        Returns:
+            check_product_option (조회한 product_option id)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                SELECT
+                    po.id
+                FROM
+                    product_options AS po
+                INNER JOIN products AS p
+                ON po.product_id = p.id
+                WHERE
+                    po.id = %(product_option_id)s
+                    AND
+                    p.id = %(product_id)s
+                    AND
+                    p.seller_id = %(user_id)s
+            """
+            cursor.execute(query, product_info)
+            check_product_option = cursor.fetchone()
+            return check_product_option
+
     def soft_delete_product_option(self, product_info, connection):
         """ [어드민] product_option soft delete
         Author: Mark Hasung Kim
@@ -374,12 +379,41 @@ class SellerDao:
             product_thumbnail_id = cursor.lastrowid
             return product_thumbnail_id
 
-    def delete_product_thumbnail(self, product_info, connection):
+    def check_product_thumbnail(self, product_info, connection):
+        """ [어드민] 셀러가 product_thumbnail을 삭제할때 product_thumbnail을 갖고있는지 조회한다
+        Author:
+            Mark Hasung Kim
+        Args:
+            product_info: 상품 수정 정보를 갖고 있는 dict
+            connection: 커넥션
+        Returns:
+            check_product_thumbnail (조회한 product_thumbnail id)
+        """
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            query = """
+                SELECT
+                    pt.id
+                FROM
+                    product_thumbnails AS pt
+                INNER JOIN products as p
+                    ON pt.product_id = p.id
+                WHERE
+                    pt.id = %(product_thumbnail_id)s
+                    AND
+                    p.id = %(product_id)s
+                    AND
+                    p.seller_id = %(user_id)s
+            """
+            cursor.execute(query, product_info)
+            check_product_thumbnail = cursor.fetchone()
+            return check_product_thumbnail
+
+    def soft_delete_product_thumbnail(self, product_info, connection):
         """ [어드민] product_thumbnail image 삭제
         Author:
             Mark Hasung Kim
         Args:
-            product_info: 셀러가 삭제 하고싶은 상품 이비지 정보
+            product_info: 셀러가 삭제 하고싶은 상품 이미지 정보
             connection: 커넥션
         Returns:
             product_thumbnail_id (생성된 product_thumbnail id)
@@ -446,10 +480,10 @@ class SellerDao:
             query = """
                 SELECT
                     id,
-                    parent_id,
+                    parent_id AS parentId,
                     name,
                     level,
-                    is_delete
+                    is_delete AS isDelete
                 FROM
                     product_categories
             """
@@ -471,7 +505,7 @@ class SellerDao:
                     id,
                     name,
                     ordering,
-                    is_delete
+                    is_delete AS isDelete
                 FROM
                     product_color_types
             """
@@ -493,7 +527,7 @@ class SellerDao:
                     id,
                     name,
                     ordering,
-                    is_delete 
+                    is_delete AS isDelete 
                 FROM
                     product_size_types
             """
@@ -514,8 +548,9 @@ class SellerDao:
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 SELECT
-                    product_color_type_id,
-                    product_size_type_id,
+                    id AS productOptionId,
+                    product_color_type_id AS colorId,
+                    product_size_type_id AS sizeId,
                     stock
                 FROM
                     product_options
@@ -541,16 +576,16 @@ class SellerDao:
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 SELECT
-                    name,
+                    name AS productName,
                     price,
-                    product_category_id,
-                    discount_start,
-                    discount_end,
-                    discount_rate,
-                    discountPrice,
-                    contents_image,
-                    is_selling,
-                    is_display,
+                    product_category_id AS productCategoryId,
+                    discount_start AS discountStart,
+                    discount_end AS discountEnd,
+                    discount_rate AS discountRate,
+                    discountPrice AS discountPrice,
+                    contents_image AS contentsImage,
+                    is_selling AS isSelling,
+                    is_display AS isDisplay,
                     minimum,
                     maximum
                 FROM
@@ -575,8 +610,8 @@ class SellerDao:
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
             query = """
                 SELECT
-                    id,
-                    image_url
+                    id AS productThumbnailId,
+                    image_url AS imageUrl
                 FROM
                     product_thumbnails
                 WHERE

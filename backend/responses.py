@@ -136,7 +136,6 @@ INVALID_INPUT_SELLER_CATEGORY = "셀러 정보를 선택하지 않았습니다" 
 INVALID_INPUT_SERVICE_NUMBER = "고객센터 전화번호를 입력하지 않았습니다" # 고객센터 전화번호 미입력 시 : 400 Bad request
 INVALID_INPUT_USER_TYPE_ID = 'user_type_id이 입력되지 않았습니다' #user_type_id 미입력 시: 400 Bad request
 INVALID_INPUT_PHONE_NUMBER = '셀러 전화번호이 입력되지 않았습니다' #셀러 전화번호 미입력 시: 400 Bad request
-PRODUCT_NAME_ALREADY_EXISTS = '셀러가 이미 있는 상품이름을 등록 할 수 없습니다' #셀러가 이미 등럭되있는 상품이름을 또 등록 시도 할때: 400 Bad request
 DUPLICATED_USERNAME = '이미 존재하는 username입니다' #회원가입시 username이 이미 존재하면: 400 Bad request
 DUPLICATED_EMAIL = '이미 존재하는 email입니다' #회원가입시 email이 이미 존재하면: 400 Bad request
 DUPLICATED_KOREAN_BRAND_NAME = '이미 존재하는 korean_brand_name입니다' #셀러 회원가입시 korean_brand_name이 이미 존재하면: 400 Bad request
@@ -179,7 +178,6 @@ PRODUCT_ID_NOT_IN_KEYS = 'product_id가 없습니다'
 DISCOUNT_PRICE_NOT_IN_KEYS = '할인 가격이 없습니댜'
 DISCOUNT_START_NOT_IN_KEYS = '할인 시작 날짜가 없습니다'
 DISCOUNT_END_NOT_IN_KEYS = '할인 끝나는 날짜가 없습니다'
-
 PRODUCT_OPTION_NOT_EXISTING = "해당 옵션이 존재하지 않습니다."
 ADDRESS_ALREADY_EXISTS = "이미 등록된 주소입니다."
 NAME_MISSING = "이름을 입력해주세요."
@@ -194,6 +192,6 @@ SHIPPING_INFO_MISSING = "배송지를 입력해주세요"
 PRICE_MISSING = "가격을 확인해주세요."
 PRODUCT_INFO_MISSING = "상품정보를 입력해주세요."
 CONTENT_MISSING = "내용을 입력해주세요."
-
-
+PRODUCT_OPTION_DOES_NOT_EXIST = '셀러가 없는 product_option을 삭제 할 수 없습니다'
+PRODUCT_THUMBNAIL_DOES_NOT_EXIST = '셀러가 없는 product_thumbnail을 삭제 할 수 없습니다'
 

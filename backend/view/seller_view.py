@@ -1,10 +1,9 @@
-from flask import request, Blueprint, jsonify, g
+from flask import request, Blueprint, g
 from db_connector import connect_db
 from responses import *
 from utils import login_decorator
 from service.seller_service import SellerService
 from validators import validate_password
-import traceback
 
 
 class SellerView:
@@ -280,6 +279,8 @@ class SellerView:
             return product_get_info
 
         except ApiException as e:
+            if connection:
+                connection.rollback()
             raise e
         finally:
             if connection:
@@ -316,7 +317,7 @@ class SellerView:
                 raise ApiException(400, PRODUCT_NAME_NOT_IN_KEYS)
             if 'productThumbnailImages' not in data:
                 raise ApiException(400, PRODUCT_THUMBNAIL_IMAGE_NOT_IN_KEYS)
-            if 'productDetailImage' not in data:
+            if 'contentsImage' not in data:
                 raise ApiException(400, PRODUCT_DETAIL_IMAGE_NOT_IN_KEYS)
             if 'price' not in data:
                 raise ApiException(400, PRICE_NOT_IN_KEYS)
@@ -347,7 +348,7 @@ class SellerView:
                 'is_display': data['isDisplay'],
                 'product_category_id': data['productCategoryId'],
                 'product_name': data['productName'],
-                'product_detail_image': data['productDetailImage'],
+                'contents_image': data['contentsImage'],
                 'price': data['price'],
                 'discount_rate': data['discountRate'],
                 'minimum': data['minimum'],
@@ -404,13 +405,13 @@ class SellerView:
 
             connection = connect_db()
             seller_service = SellerService()
-            default_product_info = seller_service.get_product_post_info(connection)
             product_edit_info = seller_service.get_product_edit_info(product_info, connection)
-            product_edit_info['defaultInfo'] = default_product_info
 
             return product_edit_info
 
         except ApiException as e:
+            if connection:
+                connection.rollback()
             raise e
         finally:
             if connection:
@@ -455,14 +456,14 @@ class SellerView:
                 product_info['product_category_id'] = data['productCategoryId']
             if 'productName' in data:
                 product_info['product_name'] = data['productName']
-            if 'productDetailImage' in data:
-                product_info['product_detail_image'] = data['productDetailImage']
             if 'price' in data:
                 product_info['price'] = data['price']
             if 'minimum' in data:
                 product_info['minimum'] = data['minimum']
             if 'maximum' in data:
                 product_info['maximum'] = data['maximum']
+            if 'contentsImage' in data:
+                product_info['contents_image'] = data['contentsImage']
 
             if 'productOptions' in data:
                 product_options = data['productOptions']

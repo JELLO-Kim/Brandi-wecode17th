@@ -1,8 +1,7 @@
-from flask          import request, Blueprint, jsonify, g
-from db_connector   import connect_db
-from service        import MyPageService
-from responses      import *
-from utils          import *
+from flask import Blueprint
+from service import MyPageService
+from utils import *
+
 
 class MyPageView:
     mypage_app = Blueprint('mypage_app', __name__, url_prefix='/mypage')

@@ -1,5 +1,6 @@
 import pymysql
 
+
 class UserDao:
     def find_user_info(self, user_info, connection):
         """ [서비스] 유저 username 조회
