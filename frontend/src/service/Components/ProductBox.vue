@@ -1,7 +1,7 @@
 <template>
   <div class="product">
     <div class="productImage" @click="linkToDetail(product)">
-      <img :src="product.thumbnailImage" alt="thumbnail img" />
+      <img :src="product.imageUrl || product.thumbnailImage" alt="thumbnail img" />
     </div>
     <div class="brandName">{{ product.sellerName }}</div>
     <div class="productName">{{ product.name }}</div>

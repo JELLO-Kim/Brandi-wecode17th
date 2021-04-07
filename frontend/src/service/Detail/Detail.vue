@@ -104,14 +104,12 @@ export default {
     OtherProduct
   },
   mounted () {
-    // this.detailData = mockup.data
-    // this.sizeData = mockup.sizeData
-    // mockup.options
     API.methods
       .get(`${SERVER.IP}/products/${this.$route.params.id}`)
       .then((res) => {
         // console.log(res.data.result)
         this.detailData = res.data.result.product
+        this.loadRecommends()
       })
       .catch(() => {
         // console.log(error)
@@ -281,6 +279,22 @@ export default {
       }
       return payload
     },
+    loadRecommends () {
+      API.methods
+        .get(`${SERVER.IP}/products/recommends`, {
+          params: {
+            sellerId: this.detailData.sellerId,
+            productId: this.$route.params.id
+          }
+        })
+        .then((res) => {
+          this.others = res.data.result.data
+        })
+        .catch((e) => {
+          alert(e.response.data.message)
+        })
+    },
+    // /products/recommends
     addCart () {
       if (this.optionQuantity.length > 0) {
         if (this.getToken) {

@@ -61,7 +61,9 @@ export default {
   mounted () {
     // this.dataStore.getDetail()
     // 상품 컬러 및 카테고리 정보 가져오기
+    // productNo
     this.dataStore.getMeta()
+    this.dataStore.getDetail(this.$route.params.productNo)
     document.addEventListener('scroll', this.scrollEvent)
   },
   destroyed () {
@@ -89,7 +91,11 @@ export default {
       window.scrollTo({ top: Utils.getOffset(pageContents[tabNo].$el).top - elTop, behavior: 'smooth' })
     },
     save () {
-      this.dataStore.addProduct()
+      if (this.$route.params.productNo) {
+        this.dataStore.putProduct(this.$route.params.productNo)
+      } else {
+        this.dataStore.addProduct()
+      }
       // console.log(this.makePayload())
       return
       /* eslint-disable no-unreachable */

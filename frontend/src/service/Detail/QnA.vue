@@ -37,7 +37,7 @@
             <td><p v-if="!isMypage">{{answer.writer}}</p></td>
             <td>{{answer.createdAt}}</td>
           </tr>
-          <tr class="answer" :class="QnA.answer.isShow" v-if="QnA.answer" :key="answer.answer">
+          <tr class="answer" :class="answer.isShow" v-if="answer.answer" :key="answer.answer">
             <td v-if="!isMypage"></td>
             <td></td>
             <td><p class="scret" v-if="answer.answer">{{answer.answer.contents}}.</p></td>

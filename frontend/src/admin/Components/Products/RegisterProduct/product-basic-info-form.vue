@@ -97,7 +97,7 @@
       </a-descriptions-item>
       <a-descriptions-item :span="3">
         <template slot="label">상세 상품 정보 <span class="required">*</span></template>
-        <a-textarea v-model="dataStore.detailData.productDetailImage">곧 만들예정</a-textarea>
+        <a-textarea v-model="dataStore.detailData.contentsImage">곧 만들예정</a-textarea>
       </a-descriptions-item>
     </a-descriptions>
     <product-history-modal ref="historyModal"/>
