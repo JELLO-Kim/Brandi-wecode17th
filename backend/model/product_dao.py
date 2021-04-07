@@ -219,7 +219,7 @@ class ProductDao:
             cursor.execute(query, {'product_id':product_id})
             product_list = cursor.fetchone()
             
-            return product_list
+        return product_list
     
     def get_product_question(self, info, connection):
         """ [서비스] 제품 상세페이지 질문 등록
@@ -228,34 +228,12 @@ class ProductDao:
         Args:
             info(dict)
         Returns:
-            {'qna' : cursor.fetchall(), 'totalCount': total_count['count(*)']}
+            질의응답 정보
         """
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            count = """
-            SELECT 
-                count(*)
-            FROM 
-                qnas AS q
-            LEFT JOIN qnas AS self
-                ON self.parent_id = q.id    
-            LEFT JOIN sellers AS s
-                ON self.writer_id = s.user_info_id
-            INNER JOIN products AS p
-                ON q.product_id = p.id
-            INNER JOIN question_types AS qt
-                ON q.question_type_id = qt.id
-             INNER JOIN user_info AS ui
-                ON q.writer_id = ui.id
-            WHERE
-                p.id = %(product_id)s
-            AND
-                q.parent_id is NULL
-            """
-            cursor.execute(count, info)
-            total_count = cursor.fetchone()
-
             query = """
-            SELECT 
+            SELECT
+                count(*) AS count,
                 q.id,
                 qt.name AS questionType,
                 q.is_finished AS isFinished,
@@ -294,8 +272,7 @@ class ProductDao:
             """
             cursor.execute(query, info)
             
-            return {'qna' : cursor.fetchall(), 'totalCount': total_count['count(*)']}
-
+        return cursor.fetchall()
 
     def get_question_open(self, connection):
         """ [서비스] 제품 상세페이지에서 질문 올릴 때 질문유형 선택 드롭박스
@@ -316,7 +293,7 @@ class ProductDao:
             """
             cursor.execute(query)
 
-            return cursor.fetchall()
+        return cursor.fetchall()
 
     
     def post_product_qna(self, question_info, connection):
@@ -354,7 +331,7 @@ class ProductDao:
             """
             cursor.execute(query, question_info)
 
-            return cursor.lastrowid
+        return cursor.lastrowid
 
     
     def post_product_qna_log(self, log_info, connection):
@@ -402,7 +379,7 @@ class ProductDao:
             """
             cursor.execute(query, log_info)
 
-            return cursor.lastrowid
+        return cursor.lastrowid
 
 
     def get_other_products(self, info, connection):
@@ -436,4 +413,4 @@ class ProductDao:
             """
             cursor.execute(query, info)
 
-            return cursor.fetchall()
+        return cursor.fetchall()
