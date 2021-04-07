@@ -48,7 +48,6 @@ class ProductService:
 
         return {'data' : products_list, 'totalCount' : product_total_count['COUNT(*)']}
 
-
     def get_product_detail(self, product_id, connection):
         """ [서비스] 제품 상세페이지 제품정보 가져오기
         Author:
@@ -88,13 +87,13 @@ class ProductService:
         product_qna = product_dao.get_product_question(info, connection)
 
         # 공개되야할 글 제외 내용은 비공개처리, 비공개 글 작성자 아이디 부분 암호처리
-        for item in product_qna:
+        for item in product_qna['qna']:
             if item['parent_id'] is None:
                 if item['contents'] == '비밀글입니다.':
-                    item['username'] = item['username'][:3]+'***'
+                    item['username'] = item['username'][:3]+'***' 
 
         qna_list = []
-        for item in product_qna:
+        for item in product_qna['qna']:
             tmp = {
                     'id' : item['id'],
                     'questionType': item['questionType'],
@@ -111,8 +110,7 @@ class ProductService:
                     'createdAt': item['r_createdAt']
                 }
             qna_list.append(tmp)
-        return {'data': qna_list, 'totalCount': product_qna[0]['count']}
-
+        return {'data': qna_list, 'totalCount': product_qna['totalCount']}
 
     def get_question_open(self, connection):
         """ [서비스] 제품 질문 등록시 질문타입 목록
@@ -126,7 +124,6 @@ class ProductService:
         type_list = [{ 'key': i['id'], 'value': i['name']} for i in question_open]
 
         return {'data': type_list}
-
 
     def post_product_qna(self, question_info, connection):
         """ [서비스] 제품 상세페이지 질문 등록
@@ -148,7 +145,6 @@ class ProductService:
         post_qna_log_id = product_dao.post_product_qna_log(log_info, connection)
         
         return {'data': {'qna_id': post_qna_id, 'qna_log_id': post_qna_log_id}}
-
 
     def get_other_products(self, info, connection):
         """ [서비스] 제품 상세페이지 제품정보 가져오기
