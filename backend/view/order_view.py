@@ -1,4 +1,4 @@
-from flask import request, Blueprint, jsonify, g
+from flask import request, Blueprint, g
 from db_connector import connect_db
 from responses import *
 from service.order_service import OrderService

@@ -302,10 +302,6 @@ class SellerService:
         """
         try:
             seller_dao = SellerDao()
-            product_name_exists = seller_dao.check_existing_product_name(product_info, connection)
-
-            if product_name_exists:
-                raise ApiException(400, PRODUCT_NAME_ALREADY_EXISTS)
 
             product_id = seller_dao.create_product(product_info, connection)
             product_info['product_id'] = product_id
@@ -376,18 +372,15 @@ class SellerService:
         try:
             seller_dao = SellerDao()
 
-            if product_info.get('product_name'):
-                product_name_exists = seller_dao.check_existing_product_name(product_info, connection)
-                if product_name_exists:
-                    raise ApiException(400, PRODUCT_NAME_ALREADY_EXISTS)
-
             seller_dao.update_product(product_info, connection)
             seller_dao.create_product_log(product_info, connection)
 
+            #상품 삭제 요청이 들어올때:
             if product_info.get('is_delete'):
                 seller_dao.soft_delete_product(product_info, connection)
                 seller_dao.create_product_log(product_info, connection)
 
+            #상품 옵션 추가 요청이 들어올때:
             if product_options:
                 for product_option in product_options:
                     product_info['product_color_id'] = product_option['colorId']
@@ -397,12 +390,18 @@ class SellerService:
                     product_info['product_option_id'] = product_option_id
                     seller_dao.create_product_option_log(product_info, connection)
 
+            #상품 옵션 삭제 요청이 들어올떄:
             if delete_product_options:
                 for delete_product_option in delete_product_options:
                     product_info['product_option_id'] = delete_product_option
-                    seller_dao.soft_delete_product_option(product_info, connection)
-                    seller_dao.create_product_option_log(product_info, connection)
+                    check_product_option = seller_dao.check_product_option(product_info, connection)
+                    if check_product_option:
+                        seller_dao.soft_delete_product_option(product_info, connection)
+                        seller_dao.create_product_option_log(product_info, connection)
+                    else:
+                        raise ApiException(400, PRODUCT_OPTION_DOES_NOT_EXIST)
 
+            #상품 thumbnail이미지 추가 요청이 들어올때:
             if product_thumbnail_images:
                 for product_thumbnail_image in product_thumbnail_images:
                     product_info['image_url'] = product_thumbnail_image
@@ -410,11 +409,16 @@ class SellerService:
                     product_info['product_thumbnail_id'] = product_thumbnail_id
                     seller_dao.create_product_thumbnail_log(product_info, connection)
 
+            #상품 thumbnail이미지 삭제 요청이 들어올때:
             if delete_product_thumbnails:
                 for delete_product_thumbnail in delete_product_thumbnails:
                     product_info['product_thumbnail_id'] = delete_product_thumbnail
-                    seller_dao.delete_product_thumbnail(product_info, connection)
-                    seller_dao.create_product_thumbnail_log(product_info, connection)
+                    check_product_thumbnail = seller_dao.check_product_thumbnail(product_info, connection)
+                    if check_product_thumbnail:
+                        seller_dao.soft_delete_product_thumbnail(product_info, connection)
+                        seller_dao.create_product_thumbnail_log(product_info, connection)
+                    else:
+                        raise ApiException(400, PRODUCT_THUMBNAIL_DOES_NOT_EXIST)
 
             return True
 

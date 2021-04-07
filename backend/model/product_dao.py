@@ -1,7 +1,5 @@
-from flask  import jsonify
-from responses import *
-
 import pymysql
+
 
 class ProductDao:
 

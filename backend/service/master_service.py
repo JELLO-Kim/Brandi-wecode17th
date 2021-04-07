@@ -1,7 +1,5 @@
 from model.master_dao import MasterDao
-from model.seller_dao import SellerDao
-from flask import jsonify, json
-from responses import *
+
 
 class MasterService:
 

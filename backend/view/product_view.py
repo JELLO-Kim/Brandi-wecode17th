@@ -1,9 +1,9 @@
-from flask          import request, Blueprint, jsonify, g
-from db_connector   import connect_db
-from service        import ProductService 
-from responses      import *
-from utils          import login_decorator, user_decorator
+from flask import request, Blueprint, g
+from db_connector import connect_db
+from service import ProductService
+from responses import *
 from config import AWS_ID, AWS_KEY
+
 
 class ProductView:
     product_app = Blueprint('product_app', __name__, url_prefix='/products')
