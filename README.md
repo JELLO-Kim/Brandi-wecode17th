@@ -27,7 +27,7 @@
 
 ## API
 
-<Service>
+**Service**
 - [Service] [post] 회원가입&로그인
 - [Service] [get] Product list + filtering ✅
 - [Service] [get] Product detail + (해당 상품의 Q&A, 판매자의 다른 상품)
@@ -40,15 +40,15 @@
 
 <br>
 
-<Admin>
-  - [Admin] [post] seller 회원가입&로그인
-  - [Admin] [get] [master] seller 계정 목록
-  - [Admin] [get, patch] [seller] 본인 상세 정보 수정 ✅
-  - [Admin] [get, patch] [master] seller 한명의 상세 정보 수정 ✅
-  - [Admin] [patch] [master] seller의 상태 변경
-  - [Admin] [get] [master] 주문 상세 관리
-  - [Admin] [path] [master] 주문 상태 변경
-  - [Admin] [get, post] [seller] 상품 등록
+**Admin**
+- [Admin] [post] seller 회원가입&로그인
+- [Admin] [get] [master] seller 계정 목록
+- [Admin] [get, patch] [seller] 본인 상세 정보 수정 ✅
+- [Admin] [get, patch] [master] seller 한명의 상세 정보 수정 ✅
+- [Admin] [patch] [master] seller의 상태 변경
+- [Admin] [get] [master] 주문 상세 관리
+- [Admin] [path] [master] 주문 상태 변경
+- [Admin] [get, post] [seller] 상품 등록
 
 <br>
 
