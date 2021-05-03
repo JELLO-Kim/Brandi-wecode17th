@@ -30,5 +30,5 @@ https://velog.io/@markkimjr/Brandi-Internship
 - 유저 회원가입, 로그인 (서비스 유저랑 셀러) 기능 구현
 - 로그인 데코레이터 구현 기능 구현
 - 카트에 상품 담기 (Cart GET, POST, DELETE)
-- 어드민 웹사이트에 셀러 상품 등록 (GET, POST) 기능 구현
-- 어드민 웹사이트에 셀러 상품 수정 (GET, PATCH) 기능 구현
+- 관리자 웹사이트 셀러 상품 등록 (GET, POST) 기능 구현
+- 관리자 웹사이트 셀러 상품 수정 (GET, PATCH) 기능 구현
