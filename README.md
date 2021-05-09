@@ -14,6 +14,93 @@
 
 <br>
 
+# Project tree
+```bash
+.
+├── README.md
+├── __pycache__
+│   ├── app.cpython-38.pyc
+│   ├── app.cpython-39.pyc
+│   ├── config.cpython-39.pyc
+│   ├── db_connector.cpython-39.pyc
+│   ├── error_message.cpython-39.pyc
+│   ├── errors.cpython-39.pyc
+│   ├── except_message.cpython-39.pyc
+│   ├── responses.cpython-39.pyc
+│   ├── run.cpython-39.pyc
+│   ├── success.cpython-39.pyc
+│   ├── utils.cpython-39.pyc
+│   └── validators.cpython-39.pyc
+├── app.py
+├── config.py
+├── db_connector.py
+├── model
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-39.pyc
+│   │   ├── main_dao.cpython-39.pyc
+│   │   ├── master_dao.cpython-39.pyc
+│   │   ├── mypage_dao.cpython-39.pyc
+│   │   ├── order_dao.cpython-39.pyc
+│   │   ├── product_dao.cpython-39.pyc
+│   │   ├── product_list_dao.cpython-39.pyc
+│   │   ├── seller_account_dao.cpython-39.pyc
+│   │   ├── seller_dao.cpython-39.pyc
+│   │   └── user_dao.cpython-39.pyc
+│   ├── master_dao.py
+│   ├── mypage_dao.py
+│   ├── order_dao.py
+│   ├── product_dao.py
+│   ├── seller_dao.py
+│   └── user_dao.py
+├── requirements.txt
+├── responses.py
+├── run.py
+├── service
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-39.pyc
+│   │   ├── main_service.cpython-39.pyc
+│   │   ├── master_service.cpython-39.pyc
+│   │   ├── mypage_service.cpython-39.pyc
+│   │   ├── order_service.cpython-39.pyc
+│   │   ├── product_list_service.cpython-39.pyc
+│   │   ├── product_service.cpython-39.pyc
+│   │   ├── seller_account_service.cpython-39.pyc
+│   │   ├── seller_service.cpython-39.pyc
+│   │   └── user_service.cpython-39.pyc
+│   ├── ch_test.py
+│   ├── master_service.py
+│   ├── mypage_service.py
+│   ├── order_service.py
+│   ├── product_service.py
+│   ├── seller_service.py
+│   └── user_service.py
+├── utils.py
+├── validators.py
+└── view
+    ├── __init__.py
+    ├── __pycache__
+    │   ├── __init__.cpython-39.pyc
+    │   ├── main_view.cpython-39.pyc
+    │   ├── master_view.cpython-39.pyc
+    │   ├── mypage_view.cpython-39.pyc
+    │   ├── order_view.cpython-39.pyc
+    │   ├── product_list_view.cpython-39.pyc
+    │   ├── product_view.cpython-39.pyc
+    │   ├── seller_account_view.cpython-39.pyc
+    │   ├── seller_view.cpython-39.pyc
+    │   ├── service_view.cpython-39.pyc
+    │   └── user_view.cpython-39.pyc
+    ├── master_view.py
+    ├── mypage_view.py
+    ├── order_view.py
+    ├── product_view.py
+    ├── seller_view.py
+    ├── service_view.py
+    └── user_view.py
+```
+
 # database modeling
 - by AqueryTool
 
