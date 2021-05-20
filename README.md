@@ -127,8 +127,9 @@ https://documenter.getpostman.com/view/14808954/Tz5wVuBV
 - framework : flask
 - database connetor : pymysql
 - database : MySQL
-- image upload : boto3
-- AWS : RDS, S3
+- DB connector : pymysql
+- image upload : AWS(S3)
+- AWS : RDS, EC2
 - password hashing : bcrypt
 - token : JWT
 
